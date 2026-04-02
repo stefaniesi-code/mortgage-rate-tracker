@@ -17,8 +17,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import resend
 
 # ── Config ────────────────────────────────────────────────────────────────────
-RESEND_API_KEY  = "re_YOUR_API_KEY_HERE"        # https://resend.com/api-keys
-FROM_EMAIL      = "alerts@yourdomain.com"
+RESEND_API_KEY  = "re_MKbLzXHB_7v2Ze19Nd8QJ1mpCJvzsvkgC"        # https://resend.com/api-keys
+FROM_EMAIL      = "onboarding@resend.dev"
 SITE_NAME       = "Mortgage Rate Tracker"
 DB_PATH         = "subscribers.db"
 

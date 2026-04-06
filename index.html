@@ -7,7 +7,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;padding:24px}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;padding:16px}
+    @media(min-width:600px){body{padding:24px}}
 
     .header{text-align:center;margin-bottom:28px}
     .header h1{font-size:38px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
@@ -42,7 +43,8 @@
     .chart-wrap{position:relative;height:260px}
 
     /* ── Compact trigger buttons ── */
-    .tools-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+    .tools-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+    @media(max-width:500px){.tools-row{grid-template-columns:repeat(2,1fr)}}
     .tool-trigger{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s,transform .2s;text-align:left}
     .tool-trigger:hover{border-color:#60a5fa55;transform:translateY(-2px)}
     .tool-trigger-left{display:flex;flex-direction:column;gap:4px}
@@ -171,9 +173,9 @@
 
 <div class="header">
   <h1>🏠 Daily Mortgage Rate Tracker</h1>
-  <p>Daily rates · Mortgage News Daily + Bankrate · Apr 1, 2026</p>
+  <p id="headerSub">Daily rates · Mortgage News Daily + Bankrate</p>
   <div class="status-bar">
-    <div class="pill pill-green"><div class="dot"></div>Updated Apr 4, 2026</div>
+    <div class="pill pill-green"><div class="dot"></div><span id="pill-date">Updated Apr 5, 2026</span></div>
     <div class="pill pill-blue">📅 Daily (weekdays)</div>
     <div class="pill pill-amber">⚡ MND Rate Index</div>
   </div>
@@ -200,7 +202,7 @@
 <div class="forecast-panel" id="forecastPanel"></div>
 
 <!-- Four compact trigger buttons -->
-<div class="tools-row" style="grid-template-columns:repeat(5,1fr)">
+<div class="tools-row">
   <button class="tool-trigger" onclick="openModal('calcModal')">
     <div class="tool-trigger-left">
       <div class="tool-icon">🧮</div>
@@ -790,7 +792,7 @@ function renderHero(){
 
 /* ── Chart — fetches from backend with technical indicators ── */
 let myChart;
-const BACKEND = 'mortgage-rate-tracker-production.up.railway.app';
+const BACKEND = 'http://localhost:8000';
 
 async function loadChartData(days) {
   try {
@@ -842,28 +844,52 @@ function clientRSI(data, p=14) {
   });
 }
 function clientSignal(r30, ma7, ma30, rsi14) {
-  const lm7  = [...ma7].reverse().find(x=>x!==null);
-  const lm30 = [...ma30].reverse().find(x=>x!==null);
-  const lrsi = [...rsi14].reverse().find(x=>x!==null);
-  if(!lm7||!lm30||!lrsi) return {signal:'neutral',reason:'Calculating...',ma7_last:null,ma30_last:null,rsi_last:null};
-  let signal, reason;
-  if(lm7 < lm30 && lrsi < 50){
-    signal='bullish';
-    reason=`7-day MA (${lm7.toFixed(2)}%) is below the 30-day MA (${lm30.toFixed(2)}%), signaling short-term rate decline. RSI at ${lrsi.toFixed(0)} confirms downward momentum without being oversold.`;
-  } else if(lm7 > lm30 && lrsi > 50){
-    signal='bearish';
-    reason=`7-day MA (${lm7.toFixed(2)}%) crossed above 30-day MA (${lm30.toFixed(2)}%), signaling upward rate pressure. RSI at ${lrsi.toFixed(0)} suggests momentum is still building.`;
-  } else if(lrsi < 35){
-    signal='bullish';
-    reason=`RSI at ${lrsi.toFixed(0)} — rates are in oversold territory. A stabilization or mild bounce is likely in the near term.`;
-  } else if(lrsi > 65){
-    signal='bearish';
-    reason=`RSI at ${lrsi.toFixed(0)} — rates are overbought. Upward momentum may slow or reverse soon.`;
-  } else {
-    signal='neutral';
-    reason=`7-day MA (${lm7.toFixed(2)}%) and 30-day MA (${lm30.toFixed(2)}%) are close. RSI at ${lrsi.toFixed(0)}. No clear directional signal — market is consolidating.`;
+  const lm7  = [...ma7].reverse().find(x => x !== null && x !== undefined);
+  const lm30 = [...ma30].reverse().find(x => x !== null && x !== undefined);
+  const lrsi = [...rsi14].reverse().find(x => x !== null && x !== undefined);
+
+  // Fallback: if MA not available, use median of last 7 / last 30 days
+  function median(arr) {
+    const s = [...arr].sort((a,b) => a-b);
+    const m = Math.floor(s.length/2);
+    return s.length % 2 ? s[m] : (s[m-1]+s[m])/2;
   }
-  return {signal, reason, ma7_last:lm7, ma30_last:lm30, rsi_last:lrsi};
+  const eff_ma7  = lm7  ?? median(r30.slice(-7));
+  const eff_ma30 = lm30 ?? median(r30.slice(-30));
+  const rsiVal   = lrsi ?? 50;
+
+  const ma7Label  = lm7  ? `7d MA`  : `7d median`;
+  const ma30Label = lm30 ? `30d MA` : `30d median`;
+
+  let signal, reason;
+
+  if(eff_ma7 < eff_ma30) {
+    signal = 'bullish';
+    reason = `${ma7Label} (${eff_ma7.toFixed(2)}%) is below ${ma30Label} (${eff_ma30.toFixed(2)}%), indicating short-term rates are trending lower. ` +
+      (rsiVal < 50
+        ? `RSI at ${rsiVal.toFixed(0)} confirms downward momentum.`
+        : `RSI at ${rsiVal.toFixed(0)} — watch for potential reversal if it rises above 65.`);
+  } else if(eff_ma7 > eff_ma30) {
+    signal = 'bearish';
+    reason = `${ma7Label} (${eff_ma7.toFixed(2)}%) is above ${ma30Label} (${eff_ma30.toFixed(2)}%), signaling short-term upward rate pressure. ` +
+      (rsiVal > 50
+        ? `RSI at ${rsiVal.toFixed(0)} confirms upward momentum.`
+        : `RSI at ${rsiVal.toFixed(0)} is subdued — the move may be losing steam.`);
+  } else {
+    signal = 'neutral';
+    reason = `${ma7Label} (${eff_ma7.toFixed(2)}%) and ${ma30Label} (${eff_ma30.toFixed(2)}%) are flat. RSI at ${rsiVal.toFixed(0)}. Rates are consolidating with no strong directional signal.`;
+  }
+
+  // RSI extremes override MA signal
+  if(lrsi !== undefined && lrsi < 30) {
+    signal = 'bullish';
+    reason = `RSI at ${lrsi.toFixed(0)} — deeply oversold. Rates have fallen sharply; a near-term stabilization or bounce is likely.`;
+  } else if(lrsi !== undefined && lrsi > 70) {
+    signal = 'bearish';
+    reason = `RSI at ${lrsi.toFixed(0)} — overbought territory. Rates have risen quickly; upward momentum may exhaust soon.`;
+  }
+
+  return {signal, reason, ma7_last: eff_ma7, ma30_last: eff_ma30, rsi_last: lrsi ?? null};
 }
 
 async function renderChart(days) {
@@ -1022,9 +1048,11 @@ function renderForecastFromSignal(signal, r30) {
   const in30 = pred(n+30), in60 = pred(n+60);
   const lo30 = +(in30-std*1.1).toFixed(2), hi30 = +(in30+std*1.1).toFixed(2);
   const lo60 = +(in60-std*1.5).toFixed(2), hi60 = +(in60+std*1.5).toFixed(2);
-  const allTime = Math.min(...r30), allTimeHigh = Math.max(...r30);
-  const barRange = allTimeHigh - allTime || 1;
-  const currentPct = Math.round((r30[r30.length-1] - allTime) / barRange * 100);
+  const allR30    = data.map(d=>d.r30);
+  const allTime   = Math.min(...allR30);
+  const allTimeHigh = Math.max(...allR30);
+  const barRange  = allTimeHigh - allTime || 1;
+  const currentPct = Math.min(99, Math.round((r30[r30.length-1] - allTime) / barRange * 100));
 
   document.getElementById('forecastPanel').innerHTML = `
     <div class="section-hd" style="margin-bottom:12px">
@@ -1060,19 +1088,20 @@ function renderForecastFromSignal(signal, r30) {
         <div class="forecast-bar-current" style="left:calc(${currentPct}% - 1.5px)"></div>
       </div>
       <div style="font-size:11px;color:#475569;margin-top:4px">
-        Current rate is at the <strong style="color:#f1f5f9">${currentPct}th percentile</strong> of its historical range.
-        Signals: MA crossover + RSI(14) + Bollinger Bands(20,2).
+        Current rate is at the <strong style="color:#f1f5f9">${currentPct}th percentile</strong> of its 20-year historical range (${allTime.toFixed(2)}%–${allTimeHigh.toFixed(2)}%).
+        Signals based on MA crossover + RSI(14).
       </div>
     </div>`;
 }
 
 function renderForecast() {
-  // Called on init before chart loads — show placeholder
-  document.getElementById('forecastPanel').innerHTML = `
-    <div class="section-hd" style="margin-bottom:12px">
-      <h2>📊 Rate Forecast &amp; Context</h2>
-    </div>
-    <p style="font-size:12px;color:#475569">Loading indicators...</p>`;
+  // Compute signal immediately from embedded data — no waiting
+  const r30 = data.map(d=>d.r30);
+  const ma7  = clientSMA(r30, 7);
+  const ma30 = clientSMA(r30, 30);
+  const rsi14 = clientRSI(r30);
+  const signal = clientSignal(r30, ma7, ma30, rsi14);
+  renderForecastFromSignal(signal, r30);
 }
 
 /* ── Refi Calculator ── */
@@ -1287,16 +1316,16 @@ function impactReason(title, impact) {
 }
 
 const FALLBACK_NEWS = [
-  {title:'Mortgage rates fall for second straight week amid easing inflation data',source:'Mortgage News Daily',date:'2026-04-01',url:'https://mortgagenewsdaily.com',tag:'mortgage'},
-  {title:'Fed holds rates steady, signals one cut possible in second half of 2026',source:'Federal Reserve',date:'2026-03-31',url:'https://federalreserve.gov',tag:'fed'},
-  {title:'30-year fixed mortgage rate drops to 6.47%, lowest since February',source:'Bankrate',date:'2026-04-01',url:'https://bankrate.com',tag:'mortgage'},
-  {title:'Iran ceasefire talks fuel bond rally, pulling mortgage rates sharply lower',source:'CNBC',date:'2026-03-20',url:'https://cnbc.com',tag:'mortgage'},
-  {title:"Fed's Powell: We need more data before cutting rates further",source:'Reuters',date:'2026-03-28',url:'https://reuters.com',tag:'fed'},
-  {title:'10-year Treasury yield falls to 4.21% as inflation expectations cool',source:'Wall Street Journal',date:'2026-03-31',url:'https://wsj.com',tag:'fed'},
-  {title:'CPI rises 0.4% in March, hotter than expected — inflation still sticky',source:'BLS',date:'2026-03-30',url:'https://bls.gov',tag:'fed'},
-  {title:'Refinance applications rise 12% week-over-week on rate dip',source:'MBA',date:'2026-04-01',url:'https://mba.org',tag:'mortgage'},
-  {title:'Strong jobs report: 250K added in March, unemployment holds at 4.1%',source:'BLS',date:'2026-03-29',url:'https://bls.gov',tag:'fed'},
-  {title:'New home sales beat expectations; builders offer rate buydowns',source:'Census Bureau',date:'2026-03-25',url:'https://census.gov',tag:'mortgage'},
+  {title:'Mortgage rates climb to 6.46%, highest in nearly seven months amid Iran war',source:'FOX News',date:'2026-04-04',url:'https://fox5ny.com',tag:'mortgage'},
+  {title:'Freddie Mac: 30-year fixed rate rises to 6.46% for week ending April 2',source:'Freddie Mac',date:'2026-04-02',url:'https://freddiemac.com',tag:'mortgage'},
+  {title:'Fed holds rates steady — signals only one cut possible in 2026',source:'Federal Reserve',date:'2026-04-03',url:'https://federalreserve.gov',tag:'fed'},
+  {title:'Mortgage refinance demand plunges 17% as rates hit seven-month high',source:'MBA',date:'2026-04-04',url:'https://mba.org',tag:'mortgage'},
+  {title:'Iran war drives oil above $110/barrel, fueling fresh inflation fears',source:'Reuters',date:'2026-04-04',url:'https://reuters.com',tag:'fed'},
+  {title:'10-year Treasury yield rises as markets price in fewer Fed rate cuts',source:'Wall Street Journal',date:'2026-04-03',url:'https://wsj.com',tag:'fed'},
+  {title:'Mortgage application volume down 40% over past month on rate surge',source:'CNBC',date:'2026-04-04',url:'https://cnbc.com',tag:'mortgage'},
+  {title:'Fannie Mae forecasts 30-year rate near 6% by end of 2026',source:'Fannie Mae',date:'2026-04-02',url:'https://fanniemae.com',tag:'fed'},
+  {title:'Homebuilders offering rate buydowns as spring market slows on high rates',source:'HousingWire',date:'2026-04-03',url:'https://housingwire.com',tag:'mortgage'},
+  {title:'Trump gives Iran 48-hour deadline — ceasefire hopes fade, bond yields rise',source:'AP News',date:'2026-04-05',url:'https://apnews.com',tag:'fed'},
 ];
 
 let allNews = [], newsLoaded = false;
@@ -1413,6 +1442,11 @@ function filterNews(filter, btn) {
 renderHero();
 renderForecast();
 renderTable();
+
+// Set header date dynamically
+document.getElementById('headerSub').textContent =
+  `Daily rates · Mortgage News Daily + Bankrate · ${TODAY.date}`;
+
 document.getElementById('cRateNum').value=LIVE30.toFixed(2);
 document.getElementById('cRateSlider').value=LIVE30;
 document.getElementById('calcRateBadge').textContent=
@@ -1423,25 +1457,37 @@ updateThresh();
 document.getElementById('rNewNum').value=LIVE30.toFixed(2);
 document.getElementById('rNewSlider').value=LIVE30;
 refi();
+
+// Render chart first, which will also trigger forecast via renderForecastFromSignal
 renderChart(14);
 
-// Fetch live rate from backend — updates hero cards + calculator if newer
+// Fetch live rate from backend — updates everything if newer
 (async()=>{
   try{
     const res=await fetch(`${BACKEND}/api/rates/today`);
     if(!res.ok) return;
     const rate=await res.json();
-    if(rate.date > TODAY.date){
-      // Inject into data array
-      data.push({date:rate.date,r30:rate.r30,r15:rate.r15,arm:rate.arm||+(rate.r30-.52).toFixed(2),note:'Live · FRED'});
+    // Update header date
+    document.getElementById('headerSub').textContent =
+      `Daily rates · Mortgage News Daily + Bankrate · ${rate.date}`;
+    document.getElementById('pill-date').textContent = `Updated ${rate.date}`;
+    if(rate.date >= TODAY.date){
+      // Always inject/update with backend data
+      const exists = data.find(d=>d.date===rate.date);
+      if(!exists){
+        data.push({date:rate.date,r30:rate.r30,r15:rate.r15,arm:rate.arm||+(rate.r30-.52).toFixed(2),note:'Live · FRED'});
+      } else {
+        exists.r30=rate.r30; exists.r15=rate.r15;
+      }
       LIVE30=rate.r30; LIVE15=rate.r15; TODAY=data[data.length-1];
       renderHero();
       renderChart(currentRange);
       document.getElementById('calcRateBadge').textContent=
         `Live: 30yr ${rate.r30.toFixed(2)}% · 15yr ${rate.r15.toFixed(2)}% · ${rate.date}`;
+      document.getElementById('alertCurrentRate').textContent=rate.r30.toFixed(2)+'%';
       document.getElementById('rNewNum').value=rate.r30.toFixed(2);
       document.getElementById('rNewSlider').value=rate.r30;
-      refi();
+      updateThresh(); refi();
       console.log(`[Live] ${rate.date}: 30yr ${rate.r30}% (source: ${rate.source})`);
     }
   }catch(e){

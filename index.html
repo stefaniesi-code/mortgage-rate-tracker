@@ -23,6 +23,7 @@
 
     /* Hero rate cards — compact */
     .hero{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;max-width:900px;margin-left:auto;margin-right:auto}
+    @media(max-width:600px){.hero{grid-template-columns:1fr}}
     .card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px 20px;transition:border-color .2s}
     .card:hover{border-color:#60a5fa33}
     .card-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
@@ -853,12 +854,12 @@ function renderHero(){
   function statCard(label, rate, wkC, yrC, moAvg, wkAvg52, color, lo52, hi52) {
     return `
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div style="border-left:3px solid ${color};padding-left:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="border-left:3px solid ${color};padding-left:14px;flex-shrink:0">
           <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">${label}</div>
           <div style="font-size:40px;font-weight:700;color:#f1f5f9;line-height:1">${rate}%</div>
         </div>
-        <div style="display:grid;grid-template-columns:auto auto;gap:6px 20px;font-size:12px;text-align:right">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:12px;text-align:right;flex:1;min-width:160px">
           <div>
             <div style="color:#64748b;margin-bottom:2px">1-Wk change</div>
             <div>${chgStr(wkC)}</div>

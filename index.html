@@ -22,9 +22,9 @@
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
     /* Hero rate cards — compact */
-    .hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
-    .card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:12px 14px;transition:transform .2s,border-color .2s}
-    .card:hover{transform:translateY(-2px);border-color:#60a5fa33}
+    .hero{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;max-width:900px;margin-left:auto;margin-right:auto}
+    .card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px 20px;transition:border-color .2s}
+    .card:hover{border-color:#60a5fa33}
     .card-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
     .card-rate{font-size:26px;font-weight:700;color:#f1f5f9;line-height:1}
     .card-rate sup{font-size:13px;color:#94a3b8}
@@ -526,7 +526,7 @@
 <div style="text-align:center;padding:20px 0 8px;font-size:13px;color:#475569;border-top:1px solid #1e293b;margin-top:8px">
   Built by <strong style="color:#f1f5f9">Stefanie Si</strong>
   <span style="color:#334155;margin:0 8px">·</span>
-  <span style="color:#60a5fa">Licensed MLO</span>
+  <span style="color:#60a5fa">NJ Licensed MLO</span>
   <span style="color:#334155;margin:0 6px">|</span>
   <span style="color:#a78bfa">CFA Level III</span>
   <span style="color:#334155;margin:0 6px">|</span>
@@ -797,39 +797,93 @@ document.addEventListener('keydown',e=>{
 
 /* ── Hero ── */
 function renderHero(){
-  const t=data[data.length-1],p=data[data.length-2];
+  const t=data[data.length-1], p=data[data.length-2];
   const wk=data.length>=6?data[data.length-6]:null;
+  const yr=data.length>=52?data[data.length-52]:null;
   const mo=data.length>=22?data[data.length-22]:null;
-  const d30=+(t.r30-p.r30).toFixed(2);
-  const d30wk=wk?+(t.r30-wk.r30).toFixed(2):null;
-  const d30mo=mo?+(t.r30-mo.r30).toFixed(2):null;
-  const arr=v=>v>0?'▲':v<0?'▼':'—';
-  const cls=v=>v>0?'up':v<0?'down':'flat';
-  document.getElementById('heroCards').innerHTML=`
+
+  // 52-week average
+  const last52 = data.slice(-52).map(d=>d.r30);
+  const avg52  = (last52.reduce((a,b)=>a+b,0)/last52.length).toFixed(2);
+  const last52_15 = data.slice(-52).map(d=>d.r15);
+  const avg52_15  = (last52_15.reduce((a,b)=>a+b,0)/last52_15.length).toFixed(2);
+  // Monthly avg (last 4 weeks)
+  const last4  = data.slice(-4).map(d=>d.r30);
+  const avgMo  = (last4.reduce((a,b)=>a+b,0)/last4.length).toFixed(2);
+  const last4_15  = data.slice(-4).map(d=>d.r15);
+  const avgMo_15  = (last4_15.reduce((a,b)=>a+b,0)/last4_15.length).toFixed(2);
+
+  const wkChg  = wk ? +(t.r30-wk.r30).toFixed(2) : null;
+  const yrChg  = yr ? +(t.r30-yr.r30).toFixed(2)  : null;
+  const wkChg15= wk ? +(t.r15-wk.r15).toFixed(2) : null;
+  const yrChg15= yr ? +(t.r15-yr.r15).toFixed(2)  : null;
+
+  function chgStr(v){
+    if(v===null) return '<span style="color:#64748b">—</span>';
+    const sign = v > 0 ? '+' : '';
+    const color = v > 0 ? '#f87171' : '#4ade80';
+    return `<span style="color:${color};font-weight:600">${sign}${v.toFixed(2)}</span>`;
+  }
+
+  // 52-week range
+  const last52data = data.slice(-52);
+  const lo52_30 = Math.min(...last52data.map(d=>d.r30));
+  const hi52_30 = Math.max(...last52data.map(d=>d.r30));
+  const lo52_15 = Math.min(...last52data.map(d=>d.r15));
+  const hi52_15 = Math.max(...last52data.map(d=>d.r15));
+
+  function rangeBar(lo, hi, current, color) {
+    const pct = Math.round((current - lo) / (hi - lo) * 100);
+    return `
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #334155">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:6px">
+          <span>52-Week Range</span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span>${lo.toFixed(2)}%</span>
+            <div style="position:relative;width:80px;height:6px;background:#334155;border-radius:3px">
+              <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${color};border-radius:3px;min-width:4px"></div>
+              <div style="position:absolute;top:-3px;left:calc(${pct}% - 2px);width:4px;height:12px;background:#f1f5f9;border-radius:2px"></div>
+            </div>
+            <span>${hi.toFixed(2)}%</span>
+          </span>
+        </div>
+      </div>`;
+  }
+
+  function statCard(label, rate, wkC, yrC, moAvg, wkAvg52, color, lo52, hi52) {
+    return `
     <div class="card">
-      <div class="card-label">Today · 30yr Fixed</div>
-      <div class="card-rate">${t.r30.toFixed(2)}<sup>%</sup></div>
-      <div class="card-change ${cls(d30)}">${arr(d30)} ${Math.abs(d30).toFixed(2)}% vs yesterday</div>
-      <div class="card-sub">${fmtDate(t.date)}</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Today · 15yr Fixed</div>
-      <div class="card-rate">${t.r15.toFixed(2)}<sup>%</sup></div>
-      <div class="card-change ${cls(+(t.r15-p.r15).toFixed(2))}">${arr(+(t.r15-p.r15).toFixed(2))} ${Math.abs(t.r15-p.r15).toFixed(2)}% vs yesterday</div>
-      <div class="card-sub">Source: MND Index</div>
-    </div>
-    <div class="card">
-      <div class="card-label">5-Day Change</div>
-      <div class="card-rate ${cls(d30wk)}" style="font-size:28px">${d30wk!==null?(d30wk>0?'+':'')+d30wk.toFixed(2):'—'}<sup>%</sup></div>
-      <div class="card-change ${cls(d30wk)}">${arr(d30wk)} vs 5 days ago</div>
-      <div class="card-sub">From: ${wk?wk.r30.toFixed(2)+'%':'—'}</div>
-    </div>
-    <div class="card">
-      <div class="card-label">30-Day Change</div>
-      <div class="card-rate ${cls(d30mo)}" style="font-size:28px">${d30mo!==null?(d30mo>0?'+':'')+d30mo.toFixed(2):'—'}<sup>%</sup></div>
-      <div class="card-change ${cls(d30mo)}">${arr(d30mo)} vs 1 month ago</div>
-      <div class="card-sub">From: ${mo?mo.r30.toFixed(2)+'%':'—'}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="border-left:3px solid ${color};padding-left:14px">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">${label}</div>
+          <div style="font-size:40px;font-weight:700;color:#f1f5f9;line-height:1">${rate}%</div>
+        </div>
+        <div style="display:grid;grid-template-columns:auto auto;gap:6px 20px;font-size:12px;text-align:right">
+          <div>
+            <div style="color:#64748b;margin-bottom:2px">1-Wk change</div>
+            <div>${chgStr(wkC)}</div>
+          </div>
+          <div>
+            <div style="color:#64748b;margin-bottom:2px">1-Yr change</div>
+            <div>${chgStr(yrC)}</div>
+          </div>
+          <div>
+            <div style="color:#64748b;margin-bottom:2px">Monthly avg.</div>
+            <div style="color:#e2e8f0">${moAvg}%</div>
+          </div>
+          <div>
+            <div style="color:#64748b;margin-bottom:2px">52-Wk avg.</div>
+            <div style="color:#e2e8f0">${wkAvg52}%</div>
+          </div>
+        </div>
+      </div>
+      ${rangeBar(lo52, hi52, parseFloat(rate), color)}
     </div>`;
+  }
+
+  document.getElementById('heroCards').innerHTML =
+    statCard('30-Yr Fixed', t.r30.toFixed(2), wkChg, yrChg, avgMo, avg52, '#60a5fa', lo52_30, hi52_30) +
+    statCard('15-Yr Fixed', t.r15.toFixed(2), wkChg15, yrChg15, avgMo_15, avg52_15, '#a78bfa', lo52_15, hi52_15);
 }
 
 /* ── Chart — fetches from backend with technical indicators ── */
@@ -938,9 +992,28 @@ async function renderChart(days) {
   const cd = await loadChartData(days);
   if (!cd.dates || !cd.dates.length) return;
 
-  const labels = cd.dates.map(d => {
+  const totalDays = days === 0
+    ? (new Date(cd.dates[cd.dates.length-1]) - new Date(cd.dates[0])) / 86400000
+    : days;
+
+  // Build evenly-spaced tick positions based on total range
+  const n = cd.dates.length;
+  const tickCount = totalDays > 365 ? 10 : totalDays > 60 ? 7 : 7;
+  const step = Math.max(1, Math.floor(n / tickCount));
+  const tickIndices = new Set();
+  for(let i = 0; i < n; i += step) tickIndices.add(i);
+  tickIndices.add(n-1);
+
+  const labels = cd.dates.map((d, i) => {
+    if (!tickIndices.has(i)) return '';
     const dt = new Date(d+'T00:00:00');
-    return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    if (totalDays > 365) {
+      return dt.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    } else if (totalDays > 60) {
+      return dt.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    } else {
+      return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    }
   });
   const r30   = cd.r30;
   const r15   = cd.r15;
@@ -999,8 +1072,17 @@ async function renderChart(days) {
           borderWidth: 1,
           titleColor: '#94a3b8',
           bodyColor: '#f1f5f9',
-          padding: 10,
+          padding: 8,
+          displayColors: true,
+          boxWidth: 10,
+          boxHeight: 10,
           callbacks: {
+            title: items => {
+              const d = cd.dates[items[0]?.dataIndex];
+              if (!d) return '';
+              const dt = new Date(d+'T00:00:00');
+              return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+            },
             label: c => `  ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2)+'%' : '—'}`,
             afterBody: items => {
               const note = (cd.notes||[])[items[0]?.dataIndex];
@@ -1012,7 +1094,16 @@ async function renderChart(days) {
       scales: {
         x: {
           grid: { color:'#1a2332' },
-          ticks: { color:'#475569', maxTicksLimit:10, font:{size:10} }
+          ticks: {
+            color: '#475569',
+            font: {size:10},
+            maxRotation: 0,
+            autoSkip: false,
+            callback: function(val, idx) {
+              const lbl = this.getLabelForValue(val);
+              return lbl || null;
+            }
+          }
         },
         y: {
           grid: { color:'#1a2332' },
@@ -1563,7 +1654,7 @@ function drawCard() {
   ctx.fillText('Stefanie Si', 60, 393);
   ctx.fillStyle = '#60a5fa';
   ctx.font = '13px -apple-system, sans-serif';
-  ctx.fillText('Licensed MLO', 60, 413);
+  ctx.fillText('NJ Licensed MLO', 60, 413);
   ctx.fillStyle = '#475569';
   ctx.font = '12px -apple-system, sans-serif';
   ctx.fillText('CFA Level III · Data Scientist', 60, 430);

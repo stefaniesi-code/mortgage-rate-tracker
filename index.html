@@ -43,15 +43,14 @@
     .chart-wrap{position:relative;height:260px}
 
     /* ── Compact trigger buttons ── */
-    .tools-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-    @media(max-width:500px){.tools-row{grid-template-columns:repeat(2,1fr)}}
-    .tool-trigger{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s,transform .2s;text-align:left}
+    .tools-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+    .tool-trigger{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s,transform .2s;text-align:left;flex:1;min-width:140px}
     .tool-trigger:hover{border-color:#60a5fa55;transform:translateY(-2px)}
-    .tool-trigger-left{display:flex;flex-direction:column;gap:4px}
-    .tool-icon{font-size:22px;margin-bottom:6px}
-    .tool-title{font-size:14px;font-weight:600;color:#f1f5f9}
-    .tool-sub{font-size:12px;color:#64748b}
-    .tool-arrow{font-size:18px;color:#475569;flex-shrink:0}
+    .tool-trigger-left{display:flex;flex-direction:column;gap:3px}
+    .tool-icon{font-size:18px;margin-bottom:4px}
+    .tool-title{font-size:13px;font-weight:600;color:#f1f5f9}
+    .tool-sub{font-size:11px;color:#64748b}
+    .tool-arrow{font-size:14px;color:#475569;flex-shrink:0;margin-left:8px}
 
     /* ── Modal overlay ── */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px}
@@ -175,7 +174,7 @@
   <h1>🏠 Daily Mortgage Rate Tracker</h1>
   <p id="headerSub">Daily rates · Mortgage News Daily + Bankrate</p>
   <div class="status-bar">
-    <div class="pill pill-green"><div class="dot"></div><span id="pill-date">Updated Apr 5, 2026</span></div>
+    <div class="pill pill-green"><div class="dot"></div><span id="pill-date">Updated Apr 6, 2026</span></div>
     <div class="pill pill-blue">📅 Daily (weekdays)</div>
     <div class="pill pill-amber">⚡ MND Rate Index</div>
   </div>
@@ -243,6 +242,14 @@
     </div>
     <div class="tool-arrow" style="color:#60a5fa">↗</div>
   </button>
+  <button class="tool-trigger" onclick="openShareModal()" style="border-color:#4c1d95">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">📤</div>
+      <div class="tool-title" style="color:#a78bfa">Share Card</div>
+      <div class="tool-sub">Generate rate image</div>
+    </div>
+    <div class="tool-arrow" style="color:#a78bfa">↗</div>
+  </button>
 </div>
 
 <!-- ══ MODAL: Refi Calculator ══ -->
@@ -255,7 +262,15 @@
     <div class="modal-body">
       <div class="calc-rate-badge" style="margin-bottom:16px">
         <div class="dot"></div>
-        <span>New rate auto-filled from today's live data</span>
+        <span>New rate auto-filled from today's live data · Current rate set to last year's high</span>
+      </div>
+
+      <!-- Savings hero — shown prominently at top -->
+      <div id="refiHero" style="background:#0d2818;border:1px solid #166534;border-radius:12px;padding:16px 20px;margin-bottom:18px;text-align:center">
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">If you refinance today</div>
+        <div style="font-size:42px;font-weight:700;color:#4ade80;line-height:1" id="refiHeroAmt">—</div>
+        <div style="font-size:14px;color:#94a3b8;margin-top:4px">saved every month</div>
+        <div style="font-size:12px;color:#475569;margin-top:8px" id="refiHeroSub">From 7.50% → today's rate on your loan</div>
       </div>
 
       <div class="calc-row">
@@ -268,9 +283,9 @@
       <div class="calc-row">
         <span class="calc-lbl">Current rate</span>
         <div class="calc-rate-row">
-          <input type="range" id="rCurSlider" min="3" max="10" step="0.01" value="7.04" oninput="syncRefiRate('cur')">
+          <input type="range" id="rCurSlider" min="3" max="10" step="0.01" value="7.5" oninput="syncRefiRate('cur')">
           <div class="calc-rate-num">
-            <input type="number" id="rCurNum" value="7.04" step="0.01" oninput="syncRefiRate('curN')">
+            <input type="number" id="rCurNum" value="7.5" step="0.01" oninput="syncRefiRate('curN')">
             <span>%</span>
           </div>
         </div>
@@ -509,7 +524,32 @@
 </div>
 
 <div style="text-align:center;padding:20px 0 8px;font-size:13px;color:#475569;border-top:1px solid #1e293b;margin-top:8px">
-  Built by <strong style="color:#94a3b8">Stefanie Si</strong> · Data &amp; Financial Analytics
+  Built by <strong style="color:#f1f5f9">Stefanie Si</strong>
+  <span style="color:#334155;margin:0 8px">·</span>
+  <span style="color:#60a5fa">Licensed MLO</span>
+  <span style="color:#334155;margin:0 6px">|</span>
+  <span style="color:#a78bfa">CFA Level III</span>
+  <span style="color:#334155;margin:0 6px">|</span>
+  <span style="color:#4ade80">Data Scientist</span>
+</div>
+
+<!-- Share card modal -->
+<div class="modal-overlay" id="shareModal" onclick="closeOnBg(event,'shareModal')">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span class="modal-title">📤 Share Today's Rate Card</span>
+      <button class="modal-close" onclick="closeModal('shareModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <canvas id="shareCanvas" style="width:100%;border-radius:12px;display:block"></canvas>
+      <button onclick="downloadCard()" style="width:100%;margin-top:14px;background:#1d4ed8;border:none;border-radius:10px;padding:12px;color:white;font-size:14px;font-weight:600;cursor:pointer">
+        ⬇ Download Card
+      </button>
+      <p style="font-size:11px;color:#475569;margin-top:10px;text-align:center">
+        Save and share on WeChat, 小红书, or send to clients directly
+      </p>
+    </div>
+  </div>
 </div>
 
 
@@ -711,6 +751,8 @@ const DAILY_RECENT=[
   ["2026-04-02",6.46,5.77,6.14,"Freddie Mac PMMS: Iran war pushes rates up"],
   ["2026-04-03",6.45,5.76,6.13,"MND +0.04%"],
   ["2026-04-04",6.50,5.80,6.16,"Bankrate: Iran escalation · rates at 7-month high"],
+  ["2026-04-05",6.47,5.77,6.15,"Weekend · Zillow 6.22% · Bankrate 6.50%"],
+  ["2026-04-06",6.43,5.74,6.12,"MND ▼0.02% · Rates steady to slightly lower"],
 ];
 
 // Build combined dataset: PMMS history as base (weekly), recent daily on top
@@ -902,32 +944,11 @@ async function renderChart(days) {
   });
   const r30   = cd.r30;
   const r15   = cd.r15;
-  const minVal = Math.min(...r30);
-  const minIdx = r30.indexOf(minVal);
-
   const ctx = document.getElementById('myChart').getContext('2d');
   if (myChart) myChart.destroy();
 
   const g30 = ctx.createLinearGradient(0,0,0,260);
   g30.addColorStop(0,'rgba(96,165,250,.25)'); g30.addColorStop(1,'rgba(96,165,250,.01)');
-
-  const lowPlugin = {
-    id: 'lowMarker',
-    afterDatasetsDraw(chart) {
-      const {ctx, scales:{x,y}} = chart;
-      const xPos = x.getPixelForValue(minIdx);
-      const yPos = y.getPixelForValue(minVal);
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(xPos, yPos, 6, 0, Math.PI*2);
-      ctx.fillStyle = '#4ade80';
-      ctx.fill();
-      ctx.strokeStyle = '#0f1117';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-      ctx.restore();
-    }
-  };
 
   const datasets = [
     {
@@ -936,8 +957,7 @@ async function renderChart(days) {
       borderColor: '#60a5fa',
       backgroundColor: g30,
       borderWidth: 2,
-      pointRadius: r30.map((_,i) => i===minIdx ? 6 : 0),
-      pointBackgroundColor: r30.map((_,i) => i===minIdx ? '#4ade80' : '#60a5fa'),
+      pointRadius: 0,
       pointHoverRadius: 5,
       tension: .3,
       fill: true,
@@ -959,7 +979,6 @@ async function renderChart(days) {
   myChart = new Chart(ctx, {
     type: 'line',
     data: { labels, datasets },
-    plugins: [lowPlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -984,11 +1003,8 @@ async function renderChart(days) {
           callbacks: {
             label: c => `  ${c.dataset.label}: ${c.parsed.y !== null ? c.parsed.y.toFixed(2)+'%' : '—'}`,
             afterBody: items => {
-              const notes = [];
               const note = (cd.notes||[])[items[0]?.dataIndex];
-              if (note) notes.push(`  📌 ${note}`);
-              if (items[0]?.dataIndex === minIdx) notes.push(`  ⭐ Historical low in this range`);
-              return notes;
+              return note ? [`  📌 ${note}`] : [];
             }
           }
         }
@@ -1129,6 +1145,20 @@ function refi(){
   const totalSave=moSave*term*12-costs;
   const breakEven=moSave>0?Math.ceil(costs/moSave):null;
   const fmt2=n=>'$'+Math.round(n).toLocaleString('en-US');
+
+  // Update hero
+  const heroAmt = document.getElementById('refiHeroAmt');
+  const heroSub = document.getElementById('refiHeroSub');
+  if(moSave > 0){
+    heroAmt.textContent = '+'+fmt2(moSave)+'/mo';
+    heroAmt.style.color = '#4ade80';
+    heroSub.textContent = `Refinancing from ${curRate.toFixed(2)}% → ${newRate.toFixed(2)}% on a $${Math.round(loan).toLocaleString()} loan`;
+  } else {
+    heroAmt.textContent = fmt2(Math.abs(moSave))+'/mo more';
+    heroAmt.style.color = '#f87171';
+    heroSub.textContent = `New rate is higher than current — refinancing not recommended`;
+  }
+
   document.getElementById('rCurRateDisplay').textContent=curRate.toFixed(2)+'%';
   document.getElementById('rNewRateDisplay').textContent=newRate.toFixed(2)+'%';
   document.getElementById('rCurMo').textContent=fmt2(curMo)+'/mo';
@@ -1438,7 +1468,140 @@ function filterNews(filter, btn) {
   });
 }
 
-/* ── Init ── */
+/* ── Share Card ── */
+function openShareModal() {
+  openModal('shareModal');
+  setTimeout(drawCard, 100);
+}
+
+function drawCard() {
+  const canvas = document.getElementById('shareCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const W = 800, H = 480;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = '100%';
+  canvas.style.height = 'auto';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Background
+  ctx.fillStyle = '#0f1117';
+  ctx.fillRect(0, 0, W, H);
+
+  // Top accent bar
+  const grad = ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'#60a5fa');
+  grad.addColorStop(1,'#a78bfa');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, 5);
+
+  // Date
+  ctx.fillStyle = '#475569';
+  ctx.font = '14px -apple-system, sans-serif';
+  ctx.fillText(TODAY.date, 40, 40);
+
+  // Title
+  ctx.fillStyle = '#f1f5f9';
+  ctx.font = 'bold 22px -apple-system, sans-serif';
+  ctx.fillText('🏠 Today\'s Mortgage Rates', 40, 75);
+
+  // Big rate boxes
+  const boxes = [
+    {label:'30-Year Fixed', rate: LIVE30.toFixed(2)+'%', color:'#60a5fa', x:40},
+    {label:'15-Year Fixed', rate: LIVE15.toFixed(2)+'%', color:'#a78bfa', x:280},
+  ];
+  boxes.forEach(b => {
+    // Box bg
+    ctx.fillStyle = '#1e293b';
+    roundRect(ctx, b.x, 100, 220, 120, 12);
+    ctx.fill();
+    // Label
+    ctx.fillStyle = '#64748b';
+    ctx.font = '13px -apple-system, sans-serif';
+    ctx.fillText(b.label, b.x+16, 130);
+    // Rate
+    ctx.fillStyle = b.color;
+    ctx.font = 'bold 42px -apple-system, sans-serif';
+    ctx.fillText(b.rate, b.x+16, 185);
+  });
+
+  // Change indicator
+  const prev = data[data.length-2];
+  if(prev){
+    const chg = +(LIVE30 - prev.r30).toFixed(2);
+    const chgStr = (chg>0?'▲ +':'▼ ')+Math.abs(chg).toFixed(2)+'% vs yesterday';
+    ctx.fillStyle = chg>0?'#f87171':'#4ade80';
+    ctx.font = '15px -apple-system, sans-serif';
+    ctx.fillText(chgStr, 40, 255);
+  }
+
+  // Divider
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(40, 275); ctx.lineTo(W-40, 275);
+  ctx.stroke();
+
+  // Monthly payment example
+  const loan = 500000 * 0.8;
+  const mo = moPay(LIVE30, loan, 30);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '14px -apple-system, sans-serif';
+  ctx.fillText('$500K home (20% down) · 30yr →', 40, 308);
+  ctx.fillStyle = '#f1f5f9';
+  ctx.font = 'bold 22px -apple-system, sans-serif';
+  ctx.fillText('$'+Math.round(mo).toLocaleString()+'/month', 40, 338);
+
+  // Contact info
+  ctx.fillStyle = '#1e293b';
+  roundRect(ctx, 40, 365, W-80, 80, 10);
+  ctx.fill();
+
+  ctx.fillStyle = '#f1f5f9';
+  ctx.font = 'bold 16px -apple-system, sans-serif';
+  ctx.fillText('Stefanie Si', 60, 393);
+  ctx.fillStyle = '#60a5fa';
+  ctx.font = '13px -apple-system, sans-serif';
+  ctx.fillText('Licensed MLO', 60, 413);
+  ctx.fillStyle = '#475569';
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.fillText('CFA Level III · Data Scientist', 60, 430);
+
+  // URL
+  ctx.fillStyle = '#64748b';
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('stefaniesi-code.github.io/mortgage-rate-tracker', W-60, 420);
+  ctx.textAlign = 'left';
+
+  // Disclaimer
+  ctx.fillStyle = '#334155';
+  ctx.font = '10px -apple-system, sans-serif';
+  ctx.fillText('For informational purposes only. Not a loan commitment. Source: Freddie Mac PMMS / MND.', 40, 465);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function downloadCard() {
+  const canvas = document.getElementById('shareCanvas');
+  const link = document.createElement('a');
+  link.download = `mortgage-rates-${TODAY.date}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
 renderHero();
 renderForecast();
 renderTable();

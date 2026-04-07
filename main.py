@@ -91,8 +91,43 @@ async def fetch_fred_series(series_id: str, limit: int = 260) -> list[dict]:
         ]
         return list(reversed(result))  # ascending
 
+async def fetch_mnd_rate() -> dict | None:
+    """Scrape MND daily rate index — updated ~4PM ET weekdays."""
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            r = await client.get(
+                "https://www.mortgagenewsdaily.com/mortgage-rates",
+                headers={"User-Agent": "Mozilla/5.0 (compatible; MortgageTracker/1.0)"}
+            )
+            text = r.text
+            # MND embeds rate in a JSON-like structure or visible text
+            # Look for pattern like "6.43" near "30 Yr"
+            import re
+            match = re.search(r'30 Yr[^0-9]*(\d+\.\d+)', text)
+            if match:
+                r30 = float(match.group(1))
+                if 3.0 < r30 < 12.0:  # sanity check
+                    today = datetime.today().strftime("%Y-%m-%d")
+                    return {
+                        "date":   today,
+                        "r30":    r30,
+                        "r15":    round(r30 - 0.69, 2),
+                        "arm":    round(r30 - 0.31, 2),
+                        "source": "MND",
+                    }
+    except Exception as e:
+        print(f"[MND scrape error] {e}")
+    return None
+
 async def fetch_current_rate() -> dict:
-    """Latest 30yr + 15yr from FRED. Falls back to DB cache."""
+    """Try MND first (daily), fall back to FRED (weekly), then DB cache."""
+    # 1. Try MND — most current daily rate
+    mnd = await fetch_mnd_rate()
+    if mnd:
+        print(f"[MND] {mnd['date']}: {mnd['r30']}%")
+        return mnd
+
+    # 2. Fall back to FRED weekly
     try:
         r30_data, r15_data = await asyncio_gather(
             fetch_fred_series("MORTGAGE30US", 2),

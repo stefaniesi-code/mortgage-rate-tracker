@@ -837,7 +837,7 @@ const DAILY_RECENT=[
   ["2026-04-05",6.47,5.77,6.15,"Weekend avg"],
   ["2026-04-06",6.43,5.74,6.12,"MND ▼0.02%"],
   ["2026-04-07",6.34,5.71,6.10,"Zillow ▼0.09%"],
-  ["2026-04-08",6.19,5.69,6.01,"NerdWallet/Zillow ▼0.15% · tariff fears ease"],
+  ["2026-04-08",6.44,5.75,6.13,"MND · tariff fears ease"],
 ];
 
 // Build combined dataset: PMMS history as base (weekly), recent daily on top
@@ -1126,9 +1126,7 @@ async function renderChart(days) {
       borderWidth: 2,
       pointRadius: 0,
       pointHoverRadius: 5,
-      tension: .3,
-      fill: true,
-      order: 3,
+      tension: 0,
     },
     {
       label: '15yr Fixed',
@@ -1137,7 +1135,7 @@ async function renderChart(days) {
       borderWidth: 1.5,
       pointRadius: 0,
       pointHoverRadius: 4,
-      tension: .3,
+      tension: 0,
       fill: false,
       order: 4,
     },
@@ -1543,11 +1541,12 @@ const FALLBACK_NEWS = [
   {title:'Iran ceasefire talks resume — if successful, could push mortgage rates below 6%',source:'AP News',date:'2026-04-08',url:'https://apnews.com',tag:'fed'},
 ];
 
-let allNews = [], newsLoaded = false;
+let allNews = [], newsLoaded = false, newsLoadedDate = '';
 
 async function openNewsModal() {
   openModal('newsModal');
-  if (newsLoaded) return;
+  const today = new Date().toISOString().slice(0,10);
+  if (newsLoaded && newsLoadedDate === today) return;
 
   // Try backend first
   try {
@@ -1558,7 +1557,7 @@ async function openNewsModal() {
         allNews = data.articles;
         renderNews(allNews);
         renderSentimentChart(allNews);
-        newsLoaded = true;
+        newsLoaded = true; newsLoadedDate = new Date().toISOString().slice(0,10);
         return;
       }
     }
@@ -1570,7 +1569,7 @@ async function openNewsModal() {
   allNews = FALLBACK_NEWS.map(a => ({ ...a, impact: scoreImpact(a.title) }));
   renderNews(allNews);
   renderSentimentChart(allNews);
-  newsLoaded = true;
+  newsLoaded = true; newsLoadedDate = new Date().toISOString().slice(0,10);
 }
 
 function renderSentimentChart(items) {

@@ -160,9 +160,10 @@ async def seed_history_if_empty():
     con = get_db()
     count = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
     con.close()
-    if count >= 50:
+    if count >= 100:
+        print(f"[seed] DB has {count} rows, skipping seed")
         return
-    print("[seed] DB empty — fetching 2yr history from FRED...")
+    print(f"[seed] DB has only {count} rows — fetching 2yr history from FRED...")
     try:
         r30_data, r15_data = await asyncio_gather(
             fetch_fred_series("MORTGAGE30US", 104),
@@ -478,8 +479,151 @@ async def subscriber_count():
     con.close()
     return {"active": n}
 
+# ── News ──────────────────────────────────────────────────────────────────────
+NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
+NEWS_CACHE: dict = {}   # {date_str: [articles]}
+
+RATE_UP_KEYWORDS = [
+    "inflation","cpi higher","hot jobs","beats expectations","hawkish",
+    "rate hike","yields rise","oil surge","economy strong","gdp beat",
+    "tariff","war escalat","iran attack","fed holds","no cut","delay cut",
+    "fewer cuts","strong payroll","wage growth",
+]
+RATE_DOWN_KEYWORDS = [
+    "inflation cools","inflation falls","cpi lower","jobless","layoffs",
+    "recession","slowdown","dovish","rate cut","fed cut","yields fall",
+    "ceasefire","peace","de-escalat","weak jobs","below expectations",
+    "gdp miss","unemployment rises","cooling","mortgage rates fall",
+    "rates drop","rates ease","rates decline","treasury lower",
+]
+
+def score_impact(title: str) -> str:
+    t = title.lower()
+    up   = sum(1 for k in RATE_UP_KEYWORDS   if k in t)
+    down = sum(1 for k in RATE_DOWN_KEYWORDS if k in t)
+    if up > down:   return "up"
+    if down > up:   return "down"
+    return "neutral"
+
+def impact_reason(title: str, impact: str) -> str:
+    t = title.lower()
+    if impact == "up":
+        if "inflation" in t or "cpi" in t:
+            return "Higher inflation → Fed stays hawkish → bond yields rise → mortgage rates up."
+        if "job" in t or "employ" in t:
+            return "Strong jobs data → economy resilient → Fed less likely to cut → rates stay elevated."
+        if "fed" in t or "hawkish" in t:
+            return "Fed hawkish stance → market prices in fewer cuts → long-term rates rise."
+        if "tariff" in t or "war" in t or "iran" in t:
+            return "Geopolitical risk / tariffs → inflation fear → bond sell-off → rates up."
+        return "Bullish economic signal → reduces rate cut expectations → mortgage rates trend higher."
+    if impact == "down":
+        if "inflation" in t or "cpi" in t:
+            return "Cooling inflation → Fed can cut sooner → bond rally → mortgage rates fall."
+        if "job" in t or "unemploy" in t:
+            return "Weak jobs → economic slowdown → Fed more likely to cut → rates ease."
+        if "ceasefire" in t or "peace" in t or "de-escalat" in t:
+            return "Geopolitical calm → risk-off unwind → bond prices rise → yields and rates fall."
+        if "cut" in t or "dovish" in t:
+            return "Fed dovish signal → market prices in more cuts → 10yr Treasury yields drop → rates follow."
+        return "Bearish economic signal → increases cut expectations → mortgage rates trend lower."
+    return "Mixed signals — no dominant rate driver identified in this headline."
+
+async def fetch_news() -> list[dict]:
+    """Fetch mortgage/Fed news from NewsAPI, cache by date."""
+    today = datetime.today().strftime("%Y-%m-%d")
+    if NEWS_CACHE.get("date") == today and NEWS_CACHE.get("articles"):
+        return NEWS_CACHE["articles"]
+
+    if not NEWS_API_KEY:
+        return []
+
+    articles = []
+    queries = [
+        ("mortgage rate 2026", "mortgage"),
+        ("Federal Reserve interest rate", "fed"),
+    ]
+    async with httpx.AsyncClient(timeout=10) as client:
+        for q, tag in queries:
+            try:
+                r = await client.get(
+                    "https://newsapi.org/v2/everything",
+                    params={
+                        "q": q, "language": "en",
+                        "sortBy": "publishedAt", "pageSize": 8,
+                        "apiKey": NEWS_API_KEY,
+                    }
+                )
+                for a in r.json().get("articles", []):
+                    title = a.get("title","")
+                    if not title or "[Removed]" in title:
+                        continue
+                    impact = score_impact(title)
+                    articles.append({
+                        "title":  title,
+                        "source": a.get("source",{}).get("name",""),
+                        "url":    a.get("url",""),
+                        "date":   (a.get("publishedAt","") or "")[:10],
+                        "tag":    tag,
+                        "impact": impact,
+                        "reason": impact_reason(title, impact),
+                    })
+            except Exception as e:
+                print(f"[news fetch error] {e}")
+
+    # Deduplicate
+    seen, unique = set(), []
+    for a in articles:
+        if a["title"] not in seen:
+            seen.add(a["title"])
+            unique.append(a)
+
+    NEWS_CACHE["date"]     = today
+    NEWS_CACHE["articles"] = unique
+    return unique
+
+@app.get("/api/news")
+async def get_news():
+    """Return latest mortgage/Fed news with rate impact analysis."""
+    articles = await fetch_news()
+    if not articles:
+        return {"articles": [], "signal": "neutral",
+                "up": 0, "down": 0, "neutral": 0, "total": 0,
+                "error": "No NEWS_API_KEY set or fetch failed"}
+
+    total   = len(articles)
+    up_n    = sum(1 for a in articles if a["impact"] == "up")
+    down_n  = sum(1 for a in articles if a["impact"] == "down")
+    neut_n  = total - up_n - down_n
+    up_pct  = round(up_n   / total * 100)
+    down_pct= round(down_n / total * 100)
+    neut_pct= round(neut_n / total * 100)
+
+    if down_pct > up_pct + 15:   overall = "down"
+    elif up_pct > down_pct + 15: overall = "up"
+    else:                         overall = "neutral"
+
+    return {
+        "articles": articles,
+        "signal":   overall,
+        "up":       up_pct,
+        "down":     down_pct,
+        "neutral":  neut_pct,
+        "total":    total,
+        "date":     datetime.today().strftime("%Y-%m-%d"),
+    }
+
+@app.get("/api/seed")
+async def manual_seed():
+    """Manually trigger history seed — call once to populate DB."""
+    await seed_history_if_empty()
+    con = get_db()
+    count = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
+    con.close()
+    return {"status": "ok", "rows": count}
+
 @app.get("/")
 async def root():
     return {"status": "ok", "message": "Mortgage Rate Tracker API v2",
             "endpoints": ["/api/rates/today", "/api/rates/chart", "/api/rates/history",
-                          "/api/subscribe", "/api/unsubscribe"]}
+                          "/api/news", "/api/subscribe", "/api/unsubscribe"]}

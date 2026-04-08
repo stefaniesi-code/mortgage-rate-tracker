@@ -392,7 +392,7 @@
           <span style="font-size:13px;font-weight:700;color:#f1f5f9;min-width:28px;text-align:right" id="sentDownPct">0%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <span style="font-size:12px;color:#94a3b8;width:60px">→ Neutral</span>
+          <span style="font-size:12px;color:#94a3b8;width:60px">Neutral</span>
           <div style="flex:1;height:10px;background:#1a2332;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarNeutral" style="position:absolute;left:0;top:0;height:100%;background:#475569;border-radius:5px;transition:width .6s"></div>
           </div>
@@ -415,7 +415,7 @@
         <button class="news-filter" onclick="filterNews('fed',this)">Fed Policy</button>
         <button class="news-filter" onclick="filterNews('up',this)">▲ Rate Up</button>
         <button class="news-filter" onclick="filterNews('down',this)">▼ Rate Down</button>
-        <button class="news-filter" onclick="filterNews('neutral',this)">→ Neutral</button>
+        <button class="news-filter" onclick="filterNews('neutral',this)">Neutral</button>
       </div>
 
       <div id="newsLoading" style="text-align:center;padding:32px;color:#475569;font-size:13px">
@@ -837,7 +837,7 @@ const DAILY_RECENT=[
   ["2026-04-05",6.47,5.77,6.15,"Weekend avg"],
   ["2026-04-06",6.43,5.74,6.12,"MND ▼0.02%"],
   ["2026-04-07",6.34,5.71,6.10,"Zillow ▼0.09%"],
-  ["2026-04-08",6.44,5.75,6.13,"MND · tariff fears ease"],
+  ["2026-04-08",6.38,5.72,6.10,"MND ▼0.06% · tariff fears ease"],
 ];
 
 // Build combined dataset: PMMS history as base (weekly), recent daily on top
@@ -1498,7 +1498,7 @@ function scoreImpact(title) {
 function impactLabel(impact) {
   if (impact === 'up')      return { text:'▲ Rates Higher', bg:'#2d1010', border:'#7f1d1d', color:'#f87171' };
   if (impact === 'down')    return { text:'▼ Rates Lower',  bg:'#0d2818', border:'#166534', color:'#4ade80' };
-  return                           { text:'→ Neutral',       bg:'#1a1a2e', border:'#334155', color:'#94a3b8' };
+  return                           { text:'Neutral',       bg:'#1a1a2e', border:'#334155', color:'#94a3b8' };
 }
 
 function impactReason(title, impact) {
@@ -1547,6 +1547,11 @@ async function openNewsModal() {
   openModal('newsModal');
   const today = new Date().toISOString().slice(0,10);
   if (newsLoaded && newsLoadedDate === today) return;
+
+  // Reset UI to loading state
+  document.getElementById('newsLoading').style.display = 'block';
+  document.getElementById('newsList').style.display = 'none';
+  document.getElementById('newsSentimentBar').style.display = 'none';
 
   // Try backend first
   try {

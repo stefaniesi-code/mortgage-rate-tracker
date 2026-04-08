@@ -1545,24 +1545,21 @@ let allNews = [], newsLoaded = false, newsLoadedDate = '';
 
 async function openNewsModal() {
   openModal('newsModal');
-  const today = new Date().toISOString().slice(0,10);
-  if (newsLoaded && newsLoadedDate === today) return;
 
-  // Reset UI to loading state
+  // Reset UI
   document.getElementById('newsLoading').style.display = 'block';
   document.getElementById('newsList').style.display = 'none';
   document.getElementById('newsSentimentBar').style.display = 'none';
 
-  // Try backend first
+  // Always fetch fresh from backend
   try {
     const res = await fetch(`${BACKEND}/api/news`);
     if (res.ok) {
-      const data = await res.json();
-      if (data.articles && data.articles.length) {
-        allNews = data.articles;
+      const d = await res.json();
+      if (d.articles && d.articles.length) {
+        allNews = d.articles;
         renderNews(allNews);
         renderSentimentChart(allNews);
-        newsLoaded = true; newsLoadedDate = new Date().toISOString().slice(0,10);
         return;
       }
     }
@@ -1570,11 +1567,10 @@ async function openNewsModal() {
     console.log('[news] backend unavailable, using fallback');
   }
 
-  // Fallback: hardcoded + client-side scoring
+  // Fallback
   allNews = FALLBACK_NEWS.map(a => ({ ...a, impact: scoreImpact(a.title) }));
   renderNews(allNews);
   renderSentimentChart(allNews);
-  newsLoaded = true; newsLoadedDate = new Date().toISOString().slice(0,10);
 }
 
 function renderSentimentChart(items) {

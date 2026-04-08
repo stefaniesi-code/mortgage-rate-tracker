@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <!-- Disable Cloudflare email obfuscation which breaks JS -->
   <meta name="cf-2fa-verify" content="none">
   <title>Daily Mortgage Rate Tracker</title>
@@ -47,12 +47,15 @@
     .chart-wrap{position:relative;height:220px}
     @media(max-width:480px){.chart-wrap{height:180px}}
 
-    .tools-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-    .tool-trigger{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;text-align:left;flex:1;min-width:130px}
+    .tools-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+    .tool-trigger{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;text-align:left;width:100%}
     @media(max-width:600px){
-      .tool-trigger{min-width:calc(50% - 4px);flex:none;width:calc(50% - 4px)}
       .tools-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-      .chart-wrap{height:160px}
+      .tool-trigger{padding:10px 12px}
+      .tool-icon{font-size:15px;margin-bottom:2px}
+      .tool-title{font-size:11px}
+      .tool-sub{font-size:10px}
+      .chart-wrap{height:200px}
     }
     .tool-trigger:hover{border-color:#60a5fa55}
     .tool-trigger-left{display:flex;flex-direction:column;gap:2px}
@@ -61,10 +64,10 @@
     .tool-sub{font-size:10px;color:#64748b}
     .tool-arrow{font-size:13px;color:#475569;flex-shrink:0;margin-left:6px}
 
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:flex-end;justify-content:center;padding:0;overflow-y:auto}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:flex-end;justify-content:center;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
     .modal-overlay.open{display:flex}
     @media(min-width:600px){.modal-overlay{align-items:center;padding:20px}}
-    .modal{background:#1e293b;border:1px solid #334155;border-radius:20px 20px 0 0;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;position:relative;margin-top:auto}
+    .modal{background:#1e293b;border:1px solid #334155;border-radius:20px 20px 0 0;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;position:relative;margin-top:auto;-webkit-overflow-scrolling:touch}
     @media(min-width:600px){.modal{border-radius:20px;max-height:88vh;margin:auto}}
     .modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
     .modal-title{font-size:15px;font-weight:600;color:#f1f5f9}

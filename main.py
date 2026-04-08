@@ -25,7 +25,7 @@ RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 FROM_EMAIL     = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
 SITE_NAME      = "Mortgage Rate Tracker"
 DB_PATH        = "subscribers.db"
-FRED_API_KEY   = "5a5740f7a77aa3024c57da29a49f6960"  # free public demo key
+FRED_API_KEY   = os.getenv("FRED_API_KEY", "5a5740f7a77aa3024c57da29a49f6960")
 
 resend.api_key = RESEND_API_KEY
 

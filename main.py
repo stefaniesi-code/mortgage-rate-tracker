@@ -72,24 +72,38 @@ def save_rate(rate: dict):
 
 # ── FRED API ──────────────────────────────────────────────────────────────────
 async def fetch_fred_series(series_id: str, limit: int = 260) -> list[dict]:
-    """Fetch a FRED series. Returns [{date, value}] sorted ascending."""
-    url = "https://api.stlouisfed.org/fred/series/observations"
-    params = {
-        "series_id":  series_id,
-        "api_key":    FRED_API_KEY,
-        "file_type":  "json",
-        "sort_order": "desc",
-        "limit":      limit,
-    }
-    async with httpx.AsyncClient(timeout=15) as client:
-        r = await client.get(url, params=params)
-        r.raise_for_status()
-        obs = r.json().get("observations", [])
-        result = [
-            {"date": o["date"], "value": round(float(o["value"]), 2)}
-            for o in obs if o["value"] not in (".", None, "")
-        ]
-        return list(reversed(result))  # ascending
+    """Fetch a FRED series using public graph endpoint (no API key needed)."""
+    try:
+        # Try public graph endpoint first (no API key, more permissive)
+        url = f"https://fred.stlouisfed.org/graph/fredgraph.json"
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get(url, params={"id": series_id})
+            r.raise_for_status()
+            rows = r.json()
+            result = [
+                {"date": x["date"], "value": round(float(x["value"]), 2)}
+                for x in rows
+                if x.get("value") not in (".", None, "")
+            ]
+            return result[-limit:]  # return last N, ascending
+    except Exception:
+        # Fallback to API key endpoint
+        url = "https://api.stlouisfed.org/fred/series/observations"
+        params = {
+            "series_id":  series_id,
+            "api_key":    FRED_API_KEY,
+            "file_type":  "json",
+            "sort_order": "asc",
+            "limit":      limit,
+        }
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get(url, params=params)
+            r.raise_for_status()
+            obs = r.json().get("observations", [])
+            return [
+                {"date": o["date"], "value": round(float(o["value"]), 2)}
+                for o in obs if o["value"] not in (".", None, "")
+            ]
 
 async def fetch_mnd_rate() -> dict | None:
     """Scrape MND daily rate index — updated ~4PM ET weekdays."""
@@ -615,7 +629,12 @@ async def get_news():
 
 @app.get("/api/seed")
 async def manual_seed():
-    """Manually trigger history seed — call once to populate DB."""
+    """Manually trigger history seed."""
+    # Force re-seed regardless of current row count
+    con = get_db()
+    con.execute("DELETE FROM rate_log")
+    con.commit()
+    con.close()
     await seed_history_if_empty()
     con = get_db()
     count = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]

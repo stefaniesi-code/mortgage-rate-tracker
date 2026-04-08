@@ -281,6 +281,13 @@ def _monthly(rate: float, loan: float) -> float:
     return loan * r * (1+r)**n / ((1+r)**n - 1) if r > 0 else loan / n
 
 # ── Scheduler Jobs ────────────────────────────────────────────────────────────
+async def job_refresh_news():
+    """Refresh news cache daily at 6AM ET."""
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Refreshing news cache...")
+    NEWS_CACHE.clear()
+    articles = await fetch_news()
+    print(f"  ✅ News refreshed: {len(articles)} articles")
+
 async def job_check_rates():
     """Weekdays 5:05PM ET — fetch latest rate, save, check alerts."""
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Daily rate check...")
@@ -362,8 +369,11 @@ scheduler = AsyncIOScheduler(timezone="America/New_York")
 async def lifespan(app: FastAPI):
     init_db()
     await seed_history_if_empty()
+    NEWS_CACHE.clear()
+    await fetch_news()  # pre-load news on startup
     scheduler.add_job(job_check_rates,    "cron", day_of_week="mon-fri", hour=17, minute=5)
     scheduler.add_job(job_weekly_summary, "cron", day_of_week="mon",     hour=8,  minute=0)
+    scheduler.add_job(job_refresh_news,   "cron", day_of_week="mon-fri", hour=6,  minute=0)
     scheduler.start()
     print("✅ Mortgage Rate API ready — rate check weekdays 5:05PM ET")
     yield
@@ -565,6 +575,7 @@ async def fetch_news() -> list[dict]:
                     params={
                         "q": q, "language": "en",
                         "sortBy": "publishedAt", "pageSize": 8,
+                        "from": (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d"),
                         "apiKey": NEWS_API_KEY,
                     }
                 )
@@ -595,6 +606,13 @@ async def fetch_news() -> list[dict]:
     NEWS_CACHE["date"]     = today
     NEWS_CACHE["articles"] = unique
     return unique
+
+@app.get("/api/news/refresh")
+async def refresh_news():
+    """Force clear news cache and re-fetch."""
+    NEWS_CACHE.clear()
+    articles = await fetch_news()
+    return {"status": "ok", "articles": len(articles), "date": datetime.today().strftime("%Y-%m-%d")}
 
 @app.get("/api/news")
 async def get_news():

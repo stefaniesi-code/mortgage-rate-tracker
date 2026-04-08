@@ -49,7 +49,11 @@
 
     .tools-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
     .tool-trigger{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;text-align:left;flex:1;min-width:130px}
-    @media(max-width:480px){.tool-trigger{min-width:calc(50% - 4px);flex:none}}
+    @media(max-width:600px){
+      .tool-trigger{min-width:calc(50% - 4px);flex:none;width:calc(50% - 4px)}
+      .tools-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .chart-wrap{height:160px}
+    }
     .tool-trigger:hover{border-color:#60a5fa55}
     .tool-trigger-left{display:flex;flex-direction:column;gap:2px}
     .tool-icon{font-size:17px;margin-bottom:3px}
@@ -57,11 +61,11 @@
     .tool-sub{font-size:10px;color:#64748b}
     .tool-arrow{font-size:13px;color:#475569;flex-shrink:0;margin-left:6px}
 
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:flex-end;justify-content:center;padding:0}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:flex-end;justify-content:center;padding:0;overflow-y:auto}
     .modal-overlay.open{display:flex}
     @media(min-width:600px){.modal-overlay{align-items:center;padding:20px}}
-    .modal{background:#1e293b;border:1px solid #334155;border-radius:20px 20px 0 0;width:100%;max-width:700px;max-height:92vh;overflow-y:auto;position:relative}
-    @media(min-width:600px){.modal{border-radius:20px;max-height:88vh}}
+    .modal{background:#1e293b;border:1px solid #334155;border-radius:20px 20px 0 0;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;position:relative;margin-top:auto}
+    @media(min-width:600px){.modal{border-radius:20px;max-height:88vh;margin:auto}}
     .modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
     .modal-title{font-size:15px;font-weight:600;color:#f1f5f9}
     .modal-close{background:none;border:none;color:#64748b;font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:8px}
@@ -1190,7 +1194,8 @@ async function renderChart(days) {
             color: '#475569',
             font: {size:10},
             maxRotation: 0,
-            autoSkip: false,
+            autoSkip: true,
+            maxTicksLimit: window.innerWidth < 600 ? 4 : 10,
             callback: function(val, idx) {
               const lbl = this.getLabelForValue(val);
               return lbl || null;

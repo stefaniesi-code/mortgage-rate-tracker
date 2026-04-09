@@ -8,7 +8,11 @@
   <title>Daily Mortgage Rate Tracker</title>
   <meta name="robots" content="index, follow">
   <!-- Disable Cloudflare email obfuscation -->
-  <script data-cfasync="false" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script data-cfasync="false" src="chart.min.js"></script>
+  <script data-cfasync="false">
+    // Fallback to CDN if local file fails
+    window.Chart || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>');
+  </script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#faf8f5;color:#2d2420;min-height:100vh;padding:16px}
@@ -42,14 +46,14 @@
     .section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
     .section h2{font-size:12px;font-weight:600;color:#8c7b6e;text-transform:uppercase;letter-spacing:.8px}
     .tabs{display:flex;gap:5px}
-    .tab{padding:4px 11px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid #334155;background:transparent;color:#8c7b6e;transition:all .15s}
+    .tab{padding:4px 11px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid #e8e0d5;background:transparent;color:#8c7b6e;transition:all .15s}
     .tab.active{background:#e8732a;border-color:#e8732a;color:white}
     .tab:hover:not(.active){border-color:#e8732a55;color:#8c7b6e}
     .chart-wrap{position:relative;height:220px}
     @media(max-width:480px){.chart-wrap{height:180px}}
 
     .tools-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-    .tool-trigger{background:#ffffff;border:1.5px solid #2d2420;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;text-align:left;width:100%}
+    .tool-trigger{background:#ffffff;border:1.5px solid #e8732a;border-radius:14px;padding:16px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;text-align:left;width:100%;min-height:90px}
     @media(max-width:600px){
       .tools-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
       .tool-trigger{padding:10px 12px}
@@ -59,10 +63,10 @@
       .chart-wrap{height:200px}
     }
     .tool-trigger:hover{border-color:#e8732a55}
-    .tool-trigger-left{display:flex;flex-direction:column;gap:2px}
-    .tool-icon{font-size:17px;margin-bottom:3px}
-    .tool-title{font-size:12px;font-weight:700;color:#000000}
-    .tool-sub{font-size:10px;color:#2d2420}
+    .tool-trigger-left{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+    .tool-icon{font-size:22px;margin-bottom:4px}
+    .tool-title{font-size:14px;font-weight:700;color:#000000}
+    .tool-sub{font-size:11px;color:#8c7b6e}
     .tool-arrow{font-size:13px;color:#000000;flex-shrink:0;margin-left:6px}
 
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(45,36,32,.6);z-index:100;align-items:flex-end;justify-content:center;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -73,7 +77,7 @@
     .modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
     .modal-title{font-size:15px;font-weight:600;color:#2d2420}
     .modal-close{background:none;border:none;color:#8c7b6e;font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:8px}
-    .modal-close:hover{background:#334155;color:#2d2420}
+    .modal-close:hover{background:#f0ebe4;color:#2d2420}
     .modal-body{padding:16px 20px 24px}
     @media(min-width:600px){.modal-header{padding:20px 24px 0}.modal-body{padding:20px 24px 24px}}
 
@@ -82,8 +86,8 @@
     td{padding:8px;font-size:12px;border-bottom:1px solid #f0ebe4}
     @media(min-width:480px){th{padding:8px 10px}td{padding:10px;font-size:13px}}
     tr:last-child td{border-bottom:none}
-    tr:hover td{background:#0d1117}
-    .chg-up{color:#f87171;font-weight:600}.chg-dn{color:#4ade80;font-weight:600}.chg-fl{color:#8c7b6e}
+    tr:hover td{background:#faf0e6}
+    .chg-up{color:#f87171;font-weight:600}.chg-dn{color:#16a34a;font-weight:600}.chg-fl{color:#8c7b6e}
 
     .calc-divider{border:none;border-top:1px solid #e8e0d5;margin:14px 0}
     .calc-rate-badge{display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;border:1px solid #16a34a;color:#16a34a;font-size:11px;padding:3px 10px;border-radius:20px;margin-bottom:12px}
@@ -102,13 +106,13 @@
     .calc-input{width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:8px 10px 8px 24px;color:#2d2420;font-size:14px;outline:none}
     .calc-input:focus{border-color:#e8732a55}
     .calc-input-bare{width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:8px 10px;color:#2d2420;font-size:14px;outline:none}
-    .calc-pct-wrap{position:relative;width:70px;flex-shrink:0}
-    .calc-pct-wrap input{width:100%;background:#0d1117;border:1px solid #334155;border-radius:8px;padding:8px 20px 8px 8px;color:#2d2420;font-size:14px;outline:none;text-align:right}
+    .calc-pct-wrap{position:relative;width:90px;flex-shrink:0}
+    .calc-pct-wrap input{width:100%;background:#faf0e6;border:1px solid #e8e0d5;border-radius:8px;padding:8px 20px 8px 8px;color:#2d2420;font-size:14px;outline:none;text-align:right}
     .calc-pct-sfx{position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:12px;color:#8c7b6e;pointer-events:none}
     .calc-rate-row{display:flex;align-items:center;gap:8px;flex:1;min-width:160px}
     input[type=range]{flex:1;accent-color:#e8732a}
-    .calc-rate-num{position:relative;width:70px;flex-shrink:0}
-    .calc-rate-num input{width:100%;background:#0d1117;border:1px solid #334155;border-radius:8px;padding:8px 20px 8px 8px;color:#2d2420;font-size:14px;outline:none;text-align:right}
+    .calc-rate-num{position:relative;width:90px;flex-shrink:0}
+    .calc-rate-num input{width:100%;background:#faf0e6;border:1px solid #e8e0d5;border-radius:8px;padding:8px 20px 8px 8px;color:#2d2420;font-size:14px;outline:none;text-align:right}
     .calc-rate-num span{position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:12px;color:#8c7b6e;pointer-events:none}
     select.calc-input-bare option{background:#ffffff}
     .metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
@@ -119,7 +123,7 @@
     .metric-sub{font-size:10px;color:#8c7b6e;margin-top:2px}
     .bar-wrap{margin:10px 0}
     .bar-lbl{font-size:11px;color:#8c7b6e;margin-bottom:5px}
-    .bar-track{height:10px;border-radius:5px;background:#f0ebe4;overflow:hidden;display:flex}
+    .bar-track{height:10px;border-radius:5px;background:#e8e0d5;overflow:hidden;display:flex}
     .bar-p{background:#378ADD;height:100%;transition:width .35s}
     .bar-i{background:#D85A30;height:100%;transition:width .35s}
     .bar-legend{display:flex;gap:16px;margin-top:8px}
@@ -143,13 +147,13 @@
     @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
     .modal-overlay.open .modal{animation:slideUp .2s ease-out}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .news-filter{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid #334155;background:transparent;color:#8c7b6e;transition:all .15s}
+    .news-filter{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid #e8e0d5;background:transparent;color:#8c7b6e;transition:all .15s}
     .news-filter.active{background:#e8732a;border-color:#e8732a;color:white}
     .news-filter:hover:not(.active){border-color:#e8732a55;color:#8c7b6e}
     .news-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f0ebe4;align-items:flex-start}
     .news-item:last-child{border-bottom:none}
     .news-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;flex-shrink:0;margin-top:2px}
-    .tag-mortgage{background:#1e3a5f;color:#e8732a}
+    .tag-mortgage{background:#fff0e6;color:#e8732a}
     .tag-fed{background:#f5f0ff;color:#9333ea}
     .news-title{font-size:13px;color:#2d2420;line-height:1.5;margin-bottom:3px}
     .news-title a{color:#2d2420;text-decoration:none}
@@ -163,11 +167,11 @@
     .refi-side-label{font-size:10px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
     .refi-side-rate{font-size:22px;font-weight:700;margin-bottom:4px}
     .refi-side-mo{font-size:13px;color:#8c7b6e}
-    .refi-savings{background:#f0fdf4;border:1px solid #166534;border-radius:10px;padding:14px 16px;margin:14px 0}
-    .refi-savings-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #d4edda;font-size:13px}
+    .refi-savings{background:#ECFDF5;border:2px solid #10B981;border-radius:10px;padding:14px 16px;margin:14px 0}
+    .refi-savings-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #A7F3D0;font-size:13px}
     .refi-savings-row:last-child{border-bottom:none;padding-top:10px;margin-top:4px}
     .refi-savings-label{color:#8c7b6e}
-    .refi-savings-val{font-weight:600;color:#4ade80}
+    .refi-savings-val{font-weight:700;color:#059669}
 
     /* Forecast panel */
     .forecast-panel{background:#ffffff;border:1px solid #e8e0d5;border-radius:16px;padding:22px;margin-bottom:20px}
@@ -176,13 +180,13 @@
     .forecast-card-label{font-size:11px;color:#8c7b6e;margin-bottom:6px}
     .forecast-range{font-size:17px;font-weight:700;color:#2d2420}
     .forecast-sub{font-size:11px;color:#8c7b6e;margin-top:4px}
-    .forecast-bar{height:6px;border-radius:3px;background:#334155;margin:14px 0;position:relative;overflow:visible}
+    .forecast-bar{height:6px;border-radius:3px;background:#e8e0d5;margin:14px 0;position:relative;overflow:visible}
     .forecast-bar-fill{height:100%;border-radius:3px;background:#378ADD;position:absolute}
-    .forecast-bar-current{position:absolute;top:-4px;width:3px;height:14px;background:#f1f5f9;border-radius:2px}
+    .forecast-bar-current{position:absolute;top:-4px;width:3px;height:14px;background:#e8732a;border-radius:2px}
     .forecast-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
     .badge-bullish{background:#f0fdf4;border:1px solid #16a34a;color:#16a34a}
     .badge-bearish{background:#fef2f2;border:1px solid #7f1d1d;color:#f87171}
-    .badge-neutral{background:#1a1a2e;border:1px solid #334155;color:#8c7b6e}
+    .badge-neutral{background:#f5f5f5;border:1px solid #e8e0d5;color:#8c7b6e}
   </style>
 </head>
 <body>
@@ -223,12 +227,12 @@
   <button class="tool-trigger" onclick="openModal('calcModal')">
     <div class="tool-trigger-left">
       <div class="tool-icon">🧮</div>
-      <div class="tool-title">Payment Calc</div>
+      <div class="tool-title">Payment Calculator</div>
       <div class="tool-sub" id="calcPreview">Loading...</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
-  <button class="tool-trigger" onclick="openModal('refiModal')" style="border-color:#1e3a6e">
+  <button class="tool-trigger" onclick="openModal('refiModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">🔄</div>
       <div class="tool-title">Refi Savings</div>
@@ -244,7 +248,7 @@
     </div>
     <div class="tool-arrow">↗</div>
   </button>
-  <button class="tool-trigger" onclick="openModal('alertModal')" style="border-color:#166534">
+  <button class="tool-trigger" onclick="openModal('alertModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">🔔</div>
       <div class="tool-title">Rate Alert</div>
@@ -252,7 +256,7 @@
     </div>
     <div class="tool-arrow">↗</div>
   </button>
-  <button class="tool-trigger" onclick="openNewsModal()" style="border-color:#1e3a6e">
+  <button class="tool-trigger" onclick="openNewsModal()" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">📰</div>
       <div class="tool-title">Market News</div>
@@ -260,7 +264,7 @@
     </div>
     <div class="tool-arrow">↗</div>
   </button>
-  <button class="tool-trigger" onclick="openShareModal()" style="border-color:#4c1d95">
+  <button class="tool-trigger" onclick="openShareModal()" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">📤</div>
       <div class="tool-title">Share Card</div>
@@ -286,9 +290,9 @@
       </div>
 
       <!-- Savings hero — shown prominently at top -->
-      <div id="refiHero" style="background:#0D1720;border:1px solid #4A7C59;border-radius:12px;padding:16px 20px;margin-bottom:18px;text-align:center">
+      <div id="refiHero" style="background:#fff7f0;border:1px solid #e8e0d5;border-radius:12px;padding:16px 20px;margin-bottom:18px;text-align:center">
         <div style="font-size:12px;color:#8899AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">If you refinance today</div>
-        <div style="font-size:42px;font-weight:700;color:#8899AA;line-height:1" id="refiHeroAmt">—</div>
+        <div style="font-size:42px;font-weight:700;color:#059669;line-height:1" id="refiHeroAmt">—</div>
         <div style="font-size:14px;color:#8899AA;margin-top:4px">saved every month</div>
         <div style="font-size:12px;color:#8899AA;margin-top:8px" id="refiHeroSub">From 7.50% → today's rate on your loan</div>
       </div>
@@ -313,9 +317,9 @@
       <div class="calc-row">
         <span class="calc-lbl">New rate</span>
         <div class="calc-rate-row">
-          <input type="range" id="rNewSlider" min="3" max="10" step="0.01" oninput="syncRefiRate('new')">
+          <input type="range" id="rNewSlider" min="3" max="10" step="0.01" value="6.5" oninput="syncRefiRate('new')">
           <div class="calc-rate-num">
-            <input type="number" id="rNewNum" step="0.01" oninput="syncRefiRate('newN')">
+            <input type="number" id="rNewNum" step="0.01" value="6.50" oninput="syncRefiRate('newN')">
             <span>%</span>
           </div>
         </div>
@@ -349,7 +353,7 @@
         </div>
         <div class="refi-side">
           <div class="refi-side-label">After refinance</div>
-          <div class="refi-side-rate" style="color:#8899AA" id="rNewRateDisplay">—%</div>
+          <div class="refi-side-rate" style="color:#e8732a" id="rNewRateDisplay">—%</div>
           <div class="refi-side-mo" id="rNewMo">—/mo</div>
         </div>
       </div>
@@ -373,7 +377,7 @@
         </div>
       </div>
 
-      <p style="font-size:11px;color:#8899AA;line-height:1.6">
+      <p style="font-size:11px;color:#2d2420;line-height:1.6">
         Break-even = closing costs ÷ monthly savings. Refinancing makes sense if you plan to stay past this point.
         Calculations are estimates based on P&I only.
       </p>
@@ -397,26 +401,26 @@
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <span style="font-size:12px;color:#8899AA;width:60px">▼ Lower</span>
-          <div style="flex:1;height:10px;background:#21262d;border-radius:5px;overflow:hidden;position:relative">
+          <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarDown" style="position:absolute;left:0;top:0;height:100%;background:#4ade80;border-radius:5px;transition:width .6s"></div>
           </div>
           <span style="font-size:13px;font-weight:700;color:#2d2420;min-width:28px;text-align:right" id="sentDownPct">0%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <span style="font-size:12px;color:#8899AA;width:60px">Neutral</span>
-          <div style="flex:1;height:10px;background:#21262d;border-radius:5px;overflow:hidden;position:relative">
-            <div id="sentBarNeutral" style="position:absolute;left:0;top:0;height:100%;background:#475569;border-radius:5px;transition:width .6s"></div>
+          <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
+            <div id="sentBarNeutral" style="position:absolute;left:0;top:0;height:100%;background:#94a3b8;border-radius:5px;transition:width .6s"></div>
           </div>
           <span style="font-size:13px;font-weight:700;color:#2d2420;min-width:28px;text-align:right" id="sentNeutralPct">0%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
           <span style="font-size:12px;color:#f87171;width:60px">▲ Higher</span>
-          <div style="flex:1;height:10px;background:#21262d;border-radius:5px;overflow:hidden;position:relative">
+          <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarUp" style="position:absolute;left:0;top:0;height:100%;background:#f87171;border-radius:5px;transition:width .6s"></div>
           </div>
           <span style="font-size:13px;font-weight:700;color:#2d2420;min-width:28px;text-align:right" id="sentUpPct">0%</span>
         </div>
-        <div id="sentVerdict" style="background:#0F1923;border-radius:10px;padding:10px 14px;font-size:13px;color:#2d2420;line-height:1.6"></div>
+        <div id="sentVerdict" style="background:#FDE8D8;border-radius:10px;padding:10px 14px;font-size:13px;color:#2d2420;line-height:1.6"></div>
       </div>
 
       <!-- Filter tabs -->
@@ -430,12 +434,12 @@
       </div>
 
       <div id="newsLoading" style="text-align:center;padding:32px;color:#8899AA;font-size:13px">
-        <div style="width:20px;height:20px;border:2px solid #334155;border-top-color:#e8732a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
+        <div style="width:20px;height:20px;border:2px solid #e8e0d5;border-top-color:#e8732a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
         Analyzing headlines...
       </div>
       <div id="newsList" style="display:none"></div>
 
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #243447;font-size:11px;color:#8899AA;line-height:1.6">
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #243447;font-size:11px;color:#2d2420;line-height:1.6">
         Impact analysis uses keyword scoring against known rate drivers (Fed, CPI, jobs, bonds, inflation).
         For live news add your free key at <a href="https://newsapi.org/register" target="_blank" style="color:#e8732a">newsapi.org</a>.
       </div>
@@ -461,31 +465,12 @@
       <div style="margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
           <span style="font-size:12px;color:#8899AA">Alert threshold</span>
-          <span style="font-size:28px;font-weight:700;color:#8899AA" id="threshDisplay">6.00%</span>
+          <span style="font-size:28px;font-weight:700;color:#059669" id="threshDisplay">6.00%</span>
         </div>
         <input type="range" id="threshSlider" min="4.0" max="7.5" step="0.05" value="5.0"
-          style="width:100%;accent-color:#8899AA" oninput="updateThresh()">
+          style="width:100%;accent-color:#e8732a" oninput="updateThresh()">
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#8899AA;margin-top:4px">
           <span>4.00%</span><span>7.50%</span>
-        </div>
-      </div>
-
-      <!-- Savings preview -->
-      <div style="background:#0D1720;border:1px solid #4A7C59;border-radius:10px;padding:14px 16px;margin-bottom:20px">
-        <div style="font-size:11px;color:#8899AA;margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px">If rates hit your target on a $600K home</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div>
-            <div style="font-size:11px;color:#8899AA">Current monthly</div>
-            <div style="font-size:18px;font-weight:700;color:#f87171" id="alertCurMo">—</div>
-          </div>
-          <div>
-            <div style="font-size:11px;color:#8899AA">At target rate</div>
-            <div style="font-size:18px;font-weight:700;color:#8899AA" id="alertTgtMo">—</div>
-          </div>
-          <div style="grid-column:span 2;border-top:1px solid #166534;padding-top:10px;margin-top:2px">
-            <div style="font-size:11px;color:#8899AA">Monthly savings</div>
-            <div style="font-size:20px;font-weight:700;color:#8899AA" id="alertSavings">—</div>
-          </div>
         </div>
       </div>
 
@@ -493,8 +478,8 @@
       <div style="margin-bottom:14px">
         <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px">Your email</label>
         <input type="email" id="alertEmail" placeholder="your email address"
-          style="width:100%;background:#0D1720;border:1px solid #243447;border-radius:8px;padding:10px 14px;color:#2d2420;font-size:14px;outline:none"
-          onfocus="this.style.borderColor='#22c55e55'" onblur="this.style.borderColor='#334155'">
+          style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 14px;color:#2d2420;font-size:14px;outline:none"
+          onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'">
       </div>
       <div style="margin-bottom:20px">
         <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px">Also send me</label>
@@ -512,7 +497,7 @@
 
       <!-- Submit -->
       <button id="alertSubmitBtn" onclick="submitAlert()"
-        style="width:100%;background:#166534;border:1px solid #22c55e55;border-radius:10px;padding:12px;color:#8899AA;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s"
+        style="width:100%;background:#e8732a;border:none;border-radius:10px;padding:14px;color:white;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;box-shadow:0 2px 8px rgba(232,115,42,.3)"
         onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#166534'">
         Set Alert — Notify Me Below <span id="alertBtnRate">6.00%</span>
       </button>
@@ -524,7 +509,7 @@
         <div style="font-size:13px;color:#8899AA" id="alertSuccessMsg">We'll email you when the 30yr rate drops below 6.00%</div>
       </div>
 
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #243447;font-size:11px;color:#8899AA;line-height:1.6">
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #243447;font-size:11px;color:#2d2420;line-height:1.6">
         Your email is only used for rate alerts. Unsubscribe anytime via the link in any email.<br>
         Backend: Python + Resend API · Data: Mortgage News Daily
       </div>
@@ -543,7 +528,7 @@
   <strong>⚠️ Disclaimer:</strong> Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&amp;I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional.
 </div>
 
-<div style="text-align:center;padding:20px 0 8px;font-size:13px;color:#8899AA;border-top:1px solid #1e293b;margin-top:8px">
+<div style="text-align:center;padding:20px 0 8px;font-size:13px;color:#8c7b6e;border-top:1px solid #e8e0d5;margin-top:8px">
   Built by <strong style="color:#000000">Stefanie Si</strong>
   <span style="color:#2d2420;margin:0 8px">·</span>
   <span style="color:#000000">Licensed MLO</span>
@@ -561,64 +546,70 @@
 
 <!-- Contact modal -->
 <div class="modal-overlay" id="contactModal" onclick="closeOnBg(event,'contactModal')">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <span class="modal-title">👤 Stefanie Si</span>
-      <button class="modal-close" onclick="closeModal('contactModal')">✕</button>
+  <div class="modal" style="max-width:420px;background:#FFF3E8">
+    <div class="modal-header" style="background:#FFF3E8">
+      <span class="modal-title" style="color:#2d2420">👤 Stefanie Si</span>
+      <button class="modal-close" onclick="closeModal('contactModal')" style="color:#2d2420">✕</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="background:#FFF3E8">
       <!-- Avatar + name -->
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
-        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#A8893C);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:white;flex-shrink:0">S</div>
+        <div style="width:64px;height:64px;border-radius:50%;background:#e8732a;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:white;flex-shrink:0">S</div>
         <div>
-          <div style="font-size:18px;font-weight:700;color:#2d2420">Stefanie Si</div>
-          <div style="font-size:12px;color:#8899AA;margin-top:4px;line-height:1.6">
-            Licensed MLO &nbsp;·&nbsp; CFA &nbsp;·&nbsp; FRM
-          </div>
+          <div style="font-size:20px;font-weight:700;color:#2d2420">Stefanie Si</div>
+          <div style="font-size:12px;color:#8c7b6e;margin-top:3px">Licensed MLO · CFA · FRM</div>
         </div>
       </div>
 
-      <!-- Credentials -->
-      <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
-        <span style="background:#eff6ff;border:1px solid #1e3a6e;color:#e8732a;font-size:11px;padding:4px 10px;border-radius:20px">🏦 Licensed MLO</span>
-        <span style="background:#f5f3ff;border:1px solid #4c1d95;color:#a78bfa;font-size:11px;padding:4px 10px;border-radius:20px">📊 CFA</span>
-        <span style="background:#f0fdf4;border:1px solid #16a34a;color:#8899AA;font-size:11px;padding:4px 10px;border-radius:20px">📈 FRM</span>
+      <!-- Credentials badges -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <span style="background:#e8732a;color:white;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px">🏦 Licensed MLO</span>
+        <span style="background:#e8732a;color:white;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px">📊 CFA</span>
+        <span style="background:#e8732a;color:white;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px">📈 FRM</span>
       </div>
 
       <!-- Bio -->
-      <p style="font-size:13px;color:#8899AA;line-height:1.7;margin-bottom:18px">
+      <p style="font-size:13px;color:#2d2420;line-height:1.7;margin-bottom:18px">
         I combine financial analysis expertise with data science to help clients navigate the mortgage market with confidence. Whether you're buying your first home, refinancing, or investing — I'm here to help.
       </p>
 
       <!-- Contact links -->
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+        <a href="https://www.silinkre.com/" target="_blank"
+          style="display:flex;align-items:center;gap:12px;background:#FDE8D8;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
+          <span style="font-size:18px">🌐</span>
+          <div>
+            <div style="font-weight:600;color:#2d2420">Personal Website</div>
+            <div style="color:#8c7b6e;font-size:12px">silinkre.com</div>
+          </div>
+        </a>
         <a id="contactEmailLink" href="#"
-          style="display:flex;align-items:center;gap:12px;background:#0F1923;border:1px solid #243447;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
+          style="display:flex;align-items:center;gap:12px;background:#FDE8D8;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
           <span style="font-size:18px">📧</span>
           <div>
-            <div style="font-weight:600">Email</div>
-            <div style="color:#8899AA;font-size:12px" id="contactEmail"></div>
+            <div style="font-weight:600;color:#2d2420">Email</div>
+            <div style="color:#8c7b6e;font-size:12px" id="contactEmail"></div>
           </div>
         </a>
         <a href="tel:+12016603602"
-          style="display:flex;align-items:center;gap:12px;background:#0F1923;border:1px solid #243447;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
+          style="display:flex;align-items:center;gap:12px;background:#FDE8D8;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
           <span style="font-size:18px">📱</span>
           <div>
-            <div style="font-weight:600">Cell / WeChat</div>
-            <div style="color:#8899AA;font-size:12px">201-660-3602 · WeChat: stefanie_si</div>
+            <div style="font-weight:600;color:#2d2420">Cell / WeChat</div>
+            <div style="color:#8c7b6e;font-size:12px">201-660-3602 · WeChat: stefanie_si</div>
           </div>
         </a>
         <a href="https://www.xiaohongshu.com/user/profile/stefanie" target="_blank"
-          style="display:flex;align-items:center;gap:12px;background:#0F1923;border:1px solid #243447;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
+          style="display:flex;align-items:center;gap:12px;background:#FDE8D8;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
           <span style="font-size:18px">📕</span>
           <div>
-            <div style="font-weight:600">小红书</div>
-            <div style="color:#8899AA;font-size:12px">斯斯子在美东</div>
+            <div style="font-weight:600;color:#2d2420">小红书</div>
+            <div style="color:#8c7b6e;font-size:12px">斯斯子在美东</div>
           </div>
         </a>
       </div>
 
-      <div style="font-size:11px;color:#8899AA;text-align:center;line-height:1.6">
+      <div style="font-size:11px;color:#8c7b6e;text-align:center;line-height:1.6">
         Licensed Mortgage Loan Originator · NMLS# 2800972<br>
         GMCC · Equal Housing Lender
       </div>
@@ -763,7 +754,7 @@
       <p style="font-size:12px;color:#8899AA;margin-bottom:14px">30-Year Fixed · MND Index · Last 20 trading days</p>
       <table>
         <thead>
-          <tr><th>Date</th><th>30yr</th><th>15yr</th><th>ARM 5/1</th><th>Change</th><th>Note</th></tr>
+          <tr><th style="width:30%">Date</th><th style="width:12%">30yr</th><th style="width:12%">15yr</th><th style="width:12%">ARM 5/1</th><th style="width:16%;text-align:right">Change</th><th style="width:18%">Note</th></tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -936,9 +927,9 @@ function renderHero(){
           <span>52-Week Range</span>
           <span style="display:flex;align-items:center;gap:8px">
             <span>${lo.toFixed(2)}%</span>
-            <div style="position:relative;width:80px;height:6px;background:#334155;border-radius:3px">
+            <div style="position:relative;width:80px;height:6px;background:#e8e0d5;border-radius:3px">
               <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${color};border-radius:3px;min-width:4px"></div>
-              <div style="position:absolute;top:-3px;left:calc(${pct}% - 2px);width:4px;height:12px;background:#f1f5f9;border-radius:2px"></div>
+              <div style="position:absolute;top:-3px;left:calc(${pct}% - 2px);width:4px;height:12px;background:#e8732a;border-radius:2px"></div>
             </div>
             <span>${hi.toFixed(2)}%</span>
           </span>
@@ -1170,8 +1161,8 @@ async function renderChart(days) {
           }
         },
         tooltip: {
-          backgroundColor: '#1e293b',
-          borderColor: '#334155',
+          backgroundColor: '#ffffff',
+          borderColor: '#e8e0d5',
           borderWidth: 1,
           titleColor: '#94a3b8',
           bodyColor: '#f1f5f9',
@@ -1344,9 +1335,13 @@ function refi(){
   // Update hero
   const heroAmt = document.getElementById('refiHeroAmt');
   const heroSub = document.getElementById('refiHeroSub');
-  if(moSave > 0){
+  if(!newRate || newRate <= 0){
+    heroAmt.textContent = '—';
+    heroAmt.style.color = '#8c7b6e';
+    heroSub.textContent = 'Enter your new rate above';
+  } else if(moSave > 0){
     heroAmt.textContent = '+'+fmt2(moSave)+'/mo';
-    heroAmt.style.color = '#4ade80';
+    heroAmt.style.color = '#059669';
     heroSub.textContent = `Refinancing from ${curRate.toFixed(2)}% → ${newRate.toFixed(2)}% on a $${Math.round(loan).toLocaleString()} loan`;
   } else {
     heroAmt.textContent = fmt2(Math.abs(moSave))+'/mo more';
@@ -1359,12 +1354,12 @@ function refi(){
   document.getElementById('rCurMo').textContent=fmt2(curMo)+'/mo';
   document.getElementById('rNewMo').textContent=fmt2(newMo)+'/mo';
   document.getElementById('rMoSave').textContent=(moSave>=0?'+':'')+fmt2(moSave)+'/mo';
-  document.getElementById('rMoSave').style.color=moSave>0?'#4ade80':'#f87171';
+  document.getElementById('rMoSave').style.color=moSave>0?'#059669':'#f87171';
   document.getElementById('rYrSave').textContent=(yrSave>=0?'+':'')+fmt2(yrSave)+'/yr';
-  document.getElementById('rYrSave').style.color=yrSave>0?'#4ade80':'#f87171';
+  document.getElementById('rYrSave').style.color=yrSave>0?'#059669':'#f87171';
   document.getElementById('rBreakEven').textContent=breakEven?breakEven+' months':'N/A';
   document.getElementById('rTotalSave').textContent=(totalSave>=0?'+':'')+fmt2(totalSave);
-  document.getElementById('rTotalSave').style.color=totalSave>0?'#4ade80':'#f87171';
+  document.getElementById('rTotalSave').style.color=totalSave>0?'#059669':'#f87171';
   document.getElementById('refiPreview').textContent=moSave>0?`Save ${fmt2(moSave)}/mo refinancing`:'Enter your current rate';
 }
 
@@ -1426,10 +1421,10 @@ function renderTable(){
   document.getElementById('tbody').innerHTML=recent.map((d,i)=>{
     const prev=data[data.length-1-i-1];
     const chg=prev?+(d.r30-prev.r30).toFixed(2):null;
-    const s=i===0?'background:#0f1f36;font-weight:600':'';
+    const s=i===0?'background:#FDE8D8;font-weight:600':'';
     return`<tr style="${s}">
       <td>${fmtDate(d.date)}${i===0?' <span style="color:#8899AA;font-size:11px">TODAY</span>':''}</td>
-      <td>${d.r30.toFixed(2)}%</td><td>${d.r15.toFixed(2)}%</td><td>${d.arm.toFixed(2)}%</td>
+      <td style="font-size:13px;font-weight:600">${d.r30.toFixed(2)}%</td><td style="font-size:13px">${d.r15.toFixed(2)}%</td><td style="font-size:13px">${d.arm.toFixed(2)}%</td>
       <td>${chg!==null?chgHtml(chg):'<span class="chg-fl">—</span>'}</td>
       <td style="font-size:11px;color:#8899AA">${d.note||''}</td>
     </tr>`;
@@ -1442,17 +1437,25 @@ function moPayment(rate, loan){
   return r>0?loan*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):loan/n;
 }
 function updateThresh(){
-  const t=+document.getElementById('threshSlider').value;
-  document.getElementById('threshDisplay').textContent=t.toFixed(2)+'%';
-  document.getElementById('alertBtnRate').textContent=t.toFixed(2)+'%';
+  const s=document.getElementById('threshSlider');
+  if(!s) return;
+  const pct=((s.value-s.min)/(s.max-s.min)*100).toFixed(1);
+  s.style.background=`linear-gradient(to right,#e8732a ${pct}%,#d1ccc6 ${pct}%)`;
+  const t=+s.value;
+  const disp=document.getElementById('threshDisplay');
+  if(disp) disp.textContent=t.toFixed(2)+'%';
+  const btn=document.getElementById('alertBtnRate');
+  if(btn) btn.textContent=t.toFixed(2)+'%';
   const loan=600000*0.8;
   const curMo=moPayment(LIVE30,loan);
   const tgtMo=moPayment(t,loan);
   const save=curMo-tgtMo;
-  document.getElementById('alertCurMo').textContent=fmt(curMo)+'/mo';
-  document.getElementById('alertTgtMo').textContent=fmt(tgtMo)+'/mo';
-  document.getElementById('alertSavings').textContent=(save>0?'+':'')+fmt(Math.abs(save))+'/mo';
-  document.getElementById('alertSavings').style.color=save>0?'#4ade80':'#f87171';
+  const curEl=document.getElementById('alertCurMo');
+  const tgtEl=document.getElementById('alertTgtMo');
+  const savEl=document.getElementById('alertSavings');
+  if(curEl) curEl.textContent=fmt(curMo)+'/mo';
+  if(tgtEl) tgtEl.textContent=fmt(tgtMo)+'/mo';
+  if(savEl){ savEl.textContent=(save>0?'+':'')+fmt(Math.abs(save))+'/mo'; savEl.style.color=save>0?'#059669':'#f87171'; }
 }
 function submitAlert(){
   const email=document.getElementById('alertEmail').value.trim();
@@ -1508,9 +1511,9 @@ function scoreImpact(title) {
 }
 
 function impactLabel(impact) {
-  if (impact === 'up')      return { text:'▲ Rates Higher', bg:'#2d1010', border:'#7f1d1d', color:'#f87171' };
-  if (impact === 'down')    return { text:'▼ Rates Lower',  bg:'#0d2818', border:'#166534', color:'#4ade80' };
-  return                           { text:'Neutral',       bg:'#1a1a2e', border:'#334155', color:'#94a3b8' };
+  if (impact === 'up')      return { text:'▲ Rates Higher', bg:'#fff0f0', border:'#f87171', color:'#dc2626' };
+  if (impact === 'down')    return { text:'▼ Rates Lower',  bg:'#f0fdf4', border:'#16a34a', color:'#16a34a' };
+  return                           { text:'Neutral',       bg:'#f5f5f5', border:'#e8e0d5', color:'#8c7b6e' };
 }
 
 function impactReason(title, impact) {
@@ -1645,7 +1648,7 @@ function renderNews(items) {
         </div>
         <span style="flex-shrink:0;display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;background:${lbl.bg};border:1px solid ${lbl.border};color:${lbl.color};white-space:nowrap">${lbl.text}</span>
       </div>
-      <div style="margin-left:2px;padding:7px 10px;background:#0D1720;border-radius:8px;border-left:2px solid ${lbl.border};font-size:12px;color:#8899AA;line-height:1.6">
+      <div style="margin-left:2px;padding:7px 10px;background:#faf8f5;border-radius:8px;border-left:2px solid ${lbl.border};font-size:12px;color:#2d2420;line-height:1.6">
         ${reason}
       </div>
     </div>`;
@@ -1683,7 +1686,7 @@ function drawCard() {
   ctx.scale(dpr, dpr);
 
   // Background
-  ctx.fillStyle = '#0F1923';
+  ctx.fillStyle = '#FFF3E8';
   ctx.fillRect(0, 0, W, H);
 
   // Top gradient bar
@@ -1697,27 +1700,27 @@ function drawCard() {
   const LX = 30, RX = 410;
 
   // Date + title
-  ctx.fillStyle = '#475569';
+  ctx.fillStyle = '#f5ede4';
   ctx.font = '12px -apple-system, sans-serif';
   ctx.fillText(TODAY.date + '  ·  Daily Mortgage Rate Tracker', LX, 30);
 
   // 30yr box
   ctx.fillStyle = '#ffffff';
   roundRect(ctx, LX, 44, 160, 90, 8); ctx.fill();
-  ctx.fillStyle = '#64748b';
+  ctx.fillStyle = '#8c7b6e';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText('30-Year Fixed', LX+12, 64);
-  ctx.fillStyle = '#60a5fa';
+  ctx.fillStyle = '#e8732a';
   ctx.font = 'bold 36px -apple-system, sans-serif';
   ctx.fillText(LIVE30.toFixed(2)+'%', LX+12, 114);
 
   // 15yr box
   ctx.fillStyle = '#ffffff';
   roundRect(ctx, LX+172, 44, 160, 90, 8); ctx.fill();
-  ctx.fillStyle = '#64748b';
+  ctx.fillStyle = '#8c7b6e';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText('15-Year Fixed', LX+184, 64);
-  ctx.fillStyle = '#a78bfa';
+  ctx.fillStyle = '#d4622a';
   ctx.font = 'bold 36px -apple-system, sans-serif';
   ctx.fillText(LIVE15.toFixed(2)+'%', LX+184, 114);
 
@@ -1731,10 +1734,10 @@ function drawCard() {
   }
 
   // Monthly payment
-  ctx.fillStyle = '#64748b';
+  ctx.fillStyle = '#8c7b6e';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText('$500K home · 20% down · 30yr', LX, 188);
-  ctx.fillStyle = '#f1f5f9';
+  ctx.fillStyle = '#2d2420';
   ctx.font = 'bold 22px -apple-system, sans-serif';
   ctx.fillText('$'+Math.round(moPay(LIVE30,400000,30)).toLocaleString()+'/mo', LX, 216);
 
@@ -1742,14 +1745,14 @@ function drawCard() {
   const last52 = data.slice(-52).map(d=>d.r30);
   const lo52 = Math.min(...last52), hi52 = Math.max(...last52);
   const pct52 = Math.round((LIVE30-lo52)/(hi52-lo52)*100);
-  ctx.fillStyle = '#64748b';
+  ctx.fillStyle = '#8c7b6e';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText('52-Wk Range', LX, 248);
   ctx.fillStyle = '#334155';
   roundRect(ctx, LX, 256, 330, 8, 4); ctx.fill();
-  ctx.fillStyle = '#60a5fa';
+  ctx.fillStyle = '#e8732a';
   roundRect(ctx, LX, 256, Math.round(330*pct52/100), 8, 4); ctx.fill();
-  ctx.fillStyle = '#475569';
+  ctx.fillStyle = '#f5ede4';
   ctx.font = '10px -apple-system, sans-serif';
   ctx.fillText(lo52.toFixed(2)+'%', LX, 278);
   ctx.textAlign = 'right';
@@ -1759,13 +1762,13 @@ function drawCard() {
   // Contact box
   ctx.fillStyle = '#ffffff';
   roundRect(ctx, LX, 295, 330, 82, 8); ctx.fill();
-  ctx.fillStyle = '#f1f5f9';
+  ctx.fillStyle = '#2d2420';
   ctx.font = 'bold 14px -apple-system, sans-serif';
   ctx.fillText('Stefanie Si', LX+12, 320);
-  ctx.fillStyle = '#60a5fa';
+  ctx.fillStyle = '#e8732a';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText('Licensed MLO  ·  CFA  ·  FRM', LX+12, 338);
-  ctx.fillStyle = '#64748b';
+  ctx.fillStyle = '#8c7b6e';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText('📱 201-660-3602   💬 WeChat: stefanie_si', LX+12, 356);
   ctx.fillText('📕 小红书: 斯斯子在美东   NMLS# 2800972', LX+12, 372);
@@ -1782,7 +1785,7 @@ function drawCard() {
   roundRect(ctx, CX, CY, CW, CH, 8); ctx.fill();
 
   // Chart title
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = '#8c7b6e';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText('30yr Fixed — Last 14 days', CX+14, CY+20);
 
@@ -1790,9 +1793,9 @@ function drawCard() {
   [0,0.25,0.5,0.75,1].forEach(f=>{
     const y = CY+CH-30 - f*(CH-44);
     const v = (rlo+f*rng).toFixed(2);
-    ctx.strokeStyle='#334155'; ctx.lineWidth=0.5;
+    ctx.strokeStyle='#e8e0d5'; ctx.lineWidth=0.5;
     ctx.beginPath(); ctx.moveTo(CX+8,y); ctx.lineTo(CX+CW-8,y); ctx.stroke();
-    ctx.fillStyle='#475569'; ctx.font='9px -apple-system, sans-serif';
+    ctx.fillStyle='#8c7b6e'; ctx.font='9px -apple-system, sans-serif';
     ctx.textAlign='right';
     ctx.fillText(v+'%', CX+CW-10, y-2);
     ctx.textAlign='left';
@@ -1826,7 +1829,7 @@ function drawCard() {
   ctx.fillStyle='#C9A84C'; ctx.fill();
 
   // X-axis date labels (3 evenly spaced)
-  ctx.fillStyle='#475569'; ctx.font='9px -apple-system, sans-serif';
+  ctx.fillStyle='#8c7b6e'; ctx.font='9px -apple-system, sans-serif';
   [0, Math.floor(r30v.length/2), r30v.length-1].forEach(i=>{
     const d=new Date(recent[i].date+'T00:00:00');
     const lbl=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
@@ -1837,7 +1840,7 @@ function drawCard() {
   ctx.textAlign='left';
 
   // ── Bottom disclaimer ──
-  ctx.fillStyle='#334155'; ctx.font='9px -apple-system, sans-serif';
+  ctx.fillStyle='#8c7b6e'; ctx.font='9px -apple-system, sans-serif';
   ctx.fillText('For informational purposes only. Not a loan commitment. Source: Freddie Mac PMMS / MND.  stefaniesi-code.github.io/mortgage-rate-tracker', 30, H-10);
 
   // Bottom gradient bar

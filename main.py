@@ -24,7 +24,10 @@ load_dotenv()
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 FROM_EMAIL     = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
 SITE_NAME      = "Mortgage Rate Tracker"
-DB_PATH        = "subscribers.db"
+DB_PATH        = os.getenv("DB_PATH", "/data/mortgage.db")
+
+# Ensure data directory exists
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 FRED_API_KEY   = os.getenv("FRED_API_KEY", "5a5740f7a77aa3024c57da29a49f6960")
 
 resend.api_key = RESEND_API_KEY
@@ -431,6 +434,7 @@ async def rates_chart(days: int = 90):
     all_dates = [r[0] for r in rows]
     all_r30   = [r[1] for r in rows]
     all_r15   = [r[2] for r in rows]
+    all_arm   = [r[3] for r in rows]
 
     # Compute indicators on full warmup window
     ma7_full      = sma(all_r30, 7)
@@ -445,6 +449,7 @@ async def rates_chart(days: int = 90):
         "dates":    all_dates[trim_start:],
         "r30":      all_r30[trim_start:],
         "r15":      all_r15[trim_start:],
+        "arm":      all_arm[trim_start:],
         "ma7":      ma7_full[trim_start:],
         "ma30":     ma30_full[trim_start:],
         "bb_upper": bb_u_full[trim_start:],

@@ -213,7 +213,7 @@
       <button class="tab active" onclick="setRange(14,this)">2W</button>
       <button class="tab" onclick="setRange(90,this)">3M</button>
       <button class="tab" onclick="setRange(365,this)">1Y</button>
-      <button class="tab" onclick="setRange(0,this)">20Y</button>
+      <button class="tab" onclick="setRange(0,this)">All</button>
     </div>
   </div>
   <div class="chart-wrap"><canvas id="myChart"></canvas></div>
@@ -272,11 +272,105 @@
     </div>
     <div class="tool-arrow">↗</div>
   </button>
+  <button class="tool-trigger" onclick="openModal('armModal')" style="border-color:#e8732a">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">📊</div>
+      <div class="tool-title">ARM vs Fixed</div>
+      <div class="tool-sub">Compare loan types with chart</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
 </div>
 
 </div><!-- end .container -->
 
-<!-- ══ MODAL: Refi Calculator ══ -->
+<!-- ══ MODAL: ARM vs Fixed ══ -->
+<div class="modal-overlay" id="armModal" onclick="closeOnBg(event,'armModal')">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <span class="modal-title">📊 ARM vs Fixed Rate Comparison</span>
+      <button class="modal-close" onclick="closeModal('armModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Inputs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Loan Amount</label>
+          <div style="position:relative"><span class="calc-prefix">$</span>
+            <input class="calc-input" type="text" id="armLoan" value="400,000" oninput="formatInput(this);calcArm()">
+          </div>
+        </div>
+        <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Loan Term</label>
+          <select id="armTerm" class="calc-input-bare" oninput="calcArm()">
+            <option value="30">30 years</option>
+            <option value="20">20 years</option>
+            <option value="15">15 years</option>
+          </select>
+        </div>
+        <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Fixed Rate</label>
+          <div class="calc-rate-row">
+            <input type="range" id="armFixedSlider" min="3" max="10" step="0.05" value="6.5" oninput="syncArmRate('fixed')">
+            <div class="calc-rate-num"><input type="number" id="armFixedNum" value="6.50" step="0.05" oninput="syncArmRate('fixedN')"><span>%</span></div>
+          </div>
+        </div>
+        <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">ARM Initial Rate</label>
+          <div class="calc-rate-row">
+            <input type="range" id="armInitSlider" min="2" max="9" step="0.05" value="5.5" oninput="syncArmRate('init')">
+            <div class="calc-rate-num"><input type="number" id="armInitNum" value="5.50" step="0.05" oninput="syncArmRate('initN')"><span>%</span></div>
+          </div>
+        </div>
+        <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">ARM Type</label>
+          <select id="armType" class="calc-input-bare" oninput="calcArm()">
+            <option value="5">5/1 ARM (fixed 5yr)</option>
+            <option value="7">7/1 ARM (fixed 7yr)</option>
+            <option value="10">10/1 ARM (fixed 10yr)</option>
+            <option value="3">3/1 ARM (fixed 3yr)</option>
+          </select>
+        </div>
+        <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Rate After Adjustment</label>
+          <div class="calc-rate-row">
+            <input type="range" id="armAdjSlider" min="3" max="12" step="0.05" value="7.5" oninput="syncArmRate('adj')">
+            <div class="calc-rate-num"><input type="number" id="armAdjNum" value="7.50" step="0.05" oninput="syncArmRate('adjN')"><span>%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:10px;padding:12px 14px">
+          <div style="font-size:10px;color:#3B82F6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">30yr Fixed</div>
+          <div style="font-size:22px;font-weight:700;color:#1D4ED8" id="armFixedMo">—</div>
+          <div style="font-size:11px;color:#64748b;margin-top:3px">/month</div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px">Total interest: <strong id="armFixedTotalInt">—</strong></div>
+        </div>
+        <div style="background:#FFF7ED;border:1.5px solid #e8732a;border-radius:10px;padding:12px 14px">
+          <div style="font-size:10px;color:#e8732a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px" id="armTypeLabel">5/1 ARM</div>
+          <div style="font-size:22px;font-weight:700;color:#e8732a" id="armArmMo">—</div>
+          <div style="font-size:11px;color:#64748b;margin-top:3px">initial /month</div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px">After adj: <strong id="armArmAdjMo">—</strong>/mo</div>
+        </div>
+      </div>
+
+      <!-- Crossover point -->
+      <div id="armVerdict" style="background:#fff7f0;border:1px solid #e8e0d5;border-radius:10px;padding:10px 14px;font-size:13px;color:#2d2420;margin-bottom:16px;line-height:1.6"></div>
+
+      <!-- Chart -->
+      <div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Monthly Payment Over Time · hover last point for total interest</div>
+      <div style="position:relative;height:220px"><canvas id="armChart"></canvas></div>
+
+      <p style="font-size:11px;color:#8c7b6e;margin-top:12px;line-height:1.6">
+        ⚠️ ARM rates shown are estimates. Actual adjustments depend on the index (SOFR) + margin at time of reset. Consult a licensed mortgage professional for personalized advice.
+      </p>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="refiModal" onclick="closeOnBg(event,'refiModal')">
   <div class="modal" style="max-width:520px">
     <div class="modal-header">
@@ -301,7 +395,7 @@
         <span class="calc-lbl">Loan balance</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
-          <input class="calc-input" type="number" id="rLoan" value="400000" step="5000" oninput="refi()">
+          <input class="calc-input" type="text" id="rLoan" value="400,000" oninput="formatInput(this);refi()">
         </div>
       </div>
       <div class="calc-row">
@@ -663,9 +757,9 @@
           <div class="sc-name">Move-up</div>
           <div class="sc-detail">$800K · 20% · 30yr</div>
         </button>
-        <button class="sc-btn" onclick="loadScenario(1200000,240000,15,'live15',this)">
-          <div class="sc-name">Jumbo 15yr</div>
-          <div class="sc-detail">$1.2M · 20% · 15yr</div>
+        <button class="sc-btn" onclick="loadScenario(1200000,240000,30,'live',this)">
+          <div class="sc-name">Jumbo 30yr</div>
+          <div class="sc-detail">$1.2M · 20% · 30yr</div>
         </button>
       </div>
       <hr class="calc-divider">
@@ -673,7 +767,7 @@
         <span class="calc-lbl">House price</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
-          <input class="calc-input" type="number" id="cPrice" value="500000" min="50000" max="5000000" step="10000" oninput="calc()">
+          <input class="calc-input" type="text" id="cPrice" value="500,000" oninput="formatInput(this);calc()">
         </div>
       </div>
       <div class="calc-row">
@@ -681,7 +775,7 @@
         <div class="calc-field" style="display:flex;gap:8px">
           <div style="position:relative;flex:1">
             <span class="calc-prefix">$</span>
-            <input class="calc-input" type="number" id="cDown" value="100000" step="5000" oninput="syncDown('amt');calc()">
+            <input class="calc-input" type="text" id="cDown" value="100,000" step="5000" oninput="formatInput(this);syncDown('amt');calc()">
           </div>
           <div class="calc-pct-wrap">
             <input type="number" id="cDownPct" value="20" min="0" max="100" step="1" oninput="syncDown('pct');calc()">
@@ -879,6 +973,7 @@ function openModal(id){
   document.getElementById(id).classList.add('open');
   document.body.style.overflow='hidden';
   if(id==='histModal') renderTable();
+  if(id==='armModal') calcArm();
 }
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
@@ -1009,12 +1104,13 @@ async function loadChartData(days) {
     }
     const r30   = slice.map(d => d.r30);
     const r15   = slice.map(d => d.r15);
+    const arm   = slice.map(d => d.arm || +(d.r30 - 0.52).toFixed(2));
     const ma7   = clientSMA(r30, 7);
     const ma30  = clientSMA(r30, 30);
     const [bb_upper, bb_lower] = clientBollinger(r30);
     const rsi14 = clientRSI(r30);
     const signal = clientSignal(r30, ma7, ma30, rsi14);
-    return { dates: slice.map(d=>d.date), r30, r15, ma7, ma30, bb_upper, bb_lower, rsi14, signal, notes: slice.map(d=>d.note) };
+    return { dates: slice.map(d=>d.date), r30, r15, arm, ma7, ma30, bb_upper, bb_lower, rsi14, signal, notes: slice.map(d=>d.note) };
   }
 }
 
@@ -1128,6 +1224,7 @@ async function renderChart(days) {
   const g30 = ctx.createLinearGradient(0,0,0,260);
   g30.addColorStop(0,'rgba(96,165,250,.25)'); g30.addColorStop(1,'rgba(96,165,250,.01)');
 
+  // arm5 removed from main chart
   const datasets = [
     {
       label: '30yr Fixed',
@@ -1150,6 +1247,7 @@ async function renderChart(days) {
       fill: false,
       order: 4,
     },
+
   ];
 
   myChart = new Chart(ctx, {
@@ -1328,7 +1426,7 @@ function syncRefiRate(src){
   refi();
 }
 function refi(){
-  const loan=+document.getElementById('rLoan').value||0;
+  const loan=parseInput('rLoan')||0;
   const curRate=+document.getElementById('rCurNum').value||0;
   const newRate=+document.getElementById('rNewNum').value||0;
   const term=+document.getElementById('rTerm').value;
@@ -1374,9 +1472,15 @@ function refi(){
 
 /* ── Calculator ── */
 function syncDown(src){
-  const price=+document.getElementById('cPrice').value||0;
-  if(src==='amt'){document.getElementById('cDownPct').value=price?Math.round((+document.getElementById('cDown').value||0)/price*100):0;}
-  else{document.getElementById('cDown').value=Math.round(price*(+document.getElementById('cDownPct').value||0)/100);}
+  const price=parseInput('cPrice');
+  if(src==='amt'){
+    const down=parseInput('cDown');
+    document.getElementById('cDownPct').value=price?Math.round(down/price*100):0;
+  } else {
+    const pct=+document.getElementById('cDownPct').value||0;
+    const downAmt = Math.round(price*pct/100);
+    document.getElementById('cDown').value=downAmt.toLocaleString('en-US');
+  }
 }
 function syncRate(src){
   if(src==='slider')document.getElementById('cRateNum').value=parseFloat(document.getElementById('cRateSlider').value).toFixed(2);
@@ -1384,8 +1488,8 @@ function syncRate(src){
   calc();
 }
 function calc(){
-  const price=+document.getElementById('cPrice').value||0;
-  const down=+document.getElementById('cDown').value||0;
+  const price=parseInput('cPrice');
+  const down=parseInput('cDown');
   const term=+document.getElementById('cTerm').value;
   const rate=+document.getElementById('cRateNum').value;
   const loan=Math.max(0,price-down);
@@ -1415,8 +1519,8 @@ function loadScenario(price,down,term,rateKey,el){
   document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   const rate=rateKey==='live'?LIVE30:rateKey==='live15'?LIVE15:rateKey;
-  document.getElementById('cPrice').value=price;
-  document.getElementById('cDown').value=down;
+  document.getElementById('cPrice').value=price.toLocaleString('en-US');
+  document.getElementById('cDown').value=down.toLocaleString('en-US');
   document.getElementById('cDownPct').value=Math.round(down/price*100);
   document.getElementById('cTerm').value=term;
   document.getElementById('cRateNum').value=rate.toFixed(2);
@@ -1677,7 +1781,241 @@ function filterNews(filter, btn) {
   });
 }
 
-/* ── Share Card ── */
+/* ── Number formatting helpers ── */
+function formatInput(el){
+  const raw = el.value.replace(/,/g,'').replace(/[^0-9]/g,'');
+  if(!raw) return;
+  el.value = parseInt(raw).toLocaleString('en-US');
+}
+function parseInput(id){
+  const el = document.getElementById(id);
+  return +(el ? el.value.replace(/,/g,'') : 0);
+}
+
+/* ── ARM vs Fixed Calculator ── */
+let armChartInst = null;
+
+function syncArmRate(src){
+  if(src==='fixed'){document.getElementById('armFixedNum').value=parseFloat(document.getElementById('armFixedSlider').value).toFixed(2);}
+  else if(src==='fixedN'){document.getElementById('armFixedSlider').value=document.getElementById('armFixedNum').value;}
+  else if(src==='init'){document.getElementById('armInitNum').value=parseFloat(document.getElementById('armInitSlider').value).toFixed(2);}
+  else if(src==='initN'){document.getElementById('armInitSlider').value=document.getElementById('armInitNum').value;}
+  else if(src==='adj'){document.getElementById('armAdjNum').value=parseFloat(document.getElementById('armAdjSlider').value).toFixed(2);}
+  else if(src==='adjN'){document.getElementById('armAdjSlider').value=document.getElementById('armAdjNum').value;}
+  calcArm();
+}
+
+function calcArm(){
+  const loan = parseInput('armLoan') || 400000;
+  const term = +document.getElementById('armTerm').value || 30;
+  const fixedRate = +document.getElementById('armFixedNum').value || 6.5;
+  const armInit = +document.getElementById('armInitNum').value || 5.5;
+  const armAdj = +document.getElementById('armAdjNum').value || 7.5;
+  const armFixed = +document.getElementById('armType').value || 5;
+  const totalMonths = term * 12;
+  const armFixedMonths = armFixed * 12;
+
+  // Monthly payment calculator
+  function mo(rate, bal, months){
+    const r = rate/100/12;
+    return r > 0 ? bal * r * Math.pow(1+r, months) / (Math.pow(1+r, months)-1) : bal/months;
+  }
+
+  // Fixed: constant payment
+  const fixedMo = mo(fixedRate, loan, totalMonths);
+  const fixedTotalInt = fixedMo * totalMonths - loan;
+
+  // ARM: initial period then adjusted
+  const armInitMo = mo(armInit, loan, totalMonths);
+  const armAdjMo_val = (() => {
+    // Calculate remaining balance after fixed period
+    let bal = loan;
+    const r = armInit/100/12;
+    for(let i=0; i<armFixedMonths; i++){
+      const interest = bal * r;
+      bal -= (armInitMo - interest);
+    }
+    return mo(armAdj, Math.max(0, bal), totalMonths - armFixedMonths);
+  })();
+
+  // Build month-by-month data
+  const fixedPayments = [], armPayments = [], labels = [];
+  for(let m=1; m<=totalMonths; m++){
+    if(m % 12 === 1 || m === 1) labels.push('Yr '+(Math.ceil(m/12)));
+    else labels.push('');
+    fixedPayments.push(+fixedMo.toFixed(0));
+    armPayments.push(m <= armFixedMonths ? +armInitMo.toFixed(0) : +armAdjMo_val.toFixed(0));
+  }
+
+  // Find crossover month (cumulative cost)
+  let fixedCum = 0, armCum = 0, crossoverMonth = null;
+  for(let m=0; m<totalMonths; m++){
+    fixedCum += fixedPayments[m];
+    armCum += armPayments[m];
+    if(crossoverMonth === null && armCum > fixedCum){
+      crossoverMonth = m + 1;
+      break;
+    }
+  }
+
+  // Update summary
+  const fmt2 = n => '$'+Math.round(n).toLocaleString('en-US');
+  document.getElementById('armFixedMo').textContent = fmt2(fixedMo);
+  document.getElementById('armFixedTotalInt').textContent = fmt2(fixedTotalInt);
+  document.getElementById('armArmMo').textContent = fmt2(armInitMo);
+  document.getElementById('armArmAdjMo').textContent = fmt2(armAdjMo_val);
+  document.getElementById('armTypeLabel').textContent = armFixed+'/1 ARM';
+
+  // Verdict
+  const verdictEl = document.getElementById('armVerdict');
+  const initSave = fixedMo - armInitMo;
+  if(crossoverMonth){
+    const yr = Math.floor(crossoverMonth/12);
+    const mo2 = crossoverMonth % 12;
+    verdictEl.innerHTML = `📌 <strong>ARM saves ${fmt2(initSave)}/mo</strong> for the first ${armFixed} years. After that, ARM costs <strong>${fmt2(armAdjMo_val - fixedMo)}/mo more</strong>.<br>
+    💡 ARM becomes more expensive around <strong>Year ${yr}${mo2>0?' Month '+mo2:''}</strong>. If you plan to sell or refi before then, ARM may save you money.`;
+  } else {
+    verdictEl.innerHTML = `✅ <strong>ARM saves ${fmt2(initSave)}/mo</strong> for the first ${armFixed} years and stays cheaper — because the adjusted rate (${armAdj}%) is still below the fixed rate (${fixedRate}%).`;
+  }
+
+  // Build cumulative interest for annotation
+  let fixedCumInt = 0, armCumInt = 0;
+  const fixedMonthlyInt = [], armMonthlyInt = [];
+  let fBal = loan, aBal = loan;
+  const fR = fixedRate/100/12, aInitR = armInit/100/12, aAdjR = armAdj/100/12;
+  for(let i=0; i<totalMonths; i++){
+    const fi = fBal * fR;
+    fixedCumInt += fi;
+    fBal -= (fixedMo - fi);
+    const rate_i = i < armFixedMonths ? aInitR : aAdjR;
+    const mo_i = i < armFixedMonths ? armInitMo : armAdjMo_val;
+    const ai = aBal * rate_i;
+    armCumInt += ai;
+    aBal -= (mo_i - ai);
+  }
+
+  // Chart - monthly payments with break-even dot
+  const ctx2 = document.getElementById('armChart').getContext('2d');
+  if(armChartInst) armChartInst.destroy();
+
+  const step = 6;
+  const sampledLabels = [], sampledFixed = [], sampledArm = [];
+  let breakEvenIdx = null;
+  let fCumCheck = 0, aCumCheck = 0;
+  for(let i=0; i<totalMonths; i+=step){
+    const idx = sampledLabels.length;
+    sampledLabels.push('Yr '+Math.round((i+1)/12));
+    sampledFixed.push(fixedPayments[i]);
+    sampledArm.push(armPayments[i]);
+    // track cumulative for break-even
+    for(let j=i; j<Math.min(i+step, totalMonths); j++){
+      fCumCheck += fixedPayments[j];
+      aCumCheck += armPayments[j];
+    }
+    if(breakEvenIdx === null && aCumCheck > fCumCheck) breakEvenIdx = idx;
+  }
+
+  // Point radius array - big dot at break-even
+  const armPointRadius = sampledArm.map((_,i) => i === breakEvenIdx ? 7 : 0);
+  const armPointColor = sampledArm.map((_,i) => i === breakEvenIdx ? '#dc2626' : '#e8732a');
+
+  // Build running cumulative interest per sampled point
+  const fixedCumIntArr = [], armCumIntArr = [];
+  let fCumI = 0, aCumI = 0, fBalT = loan, aBalT = loan;
+  const fRt = fixedRate/100/12, aInitRt = armInit/100/12, aAdjRt = armAdj/100/12;
+  for(let i=0; i<totalMonths; i++){
+    const fi = fBalT * fRt;
+    fCumI += fi; fBalT -= (fixedMo - fi);
+    const rateI = i < armFixedMonths ? aInitRt : aAdjRt;
+    const moI = i < armFixedMonths ? armInitMo : armAdjMo_val;
+    const ai = aBalT * rateI;
+    aCumI += ai; aBalT -= (moI - ai);
+    if(i % step === 0 || i === totalMonths-1){
+      fixedCumIntArr.push(+fCumI.toFixed(0));
+      armCumIntArr.push(+aCumI.toFixed(0));
+    }
+  }
+  // trim to sampled length
+  const fixedCI = fixedCumIntArr.slice(0, sampledLabels.length);
+  const armCI   = armCumIntArr.slice(0, sampledLabels.length);
+
+  armChartInst = new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: sampledLabels,
+      datasets: [
+        {
+          label: '30yr Fixed',
+          data: sampledFixed,
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59,130,246,.08)',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          fill: true,
+          tension: 0,
+        },
+        {
+          label: armFixed+'/1 ARM',
+          data: sampledArm,
+          borderColor: '#e8732a',
+          backgroundColor: 'rgba(232,115,42,.06)',
+          borderWidth: 2,
+          pointRadius: armPointRadius,
+          pointBackgroundColor: armPointColor,
+          pointBorderColor: armPointColor,
+          pointHoverRadius: 5,
+          fill: true,
+          tension: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#2d2420', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: {
+          backgroundColor: '#ffffff',
+          borderColor: '#e8e0d5',
+          borderWidth: 1,
+          titleColor: '#2d2420',
+          bodyColor: '#2d2420',
+          callbacks: {
+            label: item => {
+              const isBreak = breakEvenIdx !== null && item.dataIndex === breakEvenIdx && item.datasetIndex === 1;
+              return ` ${item.dataset.label}: $${item.raw.toLocaleString()}/mo${isBreak ? ' ← Break-even' : ''}`;
+            },
+            afterBody: items => {
+              const idx = items[0]?.dataIndex;
+              if(idx === undefined || !fixedCI[idx]) return [];
+              const fi = fixedCI[idx], ai = armCI[idx];
+              const diff = Math.abs(fi - ai);
+              const winner = ai < fi ? '✅ ARM saves' : '⚠️ ARM costs';
+              return [
+                ``,
+                `Cumulative interest paid:`,
+                ` Fixed: $${fi.toLocaleString()}`,
+                ` ARM:   $${ai.toLocaleString()}`,
+                ` ${winner} $${diff.toLocaleString()} so far`,
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: '#f0ebe4' }, ticks: { color: '#8c7b6e', font: { size: 10 } } },
+        y: {
+          grid: { color: '#f0ebe4' },
+          ticks: { color: '#8c7b6e', font: { size: 10 }, callback: v => '$'+v.toLocaleString() },
+        }
+      }
+    }
+  });
+}
+
+
 function openShareModal() {
   openModal('shareModal');
   setTimeout(drawCard, 100);
@@ -1963,6 +2301,8 @@ renderChart(14);
     document.getElementById('alertCurrentRate').textContent=rate.r30.toFixed(2)+'%';
     document.getElementById('rNewNum').value=rate.r30.toFixed(2);
     document.getElementById('rNewSlider').value=rate.r30;
+    document.getElementById('armFixedNum').value=rate.r30.toFixed(2);
+    document.getElementById('armFixedSlider').value=rate.r30;
     updateThresh(); refi();
     console.log(`[Live] ${rate.date}: 30yr ${rate.r30}% (${rate.source})`);
   }catch(e){

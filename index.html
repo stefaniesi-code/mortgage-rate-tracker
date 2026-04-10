@@ -433,7 +433,7 @@
         <span class="calc-lbl">Closing costs</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
-          <input class="calc-input" type="number" id="rCosts" value="4000" step="500" oninput="refi()">
+          <input class="calc-input" type="text" id="rCosts" value="4,000" oninput="formatInput(this);refi()">
         </div>
       </div>
 
@@ -1430,7 +1430,7 @@ function refi(){
   const curRate=+document.getElementById('rCurNum').value||0;
   const newRate=+document.getElementById('rNewNum').value||0;
   const term=+document.getElementById('rTerm').value;
-  const costs=+document.getElementById('rCosts').value||0;
+  const costs=parseInput('rCosts')||0;
   const curMo=moPay(curRate,loan,term);
   const newMo=moPay(newRate,loan,term);
   const moSave=curMo-newMo;

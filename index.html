@@ -400,7 +400,7 @@
           Overall rate impact signal — based on today's headlines
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <span style="font-size:12px;color:#8899AA;width:60px">▼ Lower</span>
+          <span style="font-size:12px;color:#16a34a;width:60px;font-weight:600">▼ Lower</span>
           <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarDown" style="position:absolute;left:0;top:0;height:100%;background:#4ade80;border-radius:5px;transition:width .6s"></div>
           </div>
@@ -595,8 +595,16 @@
           style="display:flex;align-items:center;gap:12px;background:#FDE8D8;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
           <span style="font-size:18px">📱</span>
           <div>
-            <div style="font-weight:600;color:#2d2420">Cell / WeChat</div>
-            <div style="color:#8c7b6e;font-size:12px">201-660-3602 · WeChat: stefanie_si</div>
+            <div style="font-weight:600;color:#2d2420">Cell</div>
+            <div style="color:#8c7b6e;font-size:12px">201-660-3602</div>
+          </div>
+        </a>
+        <a href="weixin://dl/chat?stefanie_si" target="_blank"
+          style="display:flex;align-items:center;gap:12px;background:#FDE8D8;border-radius:10px;padding:12px 16px;color:#2d2420;text-decoration:none;font-size:13px">
+          <span style="font-size:18px">💬</span>
+          <div>
+            <div style="font-weight:600;color:#2d2420">WeChat</div>
+            <div style="color:#8c7b6e;font-size:12px">stefanie_si</div>
           </div>
         </a>
         <a href="https://www.xiaohongshu.com/user/profile/stefanie" target="_blank"
@@ -870,6 +878,7 @@ function chgHtml(v){
 function openModal(id){
   document.getElementById(id).classList.add('open');
   document.body.style.overflow='hidden';
+  if(id==='histModal') renderTable();
 }
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
@@ -1770,7 +1779,7 @@ function drawCard() {
   ctx.fillText('Licensed MLO  ·  CFA  ·  FRM', LX+12, 338);
   ctx.fillStyle = '#8c7b6e';
   ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('📱 201-660-3602   💬 WeChat: stefanie_si', LX+12, 356);
+  ctx.fillText('📱 201-660-3602', LX+12, 356);
   ctx.fillText('📕 小红书: 斯斯子在美东   NMLS# 2800972', LX+12, 372);
 
   // ── RIGHT COLUMN — sparkline (last 14 days) ──

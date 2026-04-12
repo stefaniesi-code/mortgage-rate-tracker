@@ -145,6 +145,10 @@
 
     /* News styles */
     @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @media(max-width:600px){
+      .arm-inputs{grid-template-columns:1fr !important}
+      .arm-inputs .calc-rate-row{flex-wrap:nowrap}
+    }
     .modal-overlay.open .modal{animation:slideUp .2s ease-out}
     @keyframes spin{to{transform:rotate(360deg)}}
     .news-filter{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid #e8e0d5;background:transparent;color:#8c7b6e;transition:all .15s}
@@ -264,19 +268,19 @@
     </div>
     <div class="tool-arrow">↗</div>
   </button>
-  <button class="tool-trigger" onclick="openShareModal()" style="border-color:#e8732a">
-    <div class="tool-trigger-left">
-      <div class="tool-icon">📤</div>
-      <div class="tool-title">Share Card</div>
-      <div class="tool-sub">Generate rate image</div>
-    </div>
-    <div class="tool-arrow">↗</div>
-  </button>
   <button class="tool-trigger" onclick="openModal('armModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">📊</div>
       <div class="tool-title">ARM vs Fixed</div>
       <div class="tool-sub">Compare loan types with chart</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
+  <button class="tool-trigger" onclick="openShareModal()" style="border-color:#e8732a">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">📤</div>
+      <div class="tool-title">Share Card</div>
+      <div class="tool-sub">Generate rate image</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
@@ -293,7 +297,7 @@
     </div>
     <div class="modal-body">
       <!-- Inputs -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px" class="arm-inputs">
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
           <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Loan Amount</label>
           <div style="position:relative"><span class="calc-prefix">$</span>
@@ -552,7 +556,7 @@
 
       <div class="calc-rate-badge" style="margin-bottom:18px">
         <div class="dot"></div>
-        <span>Current 30yr rate: <strong id="alertCurrentRate">—</strong> · notify me when it drops below:</span>
+        <span>Current 30yr rate: <strong id="alertCurrentRate">—</strong> · 15yr: <strong id="alertCurrentRate15">—</strong> · notify me when it drops below:</span>
       </div>
 
       <!-- Threshold slider -->
@@ -758,7 +762,7 @@
           <div class="sc-detail">$800K · 20% · 30yr</div>
         </button>
         <button class="sc-btn" onclick="loadScenario(1200000,240000,30,'live',this)">
-          <div class="sc-name">Jumbo 30yr</div>
+          <div class="sc-name">Jumbo</div>
           <div class="sc-detail">$1.2M · 20% · 30yr</div>
         </button>
       </div>
@@ -2239,6 +2243,7 @@ document.getElementById('calcRateBadge').textContent=
   `Auto-synced: 30yr ${LIVE30.toFixed(2)}% · 15yr ${LIVE15.toFixed(2)}% · ${TODAY.date}`;
 calc();
 document.getElementById('alertCurrentRate').textContent=LIVE30.toFixed(2)+'%';
+  document.getElementById('alertCurrentRate15').textContent=LIVE15.toFixed(2)+'%';
 updateThresh();
 document.getElementById('rNewNum').value=LIVE30.toFixed(2);
 document.getElementById('rNewSlider').value=LIVE30;
@@ -2299,6 +2304,7 @@ renderChart(14);
     document.getElementById('calcRateBadge').textContent=
       `Live: 30yr ${rate.r30.toFixed(2)}% · 15yr ${rate.r15.toFixed(2)}% · ${rate.date}`;
     document.getElementById('alertCurrentRate').textContent=rate.r30.toFixed(2)+'%';
+    document.getElementById('alertCurrentRate15').textContent=rate.r15.toFixed(2)+'%';
     document.getElementById('rNewNum').value=rate.r30.toFixed(2);
     document.getElementById('rNewSlider').value=rate.r30;
     document.getElementById('armFixedNum').value=rate.r30.toFixed(2);

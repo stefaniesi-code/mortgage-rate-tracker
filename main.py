@@ -22,7 +22,7 @@ load_dotenv()
 
 # ── Config ────────────────────────────────────────────────────────────────────
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-FROM_EMAIL     = os.getenv("FROM_EMAIL", "alerts@send.silinkre.com")
+FROM_EMAIL     = os.getenv("FROM_EMAIL", "alerts@silinkre.com")
 SITE_NAME      = "Mortgage Rate Tracker"
 DB_PATH        = os.getenv("DB_PATH", "/data/mortgage.db")
 
@@ -40,12 +40,18 @@ def init_db():
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
             email     TEXT NOT NULL UNIQUE,
             threshold REAL NOT NULL,
+            rate_type TEXT DEFAULT '30yr',
             weekly    INTEGER DEFAULT 1,
             big_move  INTEGER DEFAULT 1,
             active    INTEGER DEFAULT 1,
             created   TEXT DEFAULT (datetime('now'))
         )
     """)
+    # Migration: add rate_type column if missing (existing DBs)
+    try:
+        con.execute("ALTER TABLE subscribers ADD COLUMN rate_type TEXT DEFAULT '30yr'")
+    except Exception:
+        pass  # column already exists
     con.execute("""
         CREATE TABLE IF NOT EXISTS rate_log (
             date    TEXT PRIMARY KEY,
@@ -283,6 +289,10 @@ def _monthly(rate: float, loan: float) -> float:
     r, n = rate / 100 / 12, 360
     return loan * r * (1+r)**n / ((1+r)**n - 1) if r > 0 else loan / n
 
+def _monthly_15(rate: float, loan: float) -> float:
+    r, n = rate / 100 / 12, 180
+    return loan * r * (1+r)**n / ((1+r)**n - 1) if r > 0 else loan / n
+
 # ── Scheduler Jobs ────────────────────────────────────────────────────────────
 async def job_refresh_news():
     """Refresh news cache daily at 6AM ET."""
@@ -297,68 +307,96 @@ async def job_check_rates():
     rate = await fetch_current_rate()
     save_rate(rate)
     r30 = rate["r30"]
+    r15 = rate["r15"]
 
     con = get_db()
     subs = con.execute(
-        "SELECT email, threshold, big_move FROM subscribers WHERE active=1"
+        "SELECT email, threshold, rate_type, big_move FROM subscribers WHERE active=1"
     ).fetchall()
     rows = con.execute(
-        "SELECT r30 FROM rate_log ORDER BY date DESC LIMIT 2"
+        "SELECT r30, r15 FROM rate_log ORDER BY date DESC LIMIT 2"
     ).fetchall()
-    prev = rows[1][0] if len(rows) >= 2 else r30
+    prev_r30 = rows[1][0] if len(rows) >= 2 else r30
+    prev_r15 = rows[1][1] if len(rows) >= 2 else r15
     con.close()
 
-    for email, threshold, big_move in subs:
-        if r30 <= threshold:
+    for email, threshold, rate_type, big_move in subs:
+        # Pick the right rate based on subscriber preference
+        rt = rate_type or "30yr"
+        current = r30 if rt == "30yr" else r15
+        prev = prev_r30 if rt == "30yr" else prev_r15
+        label = "30yr fixed" if rt == "30yr" else "15yr fixed"
+        term_n = 360 if rt == "30yr" else 180
+
+        # Threshold alert
+        if current <= threshold:
             try:
                 resend.Emails.send({
                     "from": FROM_EMAIL, "to": email,
-                    "subject": f"🔔 Rate Alert: 30yr dropped to {r30:.2f}%",
-                    "html": f"<p>30yr rate is now <strong>{r30:.2f}%</strong>, below your alert of {threshold:.2f}%. Est. monthly savings on $500K: ${_monthly(r30,400000)-_monthly(threshold,400000):.0f}.</p><p style='font-size:12px;color:#64748b'>Rates from Freddie Mac PMMS · For informational use only.</p>"
+                    "subject": f"🔔 Rate Alert: {label} dropped to {current:.2f}%",
+                    "html": (
+                        f"<p>The <strong>{label}</strong> rate is now <strong>{current:.2f}%</strong>, "
+                        f"below your alert of {threshold:.2f}%.</p>"
+                        f"<p style='font-size:12px;color:#64748b'>Mortgage Rate Tracker · <a href='https://silinkre.com'>silinkre.com</a></p>"
+                    )
                 })
-                print(f"  ✅ Alert → {email}")
+                print(f"  ✅ Alert → {email} ({label})")
             except Exception as e:
                 print(f"  ❌ {email}: {e}")
 
-        if big_move and abs(r30 - prev) >= 0.15:
+        # Big move alert
+        if big_move and abs(current - prev) >= 0.15:
             try:
-                direction = "dropped" if r30 < prev else "jumped"
+                direction = "dropped" if current < prev else "jumped"
                 resend.Emails.send({
                     "from": FROM_EMAIL, "to": email,
-                    "subject": f"⚡ Rates {direction} {abs(r30-prev):.2f}% today",
-                    "html": f"<p>30yr fixed rate {direction} <strong>{abs(r30-prev):.2f}%</strong> to <strong>{r30:.2f}%</strong> today.</p>"
+                    "subject": f"⚡ {label} {direction} {abs(current-prev):.2f}% today",
+                    "html": (
+                        f"<p>The <strong>{label}</strong> rate {direction} "
+                        f"<strong>{abs(current-prev):.2f}%</strong> to <strong>{current:.2f}%</strong> today.</p>"
+                        f"<p style='font-size:12px;color:#64748b'>Mortgage Rate Tracker · <a href='https://silinkre.com'>silinkre.com</a></p>"
+                    )
                 })
-                print(f"  ⚡ Big move → {email}")
+                print(f"  ⚡ Big move → {email} ({label})")
             except Exception as e:
                 print(f"  ❌ {email}: {e}")
 
-    print(f"  Rate: {r30}% · {len(subs)} subscribers checked")
+    print(f"  Rates: 30yr={r30}% 15yr={r15}% · {len(subs)} subscribers checked")
 
 async def job_weekly_summary():
     """Mondays 8AM ET — weekly digest email."""
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Weekly summaries...")
     rate = await fetch_current_rate()
     con = get_db()
-    rows = con.execute("SELECT r30 FROM rate_log ORDER BY date DESC LIMIT 6").fetchall()
+    rows = con.execute("SELECT r30, r15 FROM rate_log ORDER BY date DESC LIMIT 6").fetchall()
     r30_wk = rows[-1][0] if rows else rate["r30"]
+    r15_wk = rows[-1][1] if rows else rate["r15"]
     subs = con.execute(
         "SELECT email FROM subscribers WHERE active=1 AND weekly=1"
     ).fetchall()
     con.close()
-    change = rate["r30"] - r30_wk
+    change_30 = rate["r30"] - r30_wk
+    change_15 = rate["r15"] - r15_wk
     for (email,) in subs:
         try:
             resend.Emails.send({
                 "from": FROM_EMAIL, "to": email,
-                "subject": f"📊 Weekly Rates: 30yr at {rate['r30']:.2f}%",
+                "subject": f"📊 Weekly Rates: 30yr {rate['r30']:.2f}% · 15yr {rate['r15']:.2f}%",
                 "html": f"""
-                <p>This week's 30yr fixed: <strong>{rate['r30']:.2f}%</strong>
-                ({'▲' if change>0 else '▼'} {abs(change):.2f}% vs last week)</p>
-                <table style='width:100%;font-size:13px;border-collapse:collapse'>
-                  <tr style='background:#f1f5f9'><th style='padding:8px;text-align:left'>Loan</th><th style='padding:8px;text-align:right'>Monthly P&I</th></tr>
-                  {''.join(f"<tr><td style='padding:8px'>${l:,} (20% down)</td><td style='padding:8px;text-align:right'>${_monthly(rate['r30'],l*.8):,.0f}</td></tr>" for l in [400000,600000,800000])}
+                <div style='font-family:-apple-system,sans-serif;max-width:500px;margin:0 auto'>
+                <h2 style='color:#e8732a;margin-bottom:16px'>📊 Weekly Rate Summary</h2>
+                <table style='width:100%;font-size:14px;border-collapse:collapse;margin-bottom:16px'>
+                  <tr style='background:#f8f6f3'><th style='padding:10px;text-align:left'>Rate</th><th style='padding:10px;text-align:right'>Current</th><th style='padding:10px;text-align:right'>vs Last Week</th></tr>
+                  <tr><td style='padding:10px;border-bottom:1px solid #eee'><strong>30yr Fixed</strong></td><td style='padding:10px;text-align:right;border-bottom:1px solid #eee'><strong>{rate['r30']:.2f}%</strong></td><td style='padding:10px;text-align:right;border-bottom:1px solid #eee;color:{"#ef4444" if change_30>0 else "#22c55e"}'>{("▲" if change_30>0 else "▼")} {abs(change_30):.2f}%</td></tr>
+                  <tr><td style='padding:10px;border-bottom:1px solid #eee'><strong>15yr Fixed</strong></td><td style='padding:10px;text-align:right;border-bottom:1px solid #eee'><strong>{rate['r15']:.2f}%</strong></td><td style='padding:10px;text-align:right;border-bottom:1px solid #eee;color:{"#ef4444" if change_15>0 else "#22c55e"}'>{("▲" if change_15>0 else "▼")} {abs(change_15):.2f}%</td></tr>
                 </table>
-                <p style='font-size:11px;color:#64748b;margin-top:12px'>For informational purposes only · <a href='https://silinkre.com.com/unsubscribe?email={email}'>Unsubscribe</a></p>
+                <h3 style='color:#2d2420;font-size:13px;margin-bottom:8px'>Monthly P&I Estimates</h3>
+                <table style='width:100%;font-size:13px;border-collapse:collapse'>
+                  <tr style='background:#f8f6f3'><th style='padding:8px;text-align:left'>Home Price</th><th style='padding:8px;text-align:right'>30yr P&I</th><th style='padding:8px;text-align:right'>15yr P&I</th></tr>
+                  {''.join(f"<tr><td style='padding:8px;border-bottom:1px solid #eee'>${l:,} (20% down)</td><td style='padding:8px;text-align:right;border-bottom:1px solid #eee'>${_monthly(rate['r30'],l*.8):,.0f}</td><td style='padding:8px;text-align:right;border-bottom:1px solid #eee'>${_monthly_15(rate['r15'],l*.8):,.0f}</td></tr>" for l in [400000,600000,800000])}
+                </table>
+                <p style='font-size:11px;color:#64748b;margin-top:16px'>For informational purposes only · <a href='https://silinkre.com'>silinkre.com</a> · <a href='https://silinkre.com/unsubscribe?email={email}'>Unsubscribe</a></p>
+                </div>
                 """
             })
             print(f"  📊 Weekly → {email}")
@@ -388,6 +426,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 class SubscribeRequest(BaseModel):
     email:     str
     threshold: float
+    rate_type: str = "30yr"   # "30yr" or "15yr"
     weekly:    bool = True
     big_move:  bool = True
 
@@ -473,25 +512,26 @@ async def subscribe(req: SubscribeRequest):
     existing = con.execute("SELECT id FROM subscribers WHERE email=?", (req.email,)).fetchone()
     if existing:
         con.execute(
-            "UPDATE subscribers SET threshold=?, weekly=?, big_move=?, active=1 WHERE email=?",
-            (req.threshold, int(req.weekly), int(req.big_move), req.email)
+            "UPDATE subscribers SET threshold=?, rate_type=?, weekly=?, big_move=?, active=1 WHERE email=?",
+            (req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.email)
         )
     else:
         con.execute(
-            "INSERT INTO subscribers (email, threshold, weekly, big_move) VALUES (?,?,?,?)",
-            (req.email, req.threshold, int(req.weekly), int(req.big_move))
+            "INSERT INTO subscribers (email, threshold, rate_type, weekly, big_move) VALUES (?,?,?,?,?)",
+            (req.email, req.threshold, req.rate_type, int(req.weekly), int(req.big_move))
         )
     con.commit()
     con.close()
+    label = "30yr fixed" if req.rate_type == "30yr" else "15yr fixed"
     try:
         resend.Emails.send({
             "from": FROM_EMAIL, "to": req.email,
-            "subject": f"✅ Rate alert set below {req.threshold:.2f}%",
-            "html": f"<p>You're subscribed! We'll email you when the 30yr rate drops below <strong>{req.threshold:.2f}%</strong>.</p>"
+            "subject": f"✅ Rate alert set: {label} below {req.threshold:.2f}%",
+            "html": f"<p>You're subscribed! We'll email you when the <strong>{label}</strong> rate drops below <strong>{req.threshold:.2f}%</strong>.</p><p style='font-size:12px;color:#64748b'>Mortgage Rate Tracker · <a href='https://silinkre.com'>silinkre.com</a></p>"
         })
     except Exception as e:
         print(f"Confirmation email error: {e}")
-    return {"status": "ok", "message": f"Alert set for {req.email}"}
+    return {"status": "ok", "message": f"Alert set for {req.email} ({label} < {req.threshold:.2f}%)"}
 
 @app.get("/api/unsubscribe")
 async def unsubscribe(email: str):

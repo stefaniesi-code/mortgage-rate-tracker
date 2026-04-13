@@ -6,6 +6,7 @@
   <!-- Disable Cloudflare email obfuscation which breaks JS -->
   <meta name="cf-2fa-verify" content="none">
   <title>Daily Mortgage Rate Tracker</title>
+  <link rel="icon" href="favicon.ico">
   <meta name="robots" content="index, follow">
   <!-- Disable Cloudflare email obfuscation -->
   <script data-cfasync="false" src="chart.min.js"></script>
@@ -559,6 +560,18 @@
         <span>Current 30yr rate: <strong id="alertCurrentRate">—</strong> · 15yr: <strong id="alertCurrentRate15">—</strong> · notify me when it drops below:</span>
       </div>
 
+      <!-- Rate type toggle -->
+      <div style="display:flex;gap:8px;margin-bottom:18px">
+        <button id="alertBtn30" onclick="setAlertRateType('30yr')"
+          style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:#e8732a;color:white;border:2px solid #e8732a">
+          30yr Fixed
+        </button>
+        <button id="alertBtn15" onclick="setAlertRateType('15yr')"
+          style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:transparent;color:#8c7b6e;border:2px solid #e8e0d5">
+          15yr Fixed
+        </button>
+      </div>
+
       <!-- Threshold slider -->
       <div style="margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
@@ -597,7 +610,7 @@
       <button id="alertSubmitBtn" onclick="submitAlert()"
         style="width:100%;background:#e8732a;border:none;border-radius:10px;padding:14px;color:white;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;box-shadow:0 2px 8px rgba(232,115,42,.3)"
         onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#166534'">
-        Set Alert — Notify Me Below <span id="alertBtnRate">6.00%</span>
+        Set Alert — Notify Me Below <span id="alertBtnRate">6.00%</span> (<span id="alertBtnType">30yr</span>)
       </button>
 
       <!-- Success state (hidden) -->
@@ -1563,8 +1576,11 @@ function updateThresh(){
   if(disp) disp.textContent=t.toFixed(2)+'%';
   const btn=document.getElementById('alertBtnRate');
   if(btn) btn.textContent=t.toFixed(2)+'%';
+  const btnType=document.getElementById('alertBtnType');
+  if(btnType) btnType.textContent=_alertRateType;
+  const curRate=_alertRateType==='30yr'?LIVE30:LIVE15;
   const loan=600000*0.8;
-  const curMo=moPayment(LIVE30,loan);
+  const curMo=moPayment(curRate,loan);
   const tgtMo=moPayment(t,loan);
   const save=curMo-tgtMo;
   const curEl=document.getElementById('alertCurMo');
@@ -1574,6 +1590,21 @@ function updateThresh(){
   if(tgtEl) tgtEl.textContent=fmt(tgtMo)+'/mo';
   if(savEl){ savEl.textContent=(save>0?'+':'')+fmt(Math.abs(save))+'/mo'; savEl.style.color=save>0?'#059669':'#f87171'; }
 }
+let _alertRateType = '30yr';
+function setAlertRateType(rt) {
+  _alertRateType = rt;
+  const btn30 = document.getElementById('alertBtn30');
+  const btn15 = document.getElementById('alertBtn15');
+  if (rt === '30yr') {
+    btn30.style.background = '#e8732a'; btn30.style.color = 'white'; btn30.style.borderColor = '#e8732a';
+    btn15.style.background = 'transparent'; btn15.style.color = '#8c7b6e'; btn15.style.borderColor = '#e8e0d5';
+  } else {
+    btn15.style.background = '#e8732a'; btn15.style.color = 'white'; btn15.style.borderColor = '#e8732a';
+    btn30.style.background = 'transparent'; btn30.style.color = '#8c7b6e'; btn30.style.borderColor = '#e8e0d5';
+  }
+  updateThresh();
+}
+
 function submitAlert(){
   const email=document.getElementById('alertEmail').value.trim();
   if(!email||!email.includes('\u0040')){
@@ -1584,18 +1615,19 @@ function submitAlert(){
   const thresh=+document.getElementById('threshSlider').value;
   const weekly=document.getElementById('chkWeekly').checked;
   const bigMove=document.getElementById('chkBigMove').checked;
-  // POST to your Python backend: /api/subscribe
+  const rateType=_alertRateType;
+  const label=rateType==='30yr'?'30yr fixed':'15yr fixed';
   fetch(`${BACKEND}/api/subscribe`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({email,threshold:thresh,weekly,big_move:bigMove})
+    body:JSON.stringify({email,threshold:thresh,rate_type:rateType,weekly,big_move:bigMove})
   }).catch(()=>{});
   // Show success (optimistic UI)
   document.getElementById('alertSubmitBtn').style.display='none';
   document.getElementById('alertSuccess').style.display='block';
   document.getElementById('alertSuccessMsg').textContent=
-    `We'll email ${email} when the 30yr rate drops below ${thresh.toFixed(2)}%`;
-  document.getElementById('alertPreview').textContent=`Alert set: below ${thresh.toFixed(2)}%`;
+    `We'll email ${email} when the ${label} rate drops below ${thresh.toFixed(2)}%`;
+  document.getElementById('alertPreview').textContent=`Alert set: ${label} below ${thresh.toFixed(2)}%`;
 }
 
 /* ── News modal ── */

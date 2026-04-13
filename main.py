@@ -22,7 +22,7 @@ load_dotenv()
 
 # ── Config ────────────────────────────────────────────────────────────────────
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-FROM_EMAIL     = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
+FROM_EMAIL     = os.getenv("FROM_EMAIL", "alerts@send.silinkre.com")
 SITE_NAME      = "Mortgage Rate Tracker"
 DB_PATH        = os.getenv("DB_PATH", "/data/mortgage.db")
 
@@ -358,7 +358,7 @@ async def job_weekly_summary():
                   <tr style='background:#f1f5f9'><th style='padding:8px;text-align:left'>Loan</th><th style='padding:8px;text-align:right'>Monthly P&I</th></tr>
                   {''.join(f"<tr><td style='padding:8px'>${l:,} (20% down)</td><td style='padding:8px;text-align:right'>${_monthly(rate['r30'],l*.8):,.0f}</td></tr>" for l in [400000,600000,800000])}
                 </table>
-                <p style='font-size:11px;color:#64748b;margin-top:12px'>For informational purposes only · <a href='https://yourdomain.com/unsubscribe?email={email}'>Unsubscribe</a></p>
+                <p style='font-size:11px;color:#64748b;margin-top:12px'>For informational purposes only · <a href='https://silinkre.com.com/unsubscribe?email={email}'>Unsubscribe</a></p>
                 """
             })
             print(f"  📊 Weekly → {email}")

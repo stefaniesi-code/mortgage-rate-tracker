@@ -1585,7 +1585,7 @@ function submitAlert(){
   const weekly=document.getElementById('chkWeekly').checked;
   const bigMove=document.getElementById('chkBigMove').checked;
   // POST to your Python backend: /api/subscribe
-  fetch('/api/subscribe',{
+  fetch(`${BACKEND}/api/subscribe`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({email,threshold:thresh,weekly,big_move:bigMove})

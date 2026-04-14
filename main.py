@@ -22,8 +22,10 @@ load_dotenv()
 
 # ── Config ────────────────────────────────────────────────────────────────────
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-FROM_EMAIL     = os.getenv("FROM_EMAIL", "alerts@silinkre.com")
+FROM_EMAIL     = os.getenv("FROM_EMAIL", "Mortgage Rate Tracker <alerts@silinkre.com>")
 SITE_NAME      = "Mortgage Rate Tracker"
+SITE_URL       = "https://silinkre.com"
+LOGO_URL       = "https://stefaniesi-code.github.io/mortgage-rate-tracker/favicon-192.png"
 DB_PATH        = os.getenv("DB_PATH", "/data/mortgage.db")
 
 # Ensure data directory exists
@@ -293,6 +295,35 @@ def _monthly_15(rate: float, loan: float) -> float:
     r, n = rate / 100 / 12, 180
     return loan * r * (1+r)**n / ((1+r)**n - 1) if r > 0 else loan / n
 
+def _email_wrap(body: str, email: str = "") -> str:
+    """Wrap email body in branded template."""
+    unsub = f'<a href="{SITE_URL}/unsubscribe?email={email}" style="color:#94a3b8;text-decoration:underline">Unsubscribe</a>' if email else ''
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f4f2ee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f2ee;padding:24px 0">
+<tr><td align="center">
+<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+  <!-- Header -->
+  <tr><td style="background:linear-gradient(135deg,#e8732a,#d4622a);padding:20px 28px;text-align:center">
+    <div style="font-size:18px;font-weight:700;color:#ffffff;letter-spacing:0.3px">📊 Mortgage Rate Tracker</div>
+  </td></tr>
+  <!-- Body -->
+  <tr><td style="padding:28px 28px 24px;color:#2d2420;font-size:14px;line-height:1.7">
+    {body}
+  </td></tr>
+  <!-- Footer -->
+  <tr><td style="padding:16px 28px 20px;border-top:1px solid #f0ece6;text-align:center">
+    <div style="font-size:11px;color:#94a3b8;line-height:1.6">
+      For informational purposes only — not financial advice.<br>
+      <a href="{SITE_URL}" style="color:#e8732a;text-decoration:none;font-weight:500">silinkre.com</a>
+      {(' · ' + unsub) if unsub else ''}
+    </div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>"""
+
 # ── Scheduler Jobs ────────────────────────────────────────────────────────────
 async def job_refresh_news():
     """Refresh news cache daily at 6AM ET."""
@@ -334,11 +365,20 @@ async def job_check_rates():
                 resend.Emails.send({
                     "from": FROM_EMAIL, "to": email,
                     "subject": f"🔔 Rate Alert: {label} dropped to {current:.2f}%",
-                    "html": (
-                        f"<p>The <strong>{label}</strong> rate is now <strong>{current:.2f}%</strong>, "
-                        f"below your alert of {threshold:.2f}%.</p>"
-                        f"<p style='font-size:12px;color:#64748b'>Mortgage Rate Tracker · <a href='https://silinkre.com'>silinkre.com</a></p>"
-                    )
+                    "html": _email_wrap(f"""
+                        <div style="text-align:center;margin-bottom:20px">
+                          <div style="display:inline-block;background:#fef3c7;border:1px solid #fde68a;border-radius:50%;width:48px;height:48px;line-height:48px;font-size:24px">🔔</div>
+                        </div>
+                        <h2 style="margin:0 0 8px;font-size:18px;color:#2d2420;text-align:center">Rate Drop Alert</h2>
+                        <p style="text-align:center;color:#64748b;margin:0 0 20px">The {label} rate just hit your target!</p>
+                        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px;text-align:center;margin-bottom:16px">
+                          <div style="font-size:36px;font-weight:800;color:#16a34a">{current:.2f}%</div>
+                          <div style="font-size:13px;color:#64748b;margin-top:4px">{label} · your alert: below {threshold:.2f}%</div>
+                        </div>
+                        <div style="text-align:center;margin-top:16px">
+                          <a href="{SITE_URL}" style="display:inline-block;background:#e8732a;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">View Current Rates →</a>
+                        </div>
+                    """, email)
                 })
                 print(f"  ✅ Alert → {email} ({label})")
             except Exception as e:
@@ -348,14 +388,30 @@ async def job_check_rates():
         if big_move and abs(current - prev) >= 0.15:
             try:
                 direction = "dropped" if current < prev else "jumped"
+                arrow = "↓" if current < prev else "↑"
+                color = "#16a34a" if current < prev else "#ef4444"
                 resend.Emails.send({
                     "from": FROM_EMAIL, "to": email,
                     "subject": f"⚡ {label} {direction} {abs(current-prev):.2f}% today",
-                    "html": (
-                        f"<p>The <strong>{label}</strong> rate {direction} "
-                        f"<strong>{abs(current-prev):.2f}%</strong> to <strong>{current:.2f}%</strong> today.</p>"
-                        f"<p style='font-size:12px;color:#64748b'>Mortgage Rate Tracker · <a href='https://silinkre.com'>silinkre.com</a></p>"
-                    )
+                    "html": _email_wrap(f"""
+                        <div style="text-align:center;margin-bottom:20px">
+                          <div style="display:inline-block;background:#fef3c7;border:1px solid #fde68a;border-radius:50%;width:48px;height:48px;line-height:48px;font-size:24px">⚡</div>
+                        </div>
+                        <h2 style="margin:0 0 8px;font-size:18px;color:#2d2420;text-align:center">Big Rate Move</h2>
+                        <p style="text-align:center;color:#64748b;margin:0 0 20px">The {label} rate {direction} significantly today.</p>
+                        <div style="display:flex;justify-content:center;gap:12px;margin-bottom:16px;text-align:center">
+                          <div style="display:inline-block;background:#f8f6f3;border-radius:10px;padding:16px 24px">
+                            <div style="font-size:12px;color:#8c7b6e;margin-bottom:4px">Previous</div>
+                            <div style="font-size:22px;font-weight:700;color:#2d2420">{prev:.2f}%</div>
+                          </div>
+                          <div style="display:inline-block;padding:16px 8px;font-size:24px;color:{color}">{arrow}</div>
+                          <div style="display:inline-block;background:#f8f6f3;border-radius:10px;padding:16px 24px">
+                            <div style="font-size:12px;color:#8c7b6e;margin-bottom:4px">Current</div>
+                            <div style="font-size:22px;font-weight:700;color:{color}">{current:.2f}%</div>
+                          </div>
+                        </div>
+                        <div style="text-align:center;background:{color}15;border:1px solid {color}30;border-radius:8px;padding:10px;font-size:14px;font-weight:600;color:{color}">{arrow} {abs(current-prev):.2f}% change</div>
+                    """, email)
                 })
                 print(f"  ⚡ Big move → {email} ({label})")
             except Exception as e:
@@ -382,22 +438,46 @@ async def job_weekly_summary():
             resend.Emails.send({
                 "from": FROM_EMAIL, "to": email,
                 "subject": f"📊 Weekly Rates: 30yr {rate['r30']:.2f}% · 15yr {rate['r15']:.2f}%",
-                "html": f"""
-                <div style='font-family:-apple-system,sans-serif;max-width:500px;margin:0 auto'>
-                <h2 style='color:#e8732a;margin-bottom:16px'>📊 Weekly Rate Summary</h2>
-                <table style='width:100%;font-size:14px;border-collapse:collapse;margin-bottom:16px'>
-                  <tr style='background:#f8f6f3'><th style='padding:10px;text-align:left'>Rate</th><th style='padding:10px;text-align:right'>Current</th><th style='padding:10px;text-align:right'>vs Last Week</th></tr>
-                  <tr><td style='padding:10px;border-bottom:1px solid #eee'><strong>30yr Fixed</strong></td><td style='padding:10px;text-align:right;border-bottom:1px solid #eee'><strong>{rate['r30']:.2f}%</strong></td><td style='padding:10px;text-align:right;border-bottom:1px solid #eee;color:{"#ef4444" if change_30>0 else "#22c55e"}'>{("▲" if change_30>0 else "▼")} {abs(change_30):.2f}%</td></tr>
-                  <tr><td style='padding:10px;border-bottom:1px solid #eee'><strong>15yr Fixed</strong></td><td style='padding:10px;text-align:right;border-bottom:1px solid #eee'><strong>{rate['r15']:.2f}%</strong></td><td style='padding:10px;text-align:right;border-bottom:1px solid #eee;color:{"#ef4444" if change_15>0 else "#22c55e"}'>{("▲" if change_15>0 else "▼")} {abs(change_15):.2f}%</td></tr>
-                </table>
-                <h3 style='color:#2d2420;font-size:13px;margin-bottom:8px'>Monthly P&I Estimates</h3>
-                <table style='width:100%;font-size:13px;border-collapse:collapse'>
-                  <tr style='background:#f8f6f3'><th style='padding:8px;text-align:left'>Home Price</th><th style='padding:8px;text-align:right'>30yr P&I</th><th style='padding:8px;text-align:right'>15yr P&I</th></tr>
-                  {''.join(f"<tr><td style='padding:8px;border-bottom:1px solid #eee'>${l:,} (20% down)</td><td style='padding:8px;text-align:right;border-bottom:1px solid #eee'>${_monthly(rate['r30'],l*.8):,.0f}</td><td style='padding:8px;text-align:right;border-bottom:1px solid #eee'>${_monthly_15(rate['r15'],l*.8):,.0f}</td></tr>" for l in [400000,600000,800000])}
-                </table>
-                <p style='font-size:11px;color:#64748b;margin-top:16px'>For informational purposes only · <a href='https://silinkre.com'>silinkre.com</a> · <a href='https://silinkre.com/unsubscribe?email={email}'>Unsubscribe</a></p>
-                </div>
-                """
+                "html": _email_wrap(f"""
+                    <h2 style="margin:0 0 4px;font-size:18px;color:#2d2420">📊 Weekly Rate Summary</h2>
+                    <p style="color:#94a3b8;font-size:13px;margin:0 0 20px">{datetime.today().strftime('%B %d, %Y')}</p>
+
+                    <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+                      <tr style="background:#f8f6f3">
+                        <th style="padding:10px 12px;text-align:left;font-size:12px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.5px">Rate</th>
+                        <th style="padding:10px 12px;text-align:right;font-size:12px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.5px">Current</th>
+                        <th style="padding:10px 12px;text-align:right;font-size:12px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.5px">vs Last Week</th>
+                      </tr>
+                      <tr>
+                        <td style="padding:12px;border-bottom:1px solid #f0ece6;font-weight:600">30yr Fixed</td>
+                        <td style="padding:12px;text-align:right;border-bottom:1px solid #f0ece6;font-size:16px;font-weight:700">{rate['r30']:.2f}%</td>
+                        <td style="padding:12px;text-align:right;border-bottom:1px solid #f0ece6;font-weight:600;color:{'#ef4444' if change_30>0 else '#16a34a'}">{'▲' if change_30>0 else '▼'} {abs(change_30):.2f}%</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:12px;border-bottom:1px solid #f0ece6;font-weight:600">15yr Fixed</td>
+                        <td style="padding:12px;text-align:right;border-bottom:1px solid #f0ece6;font-size:16px;font-weight:700">{rate['r15']:.2f}%</td>
+                        <td style="padding:12px;text-align:right;border-bottom:1px solid #f0ece6;font-weight:600;color:{'#ef4444' if change_15>0 else '#16a34a'}">{'▲' if change_15>0 else '▼'} {abs(change_15):.2f}%</td>
+                      </tr>
+                    </table>
+
+                    <h3 style="margin:0 0 8px;font-size:13px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.5px">Monthly P&I Estimates</h3>
+                    <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+                      <tr style="background:#f8f6f3">
+                        <th style="padding:8px 12px;text-align:left;font-size:12px;color:#8c7b6e">Home Price</th>
+                        <th style="padding:8px 12px;text-align:right;font-size:12px;color:#8c7b6e">30yr P&I</th>
+                        <th style="padding:8px 12px;text-align:right;font-size:12px;color:#8c7b6e">15yr P&I</th>
+                      </tr>
+                      {''.join(f"""<tr>
+                        <td style="padding:10px 12px;border-bottom:1px solid #f0ece6">${l:,} <span style="color:#94a3b8;font-size:12px">(20% down)</span></td>
+                        <td style="padding:10px 12px;text-align:right;border-bottom:1px solid #f0ece6;font-weight:600">${_monthly(rate['r30'],l*.8):,.0f}</td>
+                        <td style="padding:10px 12px;text-align:right;border-bottom:1px solid #f0ece6;font-weight:600">${_monthly_15(rate['r15'],l*.8):,.0f}</td>
+                      </tr>""" for l in [400000,600000,800000])}
+                    </table>
+
+                    <div style="text-align:center">
+                      <a href="{SITE_URL}" style="display:inline-block;background:#e8732a;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">View Full Dashboard →</a>
+                    </div>
+                """, email)
             })
             print(f"  📊 Weekly → {email}")
         except Exception as e:
@@ -527,7 +607,18 @@ async def subscribe(req: SubscribeRequest):
         resend.Emails.send({
             "from": FROM_EMAIL, "to": req.email,
             "subject": f"✅ Rate alert set: {label} below {req.threshold:.2f}%",
-            "html": f"<p>You're subscribed! We'll email you when the <strong>{label}</strong> rate drops below <strong>{req.threshold:.2f}%</strong>.</p><p style='font-size:12px;color:#64748b'>Mortgage Rate Tracker · <a href='https://silinkre.com'>silinkre.com</a></p>"
+            "html": _email_wrap(f"""
+                <div style="text-align:center;margin-bottom:20px">
+                  <div style="display:inline-block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:50%;width:48px;height:48px;line-height:48px;font-size:24px">✅</div>
+                </div>
+                <h2 style="margin:0 0 8px;font-size:18px;color:#2d2420;text-align:center">Alert Activated</h2>
+                <p style="text-align:center;color:#64748b;margin:0 0 20px">You're all set! We'll notify you when rates hit your target.</p>
+                <table style="width:100%;border-collapse:collapse;background:#faf8f5;border-radius:8px;overflow:hidden;margin-bottom:16px">
+                  <tr><td style="padding:12px 16px;font-size:13px;color:#8c7b6e;border-bottom:1px solid #f0ece6">Rate type</td><td style="padding:12px 16px;font-size:14px;font-weight:600;text-align:right;border-bottom:1px solid #f0ece6">{label}</td></tr>
+                  <tr><td style="padding:12px 16px;font-size:13px;color:#8c7b6e">Alert below</td><td style="padding:12px 16px;font-size:14px;font-weight:600;text-align:right;color:#e8732a">{req.threshold:.2f}%</td></tr>
+                </table>
+                <p style="font-size:12px;color:#94a3b8;text-align:center;margin:0">You'll also receive weekly summaries and big move alerts based on your preferences.</p>
+            """, req.email)
         })
     except Exception as e:
         print(f"Confirmation email error: {e}")

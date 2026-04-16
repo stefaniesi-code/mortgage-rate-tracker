@@ -16,12 +16,14 @@
   </script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#faf8f5;color:#2d2420;min-height:100vh;padding:16px}
+    html{scroll-behavior:smooth}
+    [id]{scroll-margin-top:20px}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(180deg,#E6D4D4 0%,#D5C4C8 30%,#BFBCC4 60%,#ADAFB8 100%);background-attachment:fixed;color:#2d2420;min-height:100vh;padding:16px}
     .container{max-width:1000px;margin:0 auto}
     @media(min-width:600px){body{padding:24px}}
 
-    .header{text-align:center;margin-bottom:20px}
-    .header h1{font-size:clamp(24px,6vw,38px);font-weight:700;background:linear-gradient(135deg,#e8732a,#d4622a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+    .header{text-align:center;margin-bottom:28px}
+    .header h1{font-size:clamp(24px,6vw,38px);font-weight:700;color:#1C1E27;margin-bottom:6px}
     .header p{color:#8c7b6e;font-size:13px}
     .status-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
     .pill{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;font-size:11px}
@@ -31,9 +33,9 @@
     .dot{width:7px;height:7px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-    .hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;max-width:860px;margin-left:auto;margin-right:auto}
+    .hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;max-width:860px;margin-left:auto;margin-right:auto}
     @media(max-width:600px){.hero{grid-template-columns:1fr;max-width:100%}}
-    .card{background:#ffffff;border:1px solid #e8e0d5;border-radius:12px;padding:14px 16px;transition:border-color .2s}
+    .card{background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.8);border-radius:12px;padding:14px 16px;transition:border-color .2s}
     .card:hover{border-color:#e8732a33}
     .card-label{font-size:10px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
     .card-rate{font-size:26px;font-weight:700;color:#2d2420;line-height:1}
@@ -42,7 +44,7 @@
     .card-sub{margin-top:3px;font-size:10px;color:#8c7b6e}
     .up{color:#f87171}.down{color:#4ade80}.flat{color:#8c7b6e}
 
-    .section{background:#ffffff;border:1px solid #e8e0d5;border-radius:16px;padding:18px;margin-bottom:16px}
+    .section{background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.8);border-radius:16px;padding:18px;margin-bottom:28px}
     @media(max-width:480px){.section{padding:14px;border-radius:12px}}
     .section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
     .section h2{font-size:12px;font-weight:600;color:#8c7b6e;text-transform:uppercase;letter-spacing:.8px}
@@ -53,8 +55,8 @@
     .chart-wrap{position:relative;height:220px}
     @media(max-width:480px){.chart-wrap{height:180px}}
 
-    .tools-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-    .tool-trigger{background:#ffffff;border:1.5px solid #e8732a;border-radius:14px;padding:16px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;text-align:left;width:100%;min-height:90px}
+    .tools-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:28px}
+    .tool-trigger{background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);border:1.5px solid #e8732a;border-radius:14px;padding:16px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s;text-align:left;width:100%;min-height:90px}
     @media(max-width:600px){
       .tools-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
       .tool-trigger{padding:10px 12px}
@@ -73,7 +75,7 @@
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(45,36,32,.6);z-index:100;align-items:flex-end;justify-content:center;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
     .modal-overlay.open{display:flex}
     @media(min-width:600px){.modal-overlay{align-items:center;padding:20px}}
-    .modal{background:#ffffff;border:1px solid #e8e0d5;border-radius:20px 20px 0 0;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;position:relative;margin-top:auto;-webkit-overflow-scrolling:touch}
+    .modal{background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.6);border-radius:20px 20px 0 0;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;position:relative;margin-top:auto;-webkit-overflow-scrolling:touch}
     @media(min-width:600px){.modal{border-radius:20px;max-height:88vh;margin:auto}}
     .modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
     .modal-title{font-size:15px;font-weight:600;color:#2d2420}
@@ -139,7 +141,7 @@
 
     .source-note{background:#fff7f0;border:1px solid #e8e0d5;border-radius:10px;padding:12px 16px;font-size:12px;color:#8c7b6e;margin-bottom:16px;line-height:1.7}
     .source-note strong{color:#6b5e52}
-    .disclaimer{background:#fff7f0;border:1px solid #e8e0d5;border-radius:12px;padding:14px 18px;font-size:12px;color:#8c7b6e;line-height:1.6}
+    .disclaimer{background:rgba(255,247,240,0.8);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.8);border-radius:12px;padding:14px 18px;font-size:12px;color:#8c7b6e;line-height:1.6}
     .disclaimer strong{color:#6b5e52}
     .dot-red{display:inline-block;width:8px;height:8px;border-radius:50%;background:#f87171;margin-right:4px}
     .dot-pur{display:inline-block;width:8px;height:8px;border-radius:50%;background:#a78bfa;margin-right:4px}
@@ -179,7 +181,7 @@
     .refi-savings-val{font-weight:700;color:#059669}
 
     /* Forecast panel */
-    .forecast-panel{background:#ffffff;border:1px solid #e8e0d5;border-radius:16px;padding:22px;margin-bottom:20px}
+    .forecast-panel{background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.8);border-radius:16px;padding:22px;margin-bottom:28px}
     .forecast-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
     .forecast-card{background:#faf8f5;border-radius:10px;padding:12px 14px;text-align:center}
     .forecast-card-label{font-size:11px;color:#8c7b6e;margin-bottom:6px}
@@ -197,8 +199,21 @@
 <body>
 <div class="container">
 
+<!-- Top navigation banner -->
+<nav style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border-radius:12px;padding:10px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+  <div style="font-size:15px;font-weight:700;color:#1C1E27;letter-spacing:.2px">Stefanie Si</div>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <a href="#heroCards" style="color:#4a3f4a;text-decoration:none;font-size:12px;transition:color .15s" onmouseover="this.style.color='#1C1E27'" onmouseout="this.style.color='#4a3f4a'">Daily Rate</a>
+    <a href="#myChart" style="color:#4a3f4a;text-decoration:none;font-size:12px;transition:color .15s" onmouseover="this.style.color='#1C1E27'" onmouseout="this.style.color='#4a3f4a'">Chart</a>
+    <a href="#forecastPanel" style="color:#4a3f4a;text-decoration:none;font-size:12px;transition:color .15s" onmouseover="this.style.color='#1C1E27'" onmouseout="this.style.color='#4a3f4a'">Forecast</a>
+    <a href="#toolGrid" style="color:#4a3f4a;text-decoration:none;font-size:12px;transition:color .15s" onmouseover="this.style.color='#1C1E27'" onmouseout="this.style.color='#4a3f4a'">Tools</a>
+    <a href="https://www.silinkre.com/" target="_blank" style="color:#4a3f4a;text-decoration:none;font-size:12px;transition:color .15s" onmouseover="this.style.color='#1C1E27'" onmouseout="this.style.color='#4a3f4a'">About</a>
+    <a href="#contactFooter" style="background:#1C1E27;color:#fff;text-decoration:none;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;transition:background .15s" onmouseover="this.style.background='#e8732a'" onmouseout="this.style.background='#1C1E27'">Contact</a>
+  </div>
+</nav>
+
 <div class="header">
-  <h1>🏠 Daily Mortgage Rate Tracker</h1>
+  <h1>Daily Mortgage Rate Tracker</h1>
   <p id="headerSub">Daily rates · Mortgage News Daily + Bankrate · 2026-04-08</p>
   <div class="status-bar">
     <div class="pill pill-green"><div class="dot"></div><span id="pill-date">Updated Apr 8, 2026</span></div>
@@ -228,7 +243,7 @@
 <div class="forecast-panel" id="forecastPanel"></div>
 
 <!-- Four compact trigger buttons -->
-<div class="tools-row">
+<div id="toolGrid" class="tools-row">
   <button class="tool-trigger" onclick="openModal('calcModal')">
     <div class="tool-trigger-left">
       <div class="tool-icon">🧮</div>
@@ -637,6 +652,24 @@
 
 <div class="disclaimer">
   <strong>⚠️ Disclaimer:</strong> Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&amp;I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional.
+</div>
+
+<!-- Contact section -->
+<div id="contactFooter" style="background:linear-gradient(135deg,#E6D4D4 0%,#ADAFB8 100%);border-radius:12px;padding:16px 22px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+  <div>
+    <div style="font-size:13px;font-weight:600;color:#1C1E27">Have questions? Let's talk.</div>
+    <div style="font-size:11px;color:#828697;margin-top:2px">Licensed MLO · Bilingual EN/中文</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a href="tel:+12016603602" style="display:flex;align-items:center;gap:6px;text-decoration:none;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.6);border-radius:8px;padding:7px 12px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,0.7)'" onmouseout="this.style.background='rgba(255,255,255,0.45)'">
+      <span style="font-size:13px">📱</span>
+      <span style="font-size:12px;color:#1C1E27;font-weight:500">(201) 660-3602</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.6);border-radius:8px;padding:7px 12px">
+      <span style="font-size:13px">💬</span>
+      <span style="font-size:12px;color:#1C1E27;font-weight:500">WeChat: stefanie_si</span>
+    </div>
+  </div>
 </div>
 
 <div style="text-align:center;padding:20px 0 8px;font-size:13px;color:#8c7b6e;border-top:1px solid #e8e0d5;margin-top:8px">

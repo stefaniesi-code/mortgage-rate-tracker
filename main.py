@@ -644,17 +644,22 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
 NEWS_CACHE: dict = {}   # {date_str: [articles]}
 
 RATE_UP_KEYWORDS = [
-    "inflation","cpi higher","hot jobs","beats expectations","hawkish",
-    "rate hike","yields rise","oil surge","economy strong","gdp beat",
+    "inflation","cpi higher","cpi rose","hot jobs","beats expectations","hawkish",
+    "rate hike","yields rise","yields jump","oil surge","economy strong","gdp beat",
     "tariff","war escalat","iran attack","fed holds","no cut","delay cut",
-    "fewer cuts","strong payroll","wage growth",
+    "fewer cuts","strong payroll","wage growth","treasury yields rise",
+    "treasury selloff","bond selloff","higher for longer","sticky inflation",
+    "consumer spending strong","retail sales beat","housing starts surge",
 ]
 RATE_DOWN_KEYWORDS = [
-    "inflation cools","inflation falls","cpi lower","jobless","layoffs",
-    "recession","slowdown","dovish","rate cut","fed cut","yields fall",
+    "inflation cools","inflation falls","inflation eases","cpi lower","cpi fell",
+    "jobless","layoffs","recession","slowdown","dovish","rate cut","fed cut",
+    "yields fall","yields drop","yields decline","treasury rally",
     "ceasefire","peace","de-escalat","weak jobs","below expectations",
     "gdp miss","unemployment rises","cooling","mortgage rates fall",
     "rates drop","rates ease","rates decline","treasury lower",
+    "bond rally","flight to safety","risk off","consumer confidence drops",
+    "housing slowdown","retail sales miss",
 ]
 
 def score_impact(title: str) -> str:
@@ -670,22 +675,30 @@ def impact_reason(title: str, impact: str) -> str:
     if impact == "up":
         if "inflation" in t or "cpi" in t:
             return "Higher inflation → Fed stays hawkish → bond yields rise → mortgage rates up."
-        if "job" in t or "employ" in t:
+        if "job" in t or "employ" in t or "payroll" in t:
             return "Strong jobs data → economy resilient → Fed less likely to cut → rates stay elevated."
         if "fed" in t or "hawkish" in t:
             return "Fed hawkish stance → market prices in fewer cuts → long-term rates rise."
         if "tariff" in t or "war" in t or "iran" in t:
             return "Geopolitical risk / tariffs → inflation fear → bond sell-off → rates up."
+        if "treasury" in t or "yield" in t or "bond" in t:
+            return "Treasury yields rising → mortgage rates follow 10yr yield → rates up."
+        if "gdp" in t or "retail" in t or "spending" in t:
+            return "Strong economic data → reduces rate cut urgency → rates stay elevated."
         return "Bullish economic signal → reduces rate cut expectations → mortgage rates trend higher."
     if impact == "down":
         if "inflation" in t or "cpi" in t:
             return "Cooling inflation → Fed can cut sooner → bond rally → mortgage rates fall."
-        if "job" in t or "unemploy" in t:
+        if "job" in t or "unemploy" in t or "layoff" in t:
             return "Weak jobs → economic slowdown → Fed more likely to cut → rates ease."
         if "ceasefire" in t or "peace" in t or "de-escalat" in t:
             return "Geopolitical calm → risk-off unwind → bond prices rise → yields and rates fall."
         if "cut" in t or "dovish" in t:
             return "Fed dovish signal → market prices in more cuts → 10yr Treasury yields drop → rates follow."
+        if "treasury" in t or "yield" in t or "bond" in t:
+            return "Treasury yields falling → mortgage rates track 10yr yield → rates ease."
+        if "recession" in t or "slowdown" in t:
+            return "Economic slowdown fears → flight to safety → bond rally → rates fall."
         return "Bearish economic signal → increases cut expectations → mortgage rates trend lower."
     return "Mixed signals — no dominant rate driver identified in this headline."
 
@@ -700,9 +713,19 @@ async def fetch_news() -> list[dict]:
 
     articles = []
     queries = [
-        ("mortgage rate 2026", "mortgage"),
-        ("Federal Reserve interest rate", "fed"),
+        ("mortgage rates AND (drop OR rise OR fall OR surge OR forecast)", "mortgage"),
+        ("Federal Reserve AND (rate cut OR rate hike OR hold OR pause OR hawkish OR dovish)", "fed"),
+        ("(CPI OR inflation OR jobs report OR payrolls OR unemployment) AND (economy OR Fed)", "econ"),
+        ("10-year Treasury yield", "treasury"),
     ]
+
+    # Filter out low-quality sources
+    BLOCKED_SOURCES = {
+        "yahoo entertainment", "buzzfeed", "lifehacker", "the motley fool",
+        "gobankingrates", "investopedia", "bankrate", "nerdwallet",
+        "business insider", "huffpost", "msn.com",
+    }
+
     async with httpx.AsyncClient(timeout=10) as client:
         for q, tag in queries:
             try:
@@ -710,19 +733,27 @@ async def fetch_news() -> list[dict]:
                     "https://newsapi.org/v2/everything",
                     params={
                         "q": q, "language": "en",
-                        "sortBy": "publishedAt", "pageSize": 8,
+                        "sortBy": "publishedAt", "pageSize": 10,
                         "from": (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d"),
                         "apiKey": NEWS_API_KEY,
                     }
                 )
                 for a in r.json().get("articles", []):
                     title = a.get("title","")
+                    source = a.get("source",{}).get("name","")
                     if not title or "[Removed]" in title:
+                        continue
+                    # Skip personal finance advice articles
+                    if source.lower() in BLOCKED_SOURCES:
+                        continue
+                    # Skip articles that are clearly advice/tips, not market news
+                    tl = title.lower()
+                    if any(skip in tl for skip in ["advice", "tips for", "how to", "should you", "best way to", "millionaire", "paying down", "save money"]):
                         continue
                     impact = score_impact(title)
                     articles.append({
                         "title":  title,
-                        "source": a.get("source",{}).get("name",""),
+                        "source": source,
                         "url":    a.get("url",""),
                         "date":   (a.get("publishedAt","") or "")[:10],
                         "tag":    tag,

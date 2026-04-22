@@ -206,26 +206,27 @@
 <nav style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border-radius:12px;padding:14px 28px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
   <div style="line-height:1.2"><div style="font-size:17px;font-weight:700;color:#1C1E27;letter-spacing:1px">SiLink</div><div style="font-size:10px;font-weight:400;color:#4a3f4a;letter-spacing:2px;text-transform:uppercase">Stefanie Si</div></div>
   <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap">
-    <a href="#heroCards" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Daily Rate</a>
+    <a href="#heroCards" data-en="Daily Rate" data-zh="今日利率" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Daily Rate</a>
     <span style="color:rgba(60,50,60,0.25)">|</span>
-    <a href="#myChart" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Chart</a>
+    <a href="#myChart" data-en="Chart" data-zh="走势图" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Chart</a>
     <span style="color:rgba(60,50,60,0.25)">|</span>
-    <a href="#forecastPanel" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Forecast</a>
+    <a href="#forecastPanel" data-en="Forecast" data-zh="预测" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Forecast</a>
     <span style="color:rgba(60,50,60,0.25)">|</span>
-    <a href="#toolGrid" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Tools</a>
+    <a href="#toolGrid" data-en="Tools" data-zh="工具" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Tools</a>
     <span style="color:rgba(60,50,60,0.25)">|</span>
-    <a href="https://www.silinkre.com/" target="_blank" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">About</a>
-    <a href="#contactFooter" style="background:#1C1E27;color:#fff;text-decoration:none;font-size:11px;font-weight:600;letter-spacing:1px;padding:8px 18px;border-radius:6px;margin-left:12px;transition:background .15s" onmouseover="this.style.background='#e8732a'" onmouseout="this.style.background='#1C1E27'">CONTACT</a>
+    <a href="https://www.silinkre.com/" target="_blank" data-en="About" data-zh="关于" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">About</a>
+    <a href="#contactFooter" data-en="CONTACT" data-zh="联系我" style="background:#1C1E27;color:#fff;text-decoration:none;font-size:11px;font-weight:600;letter-spacing:1px;padding:8px 18px;border-radius:6px;margin-left:12px;transition:background .15s" onmouseover="this.style.background='#e8732a'" onmouseout="this.style.background='#1C1E27'">CONTACT</a>
+    <button id="langToggleBtn" onclick="toggleLang()" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.5);border-radius:6px;color:#1C1E27;font-size:11px;font-weight:700;letter-spacing:.5px;padding:7px 14px;cursor:pointer;margin-left:8px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">中文</button>
   </div>
 </nav>
 
 <div class="header">
-  <h1>Daily Mortgage Rate Tracker</h1>
+  <h1 data-en="Daily Mortgage Rate Tracker" data-zh="每日房贷利率追踪">Daily Mortgage Rate Tracker</h1>
   <p id="headerSub">Daily rates · Mortgage News Daily + Bankrate · 2026-04-08</p>
   <div class="status-bar">
     <div class="pill pill-green"><div class="dot"></div><span id="pill-date">Updated Apr 8, 2026</span></div>
-    <div class="pill pill-blue">📅 Daily (weekdays)</div>
-    <div class="pill pill-amber">⚡ MND Rate Index</div>
+    <div class="pill pill-blue" data-en="📅 Daily (weekdays)" data-zh="📅 工作日每日更新">📅 Daily (weekdays)</div>
+    <div class="pill pill-amber" data-en="⚡ MND Rate Index" data-zh="⚡ MND 利率指数">⚡ MND Rate Index</div>
   </div>
 </div>
 
@@ -235,7 +236,7 @@
 <!-- Chart -->
 <div class="section">
   <div class="section-hd">
-    <h2>📈 Daily Rate Chart</h2>
+    <h2 data-en="📈 Daily Rate Chart" data-zh="📈 每日利率走势图">📈 Daily Rate Chart</h2>
     <div class="tabs">
       <button class="tab active" onclick="setRange(14,this)">2W</button>
       <button class="tab" onclick="setRange(90,this)">3M</button>
@@ -254,7 +255,7 @@
   <button class="tool-trigger" onclick="openModal('calcModal')">
     <div class="tool-trigger-left">
       <div class="tool-icon">🧮</div>
-      <div class="tool-title">Payment Calculator</div>
+      <div class="tool-title" data-en="Payment Calculator" data-zh="月供计算器">Payment Calculator</div>
       <div class="tool-sub" id="calcPreview">Loading...</div>
     </div>
     <div class="tool-arrow">↗</div>
@@ -262,48 +263,64 @@
   <button class="tool-trigger" onclick="openModal('refiModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">🔄</div>
-      <div class="tool-title">Refi Savings</div>
-      <div class="tool-sub" id="refiPreview">How much can you save?</div>
+      <div class="tool-title" data-en="Refi Savings" data-zh="再融资节省">Refi Savings</div>
+      <div class="tool-sub" id="refiPreview" data-en="How much can you save?" data-zh="再融资能省多少？">How much can you save?</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
   <button class="tool-trigger" onclick="openModal('histModal')">
     <div class="tool-trigger-left">
       <div class="tool-icon">📋</div>
-      <div class="tool-title">Rate History</div>
-      <div class="tool-sub">Last 20 trading days</div>
+      <div class="tool-title" data-en="Rate History" data-zh="历史利率">Rate History</div>
+      <div class="tool-sub" data-en="Last 20 trading days" data-zh="近20个交易日">Last 20 trading days</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
   <button class="tool-trigger" onclick="openModal('alertModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">🔔</div>
-      <div class="tool-title">Rate Alert</div>
-      <div class="tool-sub" id="alertPreview">Get notified when rates drop</div>
+      <div class="tool-title" data-en="Rate Alert" data-zh="利率提醒">Rate Alert</div>
+      <div class="tool-sub" id="alertPreview" data-en="Get notified when rates drop" data-zh="利率下降时通知我">Get notified when rates drop</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
   <button class="tool-trigger" onclick="openNewsModal()" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">📰</div>
-      <div class="tool-title">Market News</div>
-      <div class="tool-sub" id="newsPreview">Mortgage · Fed · Economy</div>
+      <div class="tool-title" data-en="Market News" data-zh="市场新闻">Market News</div>
+      <div class="tool-sub" id="newsPreview" data-en="Mortgage · Fed · Economy" data-zh="房贷 · 美联储 · 经济">Mortgage · Fed · Economy</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
   <button class="tool-trigger" onclick="openModal('armModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">📊</div>
-      <div class="tool-title">ARM vs Fixed</div>
-      <div class="tool-sub">Compare loan types with chart</div>
+      <div class="tool-title" data-en="ARM vs Fixed" data-zh="浮动 vs 固定">ARM vs Fixed</div>
+      <div class="tool-sub" data-en="Compare loan types with chart" data-zh="图表对比贷款类型">Compare loan types with chart</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
   <button class="tool-trigger" onclick="openShareModal()" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">📤</div>
-      <div class="tool-title">Share Card</div>
-      <div class="tool-sub">Generate rate image</div>
+      <div class="tool-title" data-en="Share Card" data-zh="分享卡片">Share Card</div>
+      <div class="tool-sub" data-en="Generate rate image" data-zh="生成利率图片">Generate rate image</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
+  <button class="tool-trigger" onclick="openModal('affordModal')" style="border-color:#e8732a">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">🏠</div>
+      <div class="tool-title" data-en="Affordability" data-zh="购房能力">Affordability</div>
+      <div class="tool-sub" data-en="How much home can you afford?" data-zh="你能负担多少房价？">How much home can you afford?</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
+  <button class="tool-trigger" onclick="openModal('compareModal')" style="border-color:#e8732a">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">⚖️</div>
+      <div class="tool-title" data-en="Compare Scenarios" data-zh="方案对比">Compare Scenarios</div>
+      <div class="tool-sub" id="comparePreview" data-en="A vs B — side by side" data-zh="A vs B 并排对比">A vs B — side by side</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
@@ -315,51 +332,51 @@
 <div class="modal-overlay" id="armModal" onclick="closeOnBg(event,'armModal')">
   <div class="modal" style="max-width:640px">
     <div class="modal-header">
-      <span class="modal-title">📊 ARM vs Fixed Rate Comparison</span>
+      <span class="modal-title" data-en="📊 ARM vs Fixed Rate Comparison" data-zh="📊 浮动利率 vs 固定利率对比">📊 ARM vs Fixed Rate Comparison</span>
       <button class="modal-close" onclick="closeModal('armModal')">✕</button>
     </div>
     <div class="modal-body">
       <!-- Inputs -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px" class="arm-inputs">
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Loan Amount</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Loan Amount" data-zh="贷款金额">Loan Amount</label>
           <div style="position:relative"><span class="calc-prefix">$</span>
             <input class="calc-input" type="text" id="armLoan" value="400,000" oninput="formatInput(this);calcArm()">
           </div>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Loan Term</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Loan Term" data-zh="贷款年限">Loan Term</label>
           <select id="armTerm" class="calc-input-bare" oninput="calcArm()">
-            <option value="30">30 years</option>
-            <option value="20">20 years</option>
-            <option value="15">15 years</option>
+            <option value="30" data-en="30 years" data-zh="30年">30 years</option>
+            <option value="20" data-en="20 years" data-zh="20年">20 years</option>
+            <option value="15" data-en="15 years" data-zh="15年">15 years</option>
           </select>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Fixed Rate</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Fixed Rate" data-zh="固定利率">Fixed Rate</label>
           <div class="calc-rate-row">
             <input type="range" id="armFixedSlider" min="3" max="10" step="0.05" value="6.5" oninput="syncArmRate('fixed')">
             <div class="calc-rate-num"><input type="number" id="armFixedNum" value="6.50" step="0.05" oninput="syncArmRate('fixedN')"><span>%</span></div>
           </div>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">ARM Initial Rate</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="ARM Initial Rate" data-zh="浮动利率初始利率">ARM Initial Rate</label>
           <div class="calc-rate-row">
             <input type="range" id="armInitSlider" min="2" max="9" step="0.05" value="5.5" oninput="syncArmRate('init')">
             <div class="calc-rate-num"><input type="number" id="armInitNum" value="5.50" step="0.05" oninput="syncArmRate('initN')"><span>%</span></div>
           </div>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">ARM Type</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="ARM Type" data-zh="浮动利率类型">ARM Type</label>
           <select id="armType" class="calc-input-bare" oninput="calcArm()">
-            <option value="5">5/1 ARM (fixed 5yr)</option>
-            <option value="7">7/1 ARM (fixed 7yr)</option>
-            <option value="10">10/1 ARM (fixed 10yr)</option>
-            <option value="3">3/1 ARM (fixed 3yr)</option>
+            <option value="5" data-en="5/1 ARM (fixed 5yr)" data-zh="5/1 浮动（固定5年）">5/1 ARM (fixed 5yr)</option>
+            <option value="7" data-en="7/1 ARM (fixed 7yr)" data-zh="7/1 浮动（固定7年）">7/1 ARM (fixed 7yr)</option>
+            <option value="10" data-en="10/1 ARM (fixed 10yr)" data-zh="10/1 浮动（固定10年）">10/1 ARM (fixed 10yr)</option>
+            <option value="3" data-en="3/1 ARM (fixed 3yr)" data-zh="3/1 浮动（固定3年）">3/1 ARM (fixed 3yr)</option>
           </select>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px">Rate After Adjustment</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Rate After Adjustment" data-zh="调整后利率">Rate After Adjustment</label>
           <div class="calc-rate-row">
             <input type="range" id="armAdjSlider" min="3" max="12" step="0.05" value="7.5" oninput="syncArmRate('adj')">
             <div class="calc-rate-num"><input type="number" id="armAdjNum" value="7.50" step="0.05" oninput="syncArmRate('adjN')"><span>%</span></div>
@@ -370,16 +387,16 @@
       <!-- Summary cards -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
         <div style="background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:10px;padding:12px 14px">
-          <div style="font-size:10px;color:#3B82F6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">30yr Fixed</div>
+          <div style="font-size:10px;color:#3B82F6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px" data-en="30yr Fixed" data-zh="30年固定">30yr Fixed</div>
           <div style="font-size:22px;font-weight:700;color:#1D4ED8" id="armFixedMo">—</div>
-          <div style="font-size:11px;color:#64748b;margin-top:3px">/month</div>
-          <div style="font-size:11px;color:#64748b;margin-top:6px">Total interest: <strong id="armFixedTotalInt">—</strong></div>
+          <div style="font-size:11px;color:#64748b;margin-top:3px" data-en="/month" data-zh="/月">/month</div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px"><span data-en="Total interest: " data-zh="总利息：">Total interest: </span><strong id="armFixedTotalInt">—</strong></div>
         </div>
         <div style="background:#FFF7ED;border:1.5px solid #e8732a;border-radius:10px;padding:12px 14px">
           <div style="font-size:10px;color:#e8732a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px" id="armTypeLabel">5/1 ARM</div>
           <div style="font-size:22px;font-weight:700;color:#e8732a" id="armArmMo">—</div>
-          <div style="font-size:11px;color:#64748b;margin-top:3px">initial /month</div>
-          <div style="font-size:11px;color:#64748b;margin-top:6px">After adj: <strong id="armArmAdjMo">—</strong>/mo</div>
+          <div style="font-size:11px;color:#64748b;margin-top:3px" data-en="initial /month" data-zh="初始 /月">initial /month</div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px"><span data-en="After adj: " data-zh="调整后：">After adj: </span><strong id="armArmAdjMo">—</strong>/mo</div>
         </div>
       </div>
 
@@ -387,10 +404,10 @@
       <div id="armVerdict" style="background:#fff7f0;border:1px solid #e8e0d5;border-radius:10px;padding:10px 14px;font-size:13px;color:#2d2420;margin-bottom:16px;line-height:1.6"></div>
 
       <!-- Chart -->
-      <div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Monthly Payment Over Time · hover last point for total interest</div>
+      <div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px" data-en="Monthly Payment Over Time · hover last point for total interest" data-zh="月供走势 · 悬停最后一点查看总利息">Monthly Payment Over Time · hover last point for total interest</div>
       <div style="position:relative;height:220px"><canvas id="armChart"></canvas></div>
 
-      <p style="font-size:11px;color:#8c7b6e;margin-top:12px;line-height:1.6">
+      <p style="font-size:11px;color:#8c7b6e;margin-top:12px;line-height:1.6" data-en="⚠️ ARM rates shown are estimates. Actual adjustments depend on the index (SOFR) + margin at time of reset. Consult a licensed mortgage professional for personalized advice." data-zh="⚠️ 显示的浮动利率为估算值。实际调整取决于重置时的指数（SOFR）加利差。请咨询持牌房贷专员获取个性化建议。">
         ⚠️ ARM rates shown are estimates. Actual adjustments depend on the index (SOFR) + margin at time of reset. Consult a licensed mortgage professional for personalized advice.
       </p>
     </div>
@@ -401,32 +418,32 @@
 <div class="modal-overlay" id="refiModal" onclick="closeOnBg(event,'refiModal')">
   <div class="modal" style="max-width:520px">
     <div class="modal-header">
-      <span class="modal-title">🔄 Refinance Savings Calculator</span>
+      <span class="modal-title" data-en="🔄 Refinance Savings Calculator" data-zh="🔄 再融资节省计算器">🔄 Refinance Savings Calculator</span>
       <button class="modal-close" onclick="closeModal('refiModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="calc-rate-badge" style="margin-bottom:16px">
         <div class="dot"></div>
-        <span>New rate auto-filled from today's live data · Current rate set to last year's high</span>
+        <span data-en="New rate auto-filled from today's live data · Current rate set to last year's high" data-zh="新利率已自动填入今日实时数据 · 当前利率设为去年高点">New rate auto-filled from today's live data · Current rate set to last year's high</span>
       </div>
 
       <!-- Savings hero — shown prominently at top -->
       <div id="refiHero" style="background:#fff7f0;border:1px solid #e8e0d5;border-radius:12px;padding:16px 20px;margin-bottom:18px;text-align:center">
-        <div style="font-size:12px;color:#8899AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">If you refinance today</div>
+        <div style="font-size:12px;color:#8899AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="If you refinance today" data-zh="如果您今天再融资">If you refinance today</div>
         <div style="font-size:42px;font-weight:700;color:#059669;line-height:1" id="refiHeroAmt">—</div>
-        <div style="font-size:14px;color:#8899AA;margin-top:4px">saved every month</div>
-        <div style="font-size:12px;color:#8899AA;margin-top:8px" id="refiHeroSub">From 7.50% → today's rate on your loan</div>
+        <div style="font-size:14px;color:#8899AA;margin-top:4px" data-en="saved every month" data-zh="每月节省">saved every month</div>
+        <div style="font-size:12px;color:#8899AA;margin-top:8px" id="refiHeroSub" data-en="From 7.50% → today's rate on your loan" data-zh="从7.50%再融资到今日利率">From 7.50% → today's rate on your loan</div>
       </div>
 
       <div class="calc-row">
-        <span class="calc-lbl">Loan balance</span>
+        <span class="calc-lbl" data-en="Loan balance" data-zh="贷款余额">Loan balance</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="rLoan" value="400,000" oninput="formatInput(this);refi()">
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl">Current rate</span>
+        <span class="calc-lbl" data-en="Current rate" data-zh="当前利率">Current rate</span>
         <div class="calc-rate-row">
           <input type="range" id="rCurSlider" min="3" max="10" step="0.01" value="7.5" oninput="syncRefiRate('cur')">
           <div class="calc-rate-num">
@@ -436,7 +453,7 @@
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl">New rate</span>
+        <span class="calc-lbl" data-en="New rate" data-zh="新利率">New rate</span>
         <div class="calc-rate-row">
           <input type="range" id="rNewSlider" min="3" max="10" step="0.01" value="6.5" oninput="syncRefiRate('new')">
           <div class="calc-rate-num">
@@ -446,18 +463,18 @@
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl">Remaining term</span>
+        <span class="calc-lbl" data-en="Remaining term" data-zh="剩余年限">Remaining term</span>
         <div class="calc-field">
           <select id="rTerm" class="calc-input-bare" oninput="refi()">
-            <option value="30" selected>30 years</option>
-            <option value="25">25 years</option>
-            <option value="20">20 years</option>
-            <option value="15">15 years</option>
+            <option value="30" data-en="30 years" data-zh="30年" selected>30 years</option>
+            <option value="25" data-en="25 years" data-zh="25年">25 years</option>
+            <option value="20" data-en="20 years" data-zh="20年">20 years</option>
+            <option value="15" data-en="15 years" data-zh="15年">15 years</option>
           </select>
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl">Closing costs</span>
+        <span class="calc-lbl" data-en="Closing costs" data-zh="过户费用">Closing costs</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="rCosts" value="4,000" oninput="formatInput(this);refi()">
@@ -468,12 +485,12 @@
 
       <div class="refi-compare">
         <div class="refi-side">
-          <div class="refi-side-label">Current loan</div>
+          <div class="refi-side-label" data-en="Current loan" data-zh="当前贷款">Current loan</div>
           <div class="refi-side-rate" style="color:#f87171" id="rCurRateDisplay">7.04%</div>
           <div class="refi-side-mo" id="rCurMo">—/mo</div>
         </div>
         <div class="refi-side">
-          <div class="refi-side-label">After refinance</div>
+          <div class="refi-side-label" data-en="After refinance" data-zh="再融资后">After refinance</div>
           <div class="refi-side-rate" style="color:#e8732a" id="rNewRateDisplay">—%</div>
           <div class="refi-side-mo" id="rNewMo">—/mo</div>
         </div>
@@ -481,24 +498,24 @@
 
       <div class="refi-savings">
         <div class="refi-savings-row">
-          <span class="refi-savings-label">Monthly savings</span>
+          <span class="refi-savings-label" data-en="Monthly savings" data-zh="每月节省">Monthly savings</span>
           <span class="refi-savings-val" id="rMoSave">—</span>
         </div>
         <div class="refi-savings-row">
-          <span class="refi-savings-label">Annual savings</span>
+          <span class="refi-savings-label" data-en="Annual savings" data-zh="每年节省">Annual savings</span>
           <span class="refi-savings-val" id="rYrSave">—</span>
         </div>
         <div class="refi-savings-row">
-          <span class="refi-savings-label">Break-even point</span>
+          <span class="refi-savings-label" data-en="Break-even point" data-zh="回本时间">Break-even point</span>
           <span class="refi-savings-val" id="rBreakEven" style="color:#fbbf24">—</span>
         </div>
         <div class="refi-savings-row" style="border-top:1px solid #166534;margin-top:4px">
-          <span class="refi-savings-label">Total savings (lifetime)</span>
+          <span class="refi-savings-label" data-en="Total savings (lifetime)" data-zh="总节省（整个贷款期）">Total savings (lifetime)</span>
           <span class="refi-savings-val" style="font-size:16px" id="rTotalSave">—</span>
         </div>
       </div>
 
-      <p style="font-size:11px;color:#2d2420;line-height:1.6">
+      <p style="font-size:11px;color:#2d2420;line-height:1.6" data-en="Break-even = closing costs ÷ monthly savings. Refinancing makes sense if you plan to stay past this point. Calculations are estimates based on P&I only." data-zh="回本时间 = 过户费用 ÷ 每月节省。如果您计划在此时间点之后继续住在该房子，再融资就有意义。计算结果仅基于本息估算。">
         Break-even = closing costs ÷ monthly savings. Refinancing makes sense if you plan to stay past this point.
         Calculations are estimates based on P&I only.
       </p>
@@ -510,32 +527,32 @@
 <div class="modal-overlay" id="newsModal" onclick="closeOnBg(event,'newsModal')">
   <div class="modal" style="max-width:680px">
     <div class="modal-header">
-      <span class="modal-title">📰 Market News & Rate Impact</span>
+      <span class="modal-title" data-en="📰 Market News & Rate Impact" data-zh="📰 市场新闻 & 利率影响">📰 Market News & Rate Impact</span>
       <button class="modal-close" onclick="closeModal('newsModal')">✕</button>
     </div>
     <div class="modal-body">
 
       <!-- Sentiment summary chart -->
       <div id="newsSentimentBar" style="display:none;margin-bottom:18px">
-        <div style="font-size:11px;color:#8899AA;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">
+        <div style="font-size:11px;color:#8899AA;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px" data-en="Overall rate impact signal — based on today's headlines" data-zh="综合利率影响信号 — 基于今日头条">
           Overall rate impact signal — based on today's headlines
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <span style="font-size:12px;color:#16a34a;width:60px;font-weight:600">▼ Lower</span>
+          <span style="font-size:12px;color:#16a34a;width:60px;font-weight:600" data-en="▼ Lower" data-zh="▼ 利率↓">▼ Lower</span>
           <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarDown" style="position:absolute;left:0;top:0;height:100%;background:#4ade80;border-radius:5px;transition:width .6s"></div>
           </div>
           <span style="font-size:13px;font-weight:700;color:#2d2420;min-width:28px;text-align:right" id="sentDownPct">0%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <span style="font-size:12px;color:#8899AA;width:60px">Neutral</span>
+          <span style="font-size:12px;color:#8899AA;width:60px" data-en="Neutral" data-zh="中性">Neutral</span>
           <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarNeutral" style="position:absolute;left:0;top:0;height:100%;background:#94a3b8;border-radius:5px;transition:width .6s"></div>
           </div>
           <span style="font-size:13px;font-weight:700;color:#2d2420;min-width:28px;text-align:right" id="sentNeutralPct">0%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <span style="font-size:12px;color:#f87171;width:60px">▲ Higher</span>
+          <span style="font-size:12px;color:#f87171;width:60px" data-en="▲ Higher" data-zh="▲ 利率↑">▲ Higher</span>
           <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarUp" style="position:absolute;left:0;top:0;height:100%;background:#f87171;border-radius:5px;transition:width .6s"></div>
           </div>
@@ -546,21 +563,21 @@
 
       <!-- Filter tabs -->
       <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-        <button class="news-filter active" onclick="filterNews('all',this)">All</button>
-        <button class="news-filter" onclick="filterNews('mortgage',this)">Mortgage</button>
-        <button class="news-filter" onclick="filterNews('fed',this)">Fed Policy</button>
-        <button class="news-filter" onclick="filterNews('up',this)">▲ Rate Up</button>
-        <button class="news-filter" onclick="filterNews('down',this)">▼ Rate Down</button>
-        <button class="news-filter" onclick="filterNews('neutral',this)">Neutral</button>
+        <button class="news-filter active" onclick="filterNews('all',this)" data-en="All" data-zh="全部">All</button>
+        <button class="news-filter" onclick="filterNews('mortgage',this)" data-en="Mortgage" data-zh="房贷">Mortgage</button>
+        <button class="news-filter" onclick="filterNews('fed',this)" data-en="Fed Policy" data-zh="美联储">Fed Policy</button>
+        <button class="news-filter" onclick="filterNews('up',this)" data-en="▲ Rate Up" data-zh="▲ 利率上行">▲ Rate Up</button>
+        <button class="news-filter" onclick="filterNews('down',this)" data-en="▼ Rate Down" data-zh="▼ 利率下行">▼ Rate Down</button>
+        <button class="news-filter" onclick="filterNews('neutral',this)" data-en="Neutral" data-zh="中性">Neutral</button>
       </div>
 
       <div id="newsLoading" style="text-align:center;padding:32px;color:#8899AA;font-size:13px">
         <div style="width:20px;height:20px;border:2px solid #e8e0d5;border-top-color:#e8732a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
-        Analyzing headlines...
+        <span data-en="Analyzing headlines..." data-zh="正在分析新闻头条...">Analyzing headlines...</span>
       </div>
       <div id="newsList" style="display:none"></div>
 
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #243447;font-size:11px;color:#2d2420;line-height:1.6">
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #243447;font-size:11px;color:#2d2420;line-height:1.6" data-en="Impact analysis uses keyword scoring against known rate drivers (Fed, CPI, jobs, bonds, inflation). For live news add your free key at <a href='https://newsapi.org/register' target='_blank' style='color:#e8732a'>newsapi.org</a>." data-zh="影响分析通过关键词匹配已知利率驱动因素（美联储、CPI、就业、债券、通胀）进行评分。如需实时新闻，请在 <a href='https://newsapi.org/register' target='_blank' style='color:#e8732a'>newsapi.org</a> 免费注册获取API密钥。">
         Impact analysis uses keyword scoring against known rate drivers (Fed, CPI, jobs, bonds, inflation).
         For live news add your free key at <a href="https://newsapi.org/register" target="_blank" style="color:#e8732a">newsapi.org</a>.
       </div>
@@ -572,24 +589,26 @@
 <div class="modal-overlay" id="alertModal" onclick="closeOnBg(event,'alertModal')">
   <div class="modal" style="max-width:480px">
     <div class="modal-header">
-      <span class="modal-title">🔔 Rate Drop Alert</span>
+      <span class="modal-title" data-en="🔔 Rate Drop Alert" data-zh="🔔 利率下跌提醒">🔔 Rate Drop Alert</span>
       <button class="modal-close" onclick="closeModal('alertModal')">✕</button>
     </div>
     <div class="modal-body">
 
       <div class="calc-rate-badge" style="margin-bottom:18px">
         <div class="dot"></div>
-        <span>Current 30yr rate: <strong id="alertCurrentRate">—</strong> · 15yr: <strong id="alertCurrentRate15">—</strong> · notify me when it drops below:</span>
+        <span data-en="Current 30yr rate: " data-zh="当前30年利率：">Current 30yr rate: </span><strong id="alertCurrentRate">—</strong><span data-en=" · 15yr: " data-zh=" · 15年：">&nbsp;· 15yr: </span><strong id="alertCurrentRate15">—</strong><span data-en=" · notify me when it drops below:" data-zh=" · 当利率降至以下时通知我：">&nbsp;· notify me when it drops below:</span>
       </div>
 
       <!-- Rate type toggle -->
       <div style="display:flex;gap:8px;margin-bottom:18px">
         <button id="alertBtn30" onclick="setAlertRateType('30yr')"
-          style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:#e8732a;color:white;border:2px solid #e8732a">
+          style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:#e8732a;color:white;border:2px solid #e8732a"
+          data-en="30yr Fixed" data-zh="30年固定">
           30yr Fixed
         </button>
         <button id="alertBtn15" onclick="setAlertRateType('15yr')"
-          style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:transparent;color:#8c7b6e;border:2px solid #e8e0d5">
+          style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:transparent;color:#8c7b6e;border:2px solid #e8e0d5"
+          data-en="15yr Fixed" data-zh="15年固定">
           15yr Fixed
         </button>
       </div>
@@ -597,7 +616,7 @@
       <!-- Threshold slider -->
       <div style="margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <span style="font-size:12px;color:#8899AA">Alert threshold</span>
+          <span style="font-size:12px;color:#8899AA" data-en="Alert threshold" data-zh="提醒阈值">Alert threshold</span>
           <span style="font-size:28px;font-weight:700;color:#059669" id="threshDisplay">6.00%</span>
         </div>
         <input type="range" id="threshSlider" min="4.0" max="7.5" step="0.05" value="5.0"
@@ -609,21 +628,21 @@
 
       <!-- Email + frequency -->
       <div style="margin-bottom:14px">
-        <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px">Your email</label>
+        <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px" data-en="Your email" data-zh="您的邮箱">Your email</label>
         <input type="email" id="alertEmail" placeholder="your email address"
           style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 14px;color:#2d2420;font-size:14px;outline:none"
           onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'">
       </div>
       <div style="margin-bottom:20px">
-        <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px">Also send me</label>
+        <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px" data-en="Also send me" data-zh="同时发送">Also send me</label>
         <div style="display:flex;flex-direction:column;gap:8px">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#8899AA">
             <input type="checkbox" id="chkWeekly" checked style="accent-color:#8899AA;width:15px;height:15px">
-            Weekly rate summary (every Monday)
+            <span data-en="Weekly rate summary (every Monday)" data-zh="每周利率摘要（每周一）">Weekly rate summary (every Monday)</span>
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#8899AA">
             <input type="checkbox" id="chkBigMove" checked style="accent-color:#8899AA;width:15px;height:15px">
-            Big move alert (rate changes ±0.15% in a day)
+            <span data-en="Big move alert (rate changes ±0.15% in a day)" data-zh="大幅波动提醒（单日涨跌超±0.15%）">Big move alert (rate changes ±0.15% in a day)</span>
           </label>
         </div>
       </div>
@@ -632,17 +651,17 @@
       <button id="alertSubmitBtn" onclick="submitAlert()"
         style="width:100%;background:#e8732a;border:none;border-radius:10px;padding:14px;color:white;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;box-shadow:0 2px 8px rgba(232,115,42,.3)"
         onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#166534'">
-        Set Alert — Notify Me Below <span id="alertBtnRate">6.00%</span> (<span id="alertBtnType">30yr</span>)
+        <span data-en="Set Alert — Notify Me Below" data-zh="设置提醒 — 当利率低于">Set Alert — Notify Me Below</span> <span id="alertBtnRate">6.00%</span> (<span id="alertBtnType">30yr</span>)
       </button>
 
       <!-- Success state (hidden) -->
       <div id="alertSuccess" style="display:none;text-align:center;padding:16px 0">
         <div style="font-size:32px;margin-bottom:8px">✅</div>
-        <div style="font-size:15px;font-weight:600;color:#8899AA;margin-bottom:4px">Alert set!</div>
+        <div style="font-size:15px;font-weight:600;color:#8899AA;margin-bottom:4px" data-en="Alert set!" data-zh="提醒已设置！">Alert set!</div>
         <div style="font-size:13px;color:#8899AA" id="alertSuccessMsg">We'll email you when the 30yr rate drops below 6.00%</div>
       </div>
 
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #243447;font-size:11px;color:#2d2420;line-height:1.6">
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #243447;font-size:11px;color:#2d2420;line-height:1.6" data-en="Your email is only used for rate alerts. Unsubscribe anytime via the link in any email.<br>Backend: Python + Resend API · Data: Mortgage News Daily" data-zh="您的邮箱仅用于利率提醒。可通过邮件中的链接随时退订。<br>后端：Python + Resend API · 数据：Mortgage News Daily">
         Your email is only used for rate alerts. Unsubscribe anytime via the link in any email.<br>
         Backend: Python + Resend API · Data: Mortgage News Daily
       </div>
@@ -653,20 +672,20 @@
 <!-- Source note -->
 <div style="max-width:1000px;margin:0 auto">
 <div class="source-note" style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border:none">
-  <strong>📡 Data sources:</strong><br>
-  <span class="dot-red"></span><strong>Mortgage News Daily</strong> — Real lender rate sheets, updated ~4PM ET weekdays.<br>
-  <span class="dot-pur"></span><strong>Bankrate / Freddie Mac PMMS</strong> — Freddie Mac updates weekly (Thu); Bankrate daily.
+  <strong data-en="📡 Data sources:" data-zh="📡 数据来源：">📡 Data sources:</strong><br>
+  <span class="dot-red"></span><strong>Mortgage News Daily</strong> — <span data-en="Real lender rate sheets, updated ~4PM ET weekdays." data-zh="真实贷款机构报价，每个工作日下午4点ET更新。">Real lender rate sheets, updated ~4PM ET weekdays.</span><br>
+  <span class="dot-pur"></span><strong>Bankrate / Freddie Mac PMMS</strong> — <span data-en="Freddie Mac updates weekly (Thu); Bankrate daily." data-zh="Freddie Mac每周四更新；Bankrate每日更新。">Freddie Mac updates weekly (Thu); Bankrate daily.</span>
 </div>
 
 <div class="disclaimer" style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border:none">
-  <strong>⚠️ Disclaimer:</strong> Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&amp;I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional.
+  <strong data-en="⚠️ Disclaimer:" data-zh="⚠️ 免责声明：">⚠️ Disclaimer:</strong> <span data-en="Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional." data-zh="利率为全国平均值，仅供参考，不构成贷款承诺。计算器仅计算本息，不含税费、保险及PMI。请咨询持牌房贷专员。">Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&amp;I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional.</span>
 </div>
 
 <!-- Contact section -->
 <div id="contactFooter" style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border-radius:12px;padding:14px 28px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
   <div>
-    <div style="font-size:13px;font-weight:600;color:#1C1E27">Have questions? Let's talk.</div>
-    <div style="font-size:11px;color:#828697;margin-top:2px">Licensed MLO · Bilingual EN/中文</div>
+    <div style="font-size:13px;font-weight:600;color:#1C1E27" data-en="Have questions? Let's talk." data-zh="有问题？随时联系我。">Have questions? Let's talk.</div>
+    <div style="font-size:11px;color:#828697;margin-top:2px" data-en="Licensed MLO · Bilingual EN/中文" data-zh="持牌房贷专员 · 中英双语">Licensed MLO · Bilingual EN/中文</div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <a href="tel:+12016603602" style="display:flex;align-items:center;gap:6px;text-decoration:none;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.6);border-radius:8px;padding:7px 12px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,0.7)'" onmouseout="this.style.background='rgba(255,255,255,0.45)'">
@@ -694,7 +713,7 @@
 <!-- Floating contact button -->
 <button onclick="openModal('contactModal')"
   style="position:fixed;bottom:24px;right:24px;z-index:99;background:linear-gradient(135deg,#C9A84C,#A8893C);border:none;border-radius:50px;padding:12px 20px;color:white;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(96,165,250,.3);display:flex;align-items:center;gap:8px">
-  <span style="font-size:16px">💬</span> Contact Me
+  <span style="font-size:16px">💬</span> <span data-en="Contact Me" data-zh="联系我">Contact Me</span>
 </button>
 
 <!-- Contact modal -->
@@ -722,7 +741,7 @@
       </div>
 
       <!-- Bio -->
-      <p style="font-size:13px;color:#2d2420;line-height:1.7;margin-bottom:18px">
+      <p style="font-size:13px;color:#2d2420;line-height:1.7;margin-bottom:18px" data-en="I combine financial analysis expertise with data science to help clients navigate the mortgage market with confidence. Whether you're buying your first home, refinancing, or investing — I'm here to help." data-zh="我结合金融分析专业知识与数据科学，帮助客户自信地驾驭房贷市场。无论您是首次购房、再融资还是投资置业，我都在这里为您提供支持。">
         I combine financial analysis expertise with data science to help clients navigate the mortgage market with confidence. Whether you're buying your first home, refinancing, or investing — I'm here to help.
       </p>
 
@@ -778,21 +797,270 @@
   </div>
 </div>
 
+<!-- ══ MODAL: Compare Scenarios ══ -->
+<div class="modal-overlay" id="compareModal" onclick="closeOnBg(event,'compareModal')">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <span class="modal-title" data-en="⚖️ Compare Scenarios A vs B" data-zh="⚖️ 方案对比 A vs B">⚖️ Compare Scenarios A vs B</span>
+      <button class="modal-close" onclick="closeModal('compareModal')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Summary banner -->
+      <div id="cmpBanner" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px;text-align:center">
+        <div style="background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;color:#3B82F6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" data-en="Plan A — Monthly" data-zh="方案A — 月供">Plan A — Monthly</div>
+          <div style="font-size:26px;font-weight:800;color:#1D4ED8;line-height:1" id="cmpATotal">—</div>
+        </div>
+        <div style="background:#FFF7ED;border:1.5px solid #e8732a;border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;color:#e8732a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" data-en="Plan B — Monthly" data-zh="方案B — 月供">Plan B — Monthly</div>
+          <div style="font-size:26px;font-weight:800;color:#e8732a;line-height:1" id="cmpBTotal">—</div>
+        </div>
+        <div style="background:#F0FDF4;border:1.5px solid #16a34a;border-radius:10px;padding:10px 8px">
+          <div style="font-size:10px;color:#16a34a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" id="cmpDiffLabel" data-en="A saves vs B" data-zh="A比B节省">A saves vs B</div>
+          <div style="font-size:26px;font-weight:800;line-height:1" id="cmpDiff">—</div>
+        </div>
+      </div>
+
+      <!-- Two-column inputs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <!-- Plan A -->
+        <div style="background:#EFF6FF;border-radius:12px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:#1D4ED8;margin-bottom:10px;text-transform:uppercase;letter-spacing:.6px" data-en="Plan A" data-zh="方案 A">Plan A</div>
+          <div style="margin-bottom:8px">
+            <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Home price" data-zh="房价">Home price</div>
+            <div style="position:relative"><span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;color:#8c7b6e;pointer-events:none">$</span>
+              <input id="cmpAPrice" type="text" value="700,000" oninput="fmtCmp('cmpAPrice');cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 8px 7px 22px;font-size:14px;color:#1e3a8a;outline:none">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+            <div>
+              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Down %" data-zh="首付 %">Down %</div>
+              <div style="position:relative">
+                <input id="cmpADown" type="number" value="10" min="0" max="100" step="1" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#1e3a8a;outline:none;text-align:right">
+                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Rate" data-zh="利率">Rate</div>
+              <div style="position:relative">
+                <input id="cmpARate" type="number" value="6.33" min="2" max="12" step="0.01" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#1e3a8a;outline:none;text-align:right">
+                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div>
+              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Points" data-zh="买点">Points</div>
+              <div style="position:relative">
+                <input id="cmpAPoints" type="number" value="0" min="0" max="4" step="0.25" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#1e3a8a;outline:none;text-align:right">
+                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">pt</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Term" data-zh="年限">Term</div>
+              <select id="cmpATerm" onchange="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 8px;font-size:13px;color:#1e3a8a;outline:none">
+                <option value="30" data-en="30yr" data-zh="30年" selected>30yr</option>
+                <option value="15" data-en="15yr" data-zh="15年">15yr</option>
+                <option value="20" data-en="20yr" data-zh="20年">20yr</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plan B -->
+        <div style="background:#FFF7ED;border-radius:12px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:#e8732a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.6px" data-en="Plan B" data-zh="方案 B">Plan B</div>
+          <div style="margin-bottom:8px">
+            <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Home price" data-zh="房价">Home price</div>
+            <div style="position:relative"><span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;color:#8c7b6e;pointer-events:none">$</span>
+              <input id="cmpBPrice" type="text" value="700,000" oninput="fmtCmp('cmpBPrice');cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 8px 7px 22px;font-size:14px;color:#9a3412;outline:none">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+            <div>
+              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Down %" data-zh="首付 %">Down %</div>
+              <div style="position:relative">
+                <input id="cmpBDown" type="number" value="20" min="0" max="100" step="1" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#9a3412;outline:none;text-align:right">
+                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Rate" data-zh="利率">Rate</div>
+              <div style="position:relative">
+                <input id="cmpBRate" type="number" value="6.33" min="2" max="12" step="0.01" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#9a3412;outline:none;text-align:right">
+                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div>
+              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Points" data-zh="买点">Points</div>
+              <div style="position:relative">
+                <input id="cmpBPoints" type="number" value="0" min="0" max="4" step="0.25" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#9a3412;outline:none;text-align:right">
+                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">pt</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Term" data-zh="年限">Term</div>
+              <select id="cmpBTerm" onchange="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 8px;font-size:13px;color:#9a3412;outline:none">
+                <option value="30" data-en="30yr" data-zh="30年" selected>30yr</option>
+                <option value="15" data-en="15yr" data-zh="15年">15yr</option>
+                <option value="20" data-en="20yr" data-zh="20年">20yr</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison table -->
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:#faf8f5">
+            <th style="text-align:left;padding:8px 10px;font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid #e8e0d5" data-en="" data-zh=""></th>
+            <th style="text-align:right;padding:8px 10px;font-size:12px;font-weight:700;color:#1D4ED8;border-bottom:2px solid #e8e0d5" data-en="Plan A" data-zh="方案 A">Plan A</th>
+            <th style="text-align:right;padding:8px 10px;font-size:12px;font-weight:700;color:#e8732a;border-bottom:2px solid #e8e0d5" data-en="Plan B" data-zh="方案 B">Plan B</th>
+            <th style="text-align:right;padding:8px 10px;font-size:12px;font-weight:700;color:#16a34a;border-bottom:2px solid #e8e0d5" data-en="A − B" data-zh="A − B">A − B</th>
+          </tr>
+        </thead>
+        <tbody id="cmpTableBody"></tbody>
+      </table>
+
+      <!-- Verdict -->
+      <div id="cmpVerdict" style="margin-top:14px;background:#faf8f5;border-radius:10px;padding:12px 14px;font-size:13px;color:#2d2420;line-height:1.7"></div>
+
+      <p style="font-size:11px;color:#8c7b6e;margin-top:12px;line-height:1.6" data-en="P&amp;I only. PMI estimated at 0.5%/yr when down payment &lt;20%. Points cost = loan × points%. Taxes &amp; insurance not included." data-zh="仅含本息。首付不足20%时PMI按0.5%/年估算。买点费用 = 贷款额 × 买点%。不含税费和保险。">
+        P&amp;I only. PMI estimated at 0.5%/yr when down payment &lt;20%. Points cost = loan × points%. Taxes &amp; insurance not included.
+      </p>
+    </div>
+  </div>
+</div>
+
 <!-- Share card modal -->
 <div class="modal-overlay" id="shareModal" onclick="closeOnBg(event,'shareModal')">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
-      <span class="modal-title">📤 Share Today's Rate Card</span>
+      <span class="modal-title" data-en="📤 Share Today's Rate Card" data-zh="📤 分享今日利率卡片">📤 Share Today's Rate Card</span>
       <button class="modal-close" onclick="closeModal('shareModal')">✕</button>
     </div>
     <div class="modal-body">
       <canvas id="shareCanvas" style="width:100%;border-radius:12px;display:block"></canvas>
-      <button onclick="downloadCard()" style="width:100%;margin-top:14px;background:#1d4ed8;border:none;border-radius:10px;padding:12px;color:white;font-size:14px;font-weight:600;cursor:pointer">
+      <button onclick="downloadCard()" style="width:100%;margin-top:14px;background:#1d4ed8;border:none;border-radius:10px;padding:12px;color:white;font-size:14px;font-weight:600;cursor:pointer" data-en="⬇ Download Card" data-zh="⬇ 下载卡片">
         ⬇ Download Card
       </button>
-      <p style="font-size:11px;color:#8899AA;margin-top:10px;text-align:center">
+      <p style="font-size:11px;color:#8899AA;margin-top:10px;text-align:center" data-en="Save and share on WeChat, 小红书, or send to clients directly" data-zh="保存后分享到微信、小红书，或直接发送给客户">
         Save and share on WeChat, 小红书, or send to clients directly
       </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ MODAL: Affordability Calculator ══ -->
+<div class="modal-overlay" id="affordModal" onclick="closeOnBg(event,'affordModal')">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <span class="modal-title" data-en="🏠 How Much Home Can You Afford?" data-zh="🏠 你最多能买多贵的房？">🏠 How Much Home Can You Afford?</span>
+      <button class="modal-close" onclick="closeModal('affordModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="calc-rate-badge"><div class="dot"></div><span data-en="Using today's rate: " data-zh="使用今日利率：">Using today's rate: </span><strong id="affordRateBadge">—</strong></div>
+
+      <!-- Quick presets -->
+      <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+        <button class="sc-btn active" onclick="loadAffordPreset(80000,300,50000,this)" style="flex:1;min-width:100px">
+          <div class="sc-name" data-en="First-time" data-zh="首次购房">First-time</div>
+          <div class="sc-detail">$80K · $50K down</div>
+        </button>
+        <button class="sc-btn" onclick="loadAffordPreset(120000,500,100000,this)" style="flex:1;min-width:100px">
+          <div class="sc-name" data-en="Mid-career" data-zh="中期职业">Mid-career</div>
+          <div class="sc-detail">$120K · $100K down</div>
+        </button>
+        <button class="sc-btn" onclick="loadAffordPreset(200000,800,200000,this)" style="flex:1;min-width:100px">
+          <div class="sc-name" data-en="High earner" data-zh="高收入">High earner</div>
+          <div class="sc-detail">$200K · $200K down</div>
+        </button>
+      </div>
+
+      <div class="calc-row">
+        <span class="calc-lbl" data-en="💰 Annual income (pre-tax)" data-zh="💰 年收入（税前）">💰 Annual income (pre-tax)</span>
+        <div class="calc-field">
+          <span class="calc-prefix">$</span>
+          <input class="calc-input" type="text" id="affIncome" value="120,000" onchange="formatInput(this);calcAfford()">
+        </div>
+      </div>
+
+      <div class="calc-row">
+        <span class="calc-lbl" data-en="💳 Monthly debts (car, student loans)" data-zh="💳 月债务（车贷、学贷等）">💳 Monthly debts (car, student loans)</span>
+        <div class="calc-field">
+          <span class="calc-prefix">$</span>
+          <input class="calc-input" type="text" id="affDebts" value="500" onchange="formatInput(this);calcAfford()">
+        </div>
+      </div>
+
+      <div class="calc-row">
+        <span class="calc-lbl" data-en="🏦 Down payment savings" data-zh="🏦 首付存款">🏦 Down payment savings</span>
+        <div class="calc-field">
+          <span class="calc-prefix">$</span>
+          <input class="calc-input" type="text" id="affDown" value="100,000" onchange="formatInput(this);calcAfford()">
+        </div>
+      </div>
+
+      <hr class="calc-divider">
+
+      <!-- Big result -->
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:12px;color:#8c7b6e;margin-bottom:4px" data-en="You can afford up to" data-zh="您最多可以购买">You can afford up to</div>
+        <div id="affMaxHome" style="font-size:46px;font-weight:800;color:#e8732a;line-height:1">—</div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-lbl" data-en="Monthly P&amp;I" data-zh="月供（本息）">Monthly P&amp;I</div>
+          <div class="metric-val" id="affMaxPayment">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl" data-en="Loan amount" data-zh="贷款金额">Loan amount</div>
+          <div class="metric-val" id="affLoanAmt">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl" data-en="Rate (30yr)" data-zh="利率（30年）">Rate (30yr)</div>
+          <div class="metric-val" id="affRate">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl" data-en="DTI used" data-zh="使用DTI">DTI used</div>
+          <div class="metric-val" id="affDTIused">36%</div>
+        </div>
+      </div>
+
+      <!-- Expandable advanced -->
+      <details style="margin-top:16px">
+        <summary style="cursor:pointer;font-size:12px;color:#8c7b6e;font-weight:600" data-en="⚙️ Advanced settings" data-zh="⚙️ 高级设置">⚙️ Advanced settings</summary>
+        <div style="margin-top:12px">
+          <div class="calc-row">
+            <span class="calc-lbl" data-en="Loan term" data-zh="贷款年限">Loan term</span>
+            <div class="calc-field">
+              <select id="affTerm" class="calc-input-bare" onchange="calcAfford()">
+                <option value="30" data-en="30 years" data-zh="30年" selected>30 years</option>
+                <option value="15" data-en="15 years" data-zh="15年">15 years</option>
+              </select>
+            </div>
+          </div>
+          <div class="calc-row">
+            <span class="calc-lbl" data-en="DTI ratio target" data-zh="目标DTI比率">DTI ratio target</span>
+            <div class="calc-rate-row">
+              <input type="range" id="affDTI" min="25" max="50" step="1" value="36" oninput="calcAfford()">
+              <div class="calc-rate-num">
+                <input type="number" id="affDTInum" value="36" min="25" max="50" step="1" oninput="document.getElementById('affDTI').value=this.value;calcAfford()">
+                <span>%</span>
+              </div>
+            </div>
+          </div>
+          <div style="background:#faf8f5;border-radius:8px;padding:10px 12px;font-size:11px;color:#8c7b6e;line-height:1.5;margin-top:8px" data-en="<strong>DTI</strong> = total monthly debts ÷ gross income. Most lenders cap at 43%. Conservative: 36%." data-zh="<strong>DTI</strong> = 月债务总额 ÷ 总收入。大多数贷款机构上限为43%。保守估算：36%。">
+            <strong>DTI</strong> = total monthly debts ÷ gross income. Most lenders cap at 43%. Conservative: 36%.
+          </div>
+        </div>
+      </details>
     </div>
   </div>
 </div>
@@ -802,35 +1070,35 @@
 <div class="modal-overlay" id="calcModal" onclick="closeOnBg(event,'calcModal')">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">🧮 Monthly Payment Calculator</span>
+      <span class="modal-title" data-en="🧮 Monthly Payment Calculator" data-zh="🧮 月供计算器">🧮 Monthly Payment Calculator</span>
       <button class="modal-close" onclick="closeModal('calcModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="calc-rate-badge"><div class="dot"></div><span id="calcRateBadge">—</span></div>
       <div class="calc-scenarios">
         <button class="sc-btn active" onclick="loadScenario(500000,100000,30,'live',this)">
-          <div class="sc-name">Starter home</div>
+          <div class="sc-name" data-en="Starter home" data-zh="入门购房">Starter home</div>
           <div class="sc-detail">$500K · 20% · 30yr</div>
         </button>
         <button class="sc-btn" onclick="loadScenario(800000,160000,30,'live',this)">
-          <div class="sc-name">Move-up</div>
+          <div class="sc-name" data-en="Move-up" data-zh="改善置业">Move-up</div>
           <div class="sc-detail">$800K · 20% · 30yr</div>
         </button>
         <button class="sc-btn" onclick="loadScenario(1200000,240000,30,'live',this)">
-          <div class="sc-name">Jumbo</div>
+          <div class="sc-name" data-en="Jumbo" data-zh="大额贷款">Jumbo</div>
           <div class="sc-detail">$1.2M · 20% · 30yr</div>
         </button>
       </div>
       <hr class="calc-divider">
       <div class="calc-row">
-        <span class="calc-lbl">House price</span>
+        <span class="calc-lbl" data-en="House price" data-zh="房屋价格">House price</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="cPrice" value="500,000" oninput="formatInput(this);calc()">
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl">Down payment</span>
+        <span class="calc-lbl" data-en="Down payment" data-zh="首付">Down payment</span>
         <div class="calc-field" style="display:flex;gap:8px">
           <div style="position:relative;flex:1">
             <span class="calc-prefix">$</span>
@@ -843,18 +1111,18 @@
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl">Loan term</span>
+        <span class="calc-lbl" data-en="Loan term" data-zh="贷款年限">Loan term</span>
         <div class="calc-field">
           <select id="cTerm" class="calc-input-bare" oninput="calc()">
-            <option value="30" selected>30 years</option>
-            <option value="20">20 years</option>
-            <option value="15">15 years</option>
-            <option value="10">10 years</option>
+            <option value="30" data-en="30 years" data-zh="30年" selected>30 years</option>
+            <option value="20" data-en="20 years" data-zh="20年">20 years</option>
+            <option value="15" data-en="15 years" data-zh="15年">15 years</option>
+            <option value="10" data-en="10 years" data-zh="10年">10 years</option>
           </select>
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl">Interest rate</span>
+        <span class="calc-lbl" data-en="Interest rate" data-zh="利率">Interest rate</span>
         <div class="calc-rate-row">
           <input type="range" id="cRateSlider" min="3" max="10" step="0.01" value="6.47" oninput="syncRate('slider')">
           <div class="calc-rate-num">
@@ -866,23 +1134,23 @@
       <hr class="calc-divider">
       <div class="metric-grid">
         <div class="metric">
-          <div class="metric-lbl">Monthly payment</div>
+          <div class="metric-lbl" data-en="Monthly payment" data-zh="月供">Monthly payment</div>
           <div class="metric-val" id="mMonthly">—</div>
-          <div class="metric-sub">Principal + interest</div>
+          <div class="metric-sub" data-en="Principal + interest" data-zh="本金 + 利息">Principal + interest</div>
         </div>
         <div class="metric">
-          <div class="metric-lbl">Total interest</div>
+          <div class="metric-lbl" data-en="Total interest" data-zh="总利息">Total interest</div>
           <div class="metric-val" id="mInt">—</div>
           <div class="metric-sub" id="mIntPct">—</div>
         </div>
         <div class="metric">
-          <div class="metric-lbl">Total cost</div>
+          <div class="metric-lbl" data-en="Total cost" data-zh="总费用">Total cost</div>
           <div class="metric-val" id="mTotal">—</div>
           <div class="metric-sub" id="mLoan">—</div>
         </div>
       </div>
       <div class="bar-wrap">
-        <div class="bar-lbl">Principal vs interest over loan life</div>
+        <div class="bar-lbl" data-en="Principal vs interest over loan life" data-zh="贷款期间本金与利息占比">Principal vs interest over loan life</div>
         <div class="bar-track">
           <div class="bar-p" id="barP" style="width:70%"></div>
           <div class="bar-i" id="barI" style="width:30%"></div>
@@ -893,9 +1161,9 @@
         </div>
       </div>
       <div class="amort-wrap">
-        <div class="amort-lbl">Amortization — first 5 years</div>
+        <div class="amort-lbl" data-en="Amortization — first 5 years" data-zh="还款计划 — 前5年">Amortization — first 5 years</div>
         <table class="amort-table">
-          <thead><tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Balance</th></tr></thead>
+          <thead><tr><th data-en="Year" data-zh="年份">Year</th><th data-en="Principal paid" data-zh="已还本金">Principal paid</th><th data-en="Interest paid" data-zh="已还利息">Interest paid</th><th data-en="Balance" data-zh="余额">Balance</th></tr></thead>
           <tbody id="amortBody"></tbody>
         </table>
       </div>
@@ -908,14 +1176,14 @@
 <div class="modal-overlay" id="histModal" onclick="closeOnBg(event,'histModal')">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">📋 Recent Daily Rate History</span>
+      <span class="modal-title" data-en="📋 Recent Daily Rate History" data-zh="📋 近期每日利率记录">📋 Recent Daily Rate History</span>
       <button class="modal-close" onclick="closeModal('histModal')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:12px;color:#8899AA;margin-bottom:14px">30-Year Fixed · MND Index · Last 20 trading days</p>
+      <p style="font-size:12px;color:#8899AA;margin-bottom:14px" data-en="30-Year Fixed · MND Index · Last 20 trading days" data-zh="30年固定利率 · MND指数 · 近20个交易日">30-Year Fixed · MND Index · Last 20 trading days</p>
       <table>
         <thead>
-          <tr><th style="width:30%">Date</th><th style="width:12%">30yr</th><th style="width:12%">15yr</th><th style="width:12%">ARM 5/1</th><th style="width:16%;text-align:right">Change</th><th style="width:18%">Note</th></tr>
+          <tr><th style="width:30%" data-en="Date" data-zh="日期">Date</th><th style="width:12%" data-en="30yr" data-zh="30年">30yr</th><th style="width:12%" data-en="15yr" data-zh="15年">15yr</th><th style="width:12%" data-en="ARM 5/1" data-zh="ARM 5/1">ARM 5/1</th><th style="width:16%;text-align:right" data-en="Change" data-zh="涨跌">Change</th><th style="width:18%" data-en="Note" data-zh="备注">Note</th></tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -1082,12 +1350,13 @@ function renderHero(){
   const lo52_15 = Math.min(...last52data.map(d=>d.r15));
   const hi52_15 = Math.max(...last52data.map(d=>d.r15));
 
-  function rangeBar(lo, hi, current, color) {
+  function rangeBar(lo, hi, current, color, rangeLbl) {
+    rangeLbl = rangeLbl || '52-Week Range';
     const pct = Math.round((current - lo) / (hi - lo) * 100);
     return `
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid #243447">
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#8899AA;margin-bottom:6px">
-          <span>52-Week Range</span>
+          <span>${rangeLbl}</span>
           <span style="display:flex;align-items:center;gap:8px">
             <span>${lo.toFixed(2)}%</span>
             <div style="position:relative;width:80px;height:6px;background:#e8e0d5;border-radius:3px">
@@ -1101,6 +1370,12 @@ function renderHero(){
   }
 
   function statCard(label, rate, wkC, yrC, moAvg, wkAvg52, color, lo52, hi52) {
+    const L = currentLang;
+    const wkLbl    = L==='zh' ? '1周涨跌'  : '1-Wk change';
+    const yrLbl    = L==='zh' ? '1年涨跌'  : '1-Yr change';
+    const moLbl    = L==='zh' ? '月均值'   : 'Monthly avg.';
+    const wkAvgLbl = L==='zh' ? '52周均值' : '52-Wk avg.';
+    const rangeLbl = L==='zh' ? '52周区间' : '52-Week Range';
     return `
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
@@ -1110,30 +1385,32 @@ function renderHero(){
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:12px;text-align:right;flex:1;min-width:160px;color:#2d2420">
           <div>
-            <div style="color:#8c7b6e;margin-bottom:2px">1-Wk change</div>
+            <div style="color:#8c7b6e;margin-bottom:2px">${wkLbl}</div>
             <div>${chgStr(wkC)}</div>
           </div>
           <div>
-            <div style="color:#8c7b6e;margin-bottom:2px">1-Yr change</div>
+            <div style="color:#8c7b6e;margin-bottom:2px">${yrLbl}</div>
             <div>${chgStr(yrC)}</div>
           </div>
           <div>
-            <div style="color:#8c7b6e;margin-bottom:2px">Monthly avg.</div>
+            <div style="color:#8c7b6e;margin-bottom:2px">${moLbl}</div>
             <div style="color:#2d2420">${moAvg}%</div>
           </div>
           <div>
-            <div style="color:#8c7b6e;margin-bottom:2px">52-Wk avg.</div>
+            <div style="color:#8c7b6e;margin-bottom:2px">${wkAvgLbl}</div>
             <div style="color:#2d2420">${wkAvg52}%</div>
           </div>
         </div>
       </div>
-      ${rangeBar(lo52, hi52, parseFloat(rate), color)}
+      ${rangeBar(lo52, hi52, parseFloat(rate), color, rangeLbl)}
     </div>`;
   }
 
+  const lbl30 = currentLang === 'zh' ? '30年固定' : '30-Yr Fixed';
+  const lbl15 = currentLang === 'zh' ? '15年固定' : '15-Yr Fixed';
   document.getElementById('heroCards').innerHTML =
-    statCard('30-Yr Fixed', t.r30.toFixed(2), wkChg, yrChg, avgMo, avg52, '#60a5fa', lo52_30, hi52_30) +
-    statCard('15-Yr Fixed', t.r15.toFixed(2), wkChg15, yrChg15, avgMo_15, avg52_15, '#a78bfa', lo52_15, hi52_15);
+    statCard(lbl30, t.r30.toFixed(2), wkChg, yrChg, avgMo, avg52, '#60a5fa', lo52_30, hi52_30) +
+    statCard(lbl15, t.r15.toFixed(2), wkChg15, yrChg15, avgMo_15, avg52_15, '#a78bfa', lo52_15, hi52_15);
 }
 
 /* ── Chart — fetches from backend with technical indicators ── */
@@ -1394,12 +1671,13 @@ function setRange(n, btn) {
 /* ── Forecast panel — now driven by MA+RSI signal ── */
 function renderForecastFromSignal(signal, r30) {
   if (!signal || !signal.reason) return;
+  const zh = currentLang === 'zh';
   const trendBadge =
     signal.signal === 'bullish'
-      ? '<span class="forecast-badge badge-bullish">↓ Rates trending down</span>'
+      ? `<span class="forecast-badge badge-bullish">${zh ? '↓ 利率趋于下降' : '↓ Rates trending down'}</span>`
       : signal.signal === 'bearish'
-      ? '<span class="forecast-badge badge-bearish">↑ Rates trending up</span>'
-      : '<span class="forecast-badge badge-neutral">→ Rates holding steady</span>';
+      ? `<span class="forecast-badge badge-bearish">${zh ? '↑ 利率趋于上升' : '↑ Rates trending up'}</span>`
+      : `<span class="forecast-badge badge-neutral">${zh ? '→ 利率基本持平' : '→ Rates holding steady'}</span>`;
 
   // Simple linear projection for 30/60 day ranges
   const recent = r30.slice(-30).filter(Boolean);
@@ -1422,9 +1700,21 @@ function renderForecastFromSignal(signal, r30) {
   const barRange  = allTimeHigh - allTime || 1;
   const currentPct = Math.min(99, Math.round((r30[r30.length-1] - allTime) / barRange * 100));
 
+  const title30 = zh ? '30天预测区间' : '30-day projection';
+  const title60 = zh ? '60天预测区间' : '60-day projection';
+  const centerLbl = zh ? '中心值' : 'Center';
+  const widerLbl = zh ? '置信区间更宽' : 'Wider confidence band';
+  const loLbl = zh ? '历史低点' : 'Dataset low';
+  const nowLbl = zh ? '当前' : 'Now';
+  const hiLbl = zh ? '历史高点' : 'High';
+  const pctileLbl = zh
+    ? `当前利率处于20年历史区间（${allTime.toFixed(2)}%–${allTimeHigh.toFixed(2)}%）的<strong style="color:#2d2420">第${currentPct}百分位</strong>。信号基于均线交叉 + RSI(14)。`
+    : `Current rate is at the <strong style="color:#2d2420">${currentPct}th percentile</strong> of its 20-year historical range (${allTime.toFixed(2)}%–${allTimeHigh.toFixed(2)}%). Signals based on MA crossover + RSI(14).`;
+  const sectionTitle = zh ? '📊 利率预测 &amp; 背景分析' : '📊 Rate Forecast &amp; Context';
+
   document.getElementById('forecastPanel').innerHTML = `
     <div class="section-hd" style="margin-bottom:12px">
-      <h2>📊 Rate Forecast &amp; Context</h2>
+      <h2>${sectionTitle}</h2>
       ${trendBadge}
     </div>
     <p style="font-size:12px;color:#8899AA;margin-bottom:14px;line-height:1.7">${signal.reason}</p>
@@ -1435,29 +1725,28 @@ function renderForecastFromSignal(signal, r30) {
     </div>
     <div class="forecast-grid" style="grid-template-columns:1fr 1fr">
       <div class="forecast-card">
-        <div class="forecast-card-label">30-day projection</div>
+        <div class="forecast-card-label">${title30}</div>
         <div class="forecast-range">${lo30}–${hi30}%</div>
-        <div class="forecast-sub">Center: ${in30}%</div>
+        <div class="forecast-sub">${centerLbl}: ${in30}%</div>
       </div>
       <div class="forecast-card">
-        <div class="forecast-card-label">60-day projection</div>
+        <div class="forecast-card-label">${title60}</div>
         <div class="forecast-range">${lo60}–${hi60}%</div>
-        <div class="forecast-sub">Wider confidence band</div>
+        <div class="forecast-sub">${widerLbl}</div>
       </div>
     </div>
     <div style="margin-top:12px">
       <div style="display:flex;justify-content:space-between;font-size:11px;color:#8899AA;margin-bottom:6px">
-        <span>Dataset low ${allTime.toFixed(2)}%</span>
-        <span style="color:#2d2420;font-weight:600">Now ${r30[r30.length-1].toFixed(2)}%</span>
-        <span>High ${allTimeHigh.toFixed(2)}%</span>
+        <span>${loLbl} ${allTime.toFixed(2)}%</span>
+        <span style="color:#2d2420;font-weight:600">${nowLbl} ${r30[r30.length-1].toFixed(2)}%</span>
+        <span>${hiLbl} ${allTimeHigh.toFixed(2)}%</span>
       </div>
       <div class="forecast-bar">
         <div class="forecast-bar-fill" style="left:0;width:${currentPct}%"></div>
         <div class="forecast-bar-current" style="left:calc(${currentPct}% - 1.5px)"></div>
       </div>
       <div style="font-size:11px;color:#8899AA;margin-top:4px">
-        Current rate is at the <strong style="color:#2d2420">${currentPct}th percentile</strong> of its 20-year historical range (${allTime.toFixed(2)}%–${allTimeHigh.toFixed(2)}%).
-        Signals based on MA crossover + RSI(14).
+        ${pctileLbl}
       </div>
     </div>`;
 }
@@ -1498,21 +1787,24 @@ function refi(){
   const breakEven=moSave>0?Math.ceil(costs/moSave):null;
   const fmt2=n=>'$'+Math.round(n).toLocaleString('en-US');
 
+  const zh = currentLang === 'zh';
   // Update hero
   const heroAmt = document.getElementById('refiHeroAmt');
   const heroSub = document.getElementById('refiHeroSub');
   if(!newRate || newRate <= 0){
     heroAmt.textContent = '—';
     heroAmt.style.color = '#8c7b6e';
-    heroSub.textContent = 'Enter your new rate above';
+    heroSub.textContent = zh ? '请在上方输入新利率' : 'Enter your new rate above';
   } else if(moSave > 0){
     heroAmt.textContent = '+'+fmt2(moSave)+'/mo';
     heroAmt.style.color = '#059669';
-    heroSub.textContent = `Refinancing from ${curRate.toFixed(2)}% → ${newRate.toFixed(2)}% on a $${Math.round(loan).toLocaleString()} loan`;
+    heroSub.textContent = zh
+      ? `从 ${curRate.toFixed(2)}% 再融资至 ${newRate.toFixed(2)}%，贷款 $${Math.round(loan).toLocaleString()}`
+      : `Refinancing from ${curRate.toFixed(2)}% → ${newRate.toFixed(2)}% on a $${Math.round(loan).toLocaleString()} loan`;
   } else {
     heroAmt.textContent = fmt2(Math.abs(moSave))+'/mo more';
     heroAmt.style.color = '#f87171';
-    heroSub.textContent = `New rate is higher than current — refinancing not recommended`;
+    heroSub.textContent = zh ? '新利率高于当前利率 — 不建议再融资' : `New rate is higher than current — refinancing not recommended`;
   }
 
   document.getElementById('rCurRateDisplay').textContent=curRate.toFixed(2)+'%';
@@ -1526,7 +1818,9 @@ function refi(){
   document.getElementById('rBreakEven').textContent=breakEven?breakEven+' months':'N/A';
   document.getElementById('rTotalSave').textContent=(totalSave>=0?'+':'')+fmt2(totalSave);
   document.getElementById('rTotalSave').style.color=totalSave>0?'#059669':'#f87171';
-  document.getElementById('refiPreview').textContent=moSave>0?`Save ${fmt2(moSave)}/mo refinancing`:'Enter your current rate';
+  document.getElementById('refiPreview').textContent = moSave>0
+    ? (zh ? `再融资可省 ${fmt2(moSave)}/月` : `Save ${fmt2(moSave)}/mo refinancing`)
+    : (zh ? '请输入当前利率' : 'Enter your current rate');
 }
 
 /* ── Calculator ── */
@@ -1562,17 +1856,18 @@ function calc(){
   document.getElementById('mTotal').textContent=fmt(total);
   document.getElementById('mLoan').textContent='Loan: '+fmt(loan);
   document.getElementById('barP').style.width=pPct+'%';
+  const zhC = currentLang === 'zh';
   document.getElementById('barI').style.width=(100-pPct)+'%';
-  document.getElementById('legP').textContent='Principal '+fmt(loan)+' ('+pPct+'%)';
-  document.getElementById('legI').textContent='Interest '+fmt(ti)+' ('+(100-pPct)+'%)';
+  document.getElementById('legP').textContent=(zhC?'本金 ':'Principal ')+fmt(loan)+' ('+pPct+'%)';
+  document.getElementById('legI').textContent=(zhC?'利息 ':'Interest ')+fmt(ti)+' ('+(100-pPct)+'%)';
   let bal=loan,html='';
   for(let y=1;y<=Math.min(5,term);y++){
     let yP=0,yI=0;
     for(let m=0;m<12;m++){const i=bal*r;const p=mo-i;yI+=i;yP+=p;bal-=p;}
-    html+=`<tr><td>Year ${y}</td><td>${fmt(yP)}</td><td>${fmt(yI)}</td><td>${fmt(Math.max(0,bal))}</td></tr>`;
+    html+=`<tr><td>${zhC?'第'+y+'年':'Year '+y}</td><td>${fmt(yP)}</td><td>${fmt(yI)}</td><td>${fmt(Math.max(0,bal))}</td></tr>`;
   }
   document.getElementById('amortBody').innerHTML=html;
-  document.getElementById('calcPreview').textContent=`$500K home · ${rate.toFixed(2)}% → ${fmt(mo)}/mo`;
+  document.getElementById('calcPreview').textContent=`$500K · ${rate.toFixed(2)}% → ${fmt(mo)}/月`;
 }
 function loadScenario(price,down,term,rateKey,el){
   document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('active'));
@@ -1587,6 +1882,59 @@ function loadScenario(price,down,term,rateKey,el){
   calc();
 }
 
+/* ── Affordability Calculator ── */
+function loadAffordPreset(income, debts, down, el) {
+  document.querySelectorAll('#affordModal .sc-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('affIncome').value = income.toLocaleString('en-US');
+  document.getElementById('affDebts').value = debts.toLocaleString('en-US');
+  document.getElementById('affDown').value = down.toLocaleString('en-US');
+  calcAfford();
+}
+
+function calcAfford(){
+  const income = parseInput('affIncome');
+  const debts = parseInput('affDebts');
+  const down = parseInput('affDown');
+  const term = +document.getElementById('affTerm').value;
+  const dti = +document.getElementById('affDTI').value;
+  document.getElementById('affDTInum').value = dti;
+
+  // Use current rate based on term
+  const rate = term === 30 ? LIVE30 : LIVE15;
+
+  // Max monthly housing payment based on DTI
+  const grossMonthly = income / 12;
+  const maxTotalDebt = grossMonthly * (dti / 100);
+  const maxHousingPayment = Math.max(0, maxTotalDebt - debts);
+
+  // Reverse mortgage formula: given payment, find max loan
+  const n = term * 12;
+  const r = rate / 100 / 12;
+  let maxLoan = 0;
+  if (r > 0) {
+    maxLoan = maxHousingPayment * (Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n));
+  } else {
+    maxLoan = maxHousingPayment * n;
+  }
+
+  const maxHome = Math.max(0, maxLoan + down);
+
+  // Update slider background
+  const s = document.getElementById('affDTI');
+  const pct = ((s.value - s.min) / (s.max - s.min) * 100).toFixed(1);
+  s.style.background = `linear-gradient(to right,#e8732a ${pct}%,#d1ccc6 ${pct}%)`;
+
+  // Display
+  document.getElementById('affMaxHome').textContent = fmt(maxHome);
+  document.getElementById('affMaxPayment').textContent = fmt(maxHousingPayment) + '/mo';
+  document.getElementById('affLoanAmt').textContent = fmt(maxLoan);
+  document.getElementById('affRate').textContent = rate.toFixed(2) + '% (' + term + 'yr)';
+  document.getElementById('affDTIused').textContent = dti + '%';
+  document.getElementById('affordRateBadge').textContent =
+    '30yr: ' + LIVE30.toFixed(2) + '% · 15yr: ' + LIVE15.toFixed(2) + '%';
+}
+
 /* ── History table ── */
 function renderTable(){
   const recent=[...data].reverse().slice(0,20);
@@ -1594,8 +1942,9 @@ function renderTable(){
     const prev=data[data.length-1-i-1];
     const chg=prev?+(d.r30-prev.r30).toFixed(2):null;
     const s=i===0?'background:#FDE8D8;font-weight:600':'';
+    const todayLbl = currentLang==='zh' ? '今日' : 'TODAY';
     return`<tr style="${s}">
-      <td>${fmtDate(d.date)}${i===0?' <span style="color:#8899AA;font-size:11px">TODAY</span>':''}</td>
+      <td>${fmtDate(d.date)}${i===0?` <span style="color:#8899AA;font-size:11px">${todayLbl}</span>`:''}</td>
       <td style="font-size:13px;font-weight:600">${d.r30.toFixed(2)}%</td><td style="font-size:13px">${d.r15.toFixed(2)}%</td><td style="font-size:13px">${d.arm.toFixed(2)}%</td>
       <td>${chg!==null?chgHtml(chg):'<span class="chg-fl">—</span>'}</td>
       <td style="font-size:11px;color:#8899AA">${d.note||''}</td>
@@ -1658,7 +2007,9 @@ function submitAlert(){
   const weekly=document.getElementById('chkWeekly').checked;
   const bigMove=document.getElementById('chkBigMove').checked;
   const rateType=_alertRateType;
+  const zh = currentLang === 'zh';
   const label=rateType==='30yr'?'30yr fixed':'15yr fixed';
+  const labelZh=rateType==='30yr'?'30年固定利率':'15年固定利率';
   fetch(`${BACKEND}/api/subscribe`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -1667,9 +2018,12 @@ function submitAlert(){
   // Show success (optimistic UI)
   document.getElementById('alertSubmitBtn').style.display='none';
   document.getElementById('alertSuccess').style.display='block';
-  document.getElementById('alertSuccessMsg').textContent=
-    `We'll email ${email} when the ${label} rate drops below ${thresh.toFixed(2)}%`;
-  document.getElementById('alertPreview').textContent=`Alert set: ${label} below ${thresh.toFixed(2)}%`;
+  document.getElementById('alertSuccessMsg').textContent = zh
+    ? `我们将在${labelZh}低于 ${thresh.toFixed(2)}% 时发邮件通知 ${email}`
+    : `We'll email ${email} when the ${label} rate drops below ${thresh.toFixed(2)}%`;
+  document.getElementById('alertPreview').textContent = zh
+    ? `已设提醒：${labelZh} 低于 ${thresh.toFixed(2)}%`
+    : `Alert set: ${label} below ${thresh.toFixed(2)}%`;
 }
 
 /* ── News modal ── */
@@ -1702,36 +2056,49 @@ function scoreImpact(title) {
 }
 
 function impactLabel(impact) {
-  if (impact === 'up')      return { text:'▲ Rates Higher', bg:'#fff0f0', border:'#f87171', color:'#dc2626' };
-  if (impact === 'down')    return { text:'▼ Rates Lower',  bg:'#f0fdf4', border:'#16a34a', color:'#16a34a' };
-  return                           { text:'Neutral',       bg:'#f5f5f5', border:'#e8e0d5', color:'#8c7b6e' };
+  const zh = currentLang === 'zh';
+  if (impact === 'up')   return { text: zh?'▲ 利率上行':'▲ Rates Higher', bg:'#fff0f0', border:'#f87171', color:'#dc2626' };
+  if (impact === 'down') return { text: zh?'▼ 利率下行':'▼ Rates Lower',  bg:'#f0fdf4', border:'#16a34a', color:'#16a34a' };
+  return                        { text: zh?'中性':'Neutral',               bg:'#f5f5f5', border:'#e8e0d5', color:'#8c7b6e' };
 }
 
 function impactReason(title, impact) {
   const t = title.toLowerCase();
+  const zh = currentLang === 'zh';
   if (impact === 'up') {
     if (t.includes('inflation') || t.includes('cpi'))
-      return 'Higher inflation → Fed stays hawkish → bond yields rise → mortgage rates up.';
+      return zh ? '通胀上升 → 美联储保持鹰派 → 债券收益率上升 → 房贷利率上行。'
+                : 'Higher inflation → Fed stays hawkish → bond yields rise → mortgage rates up.';
     if (t.includes('job') || t.includes('employment'))
-      return 'Strong jobs data → economy resilient → Fed less likely to cut → rates stay elevated.';
+      return zh ? '就业数据强劲 → 经济有韧性 → 美联储不急于降息 → 利率维持高位。'
+                : 'Strong jobs data → economy resilient → Fed less likely to cut → rates stay elevated.';
     if (t.includes('fed') || t.includes('rate hike') || t.includes('hawkish'))
-      return 'Fed hawkish stance → market prices in fewer cuts → long-term rates rise.';
+      return zh ? '美联储鹰派立场 → 市场预期降息次数减少 → 长期利率上升。'
+                : 'Fed hawkish stance → market prices in fewer cuts → long-term rates rise.';
     if (t.includes('tariff') || t.includes('war') || t.includes('iran'))
-      return 'Geopolitical risk / tariffs → inflation fear → bond sell-off → rates up.';
-    return 'Bullish economic signal → reduces rate cut expectations → mortgage rates trend higher.';
+      return zh ? '地缘政治风险 / 关税 → 通胀担忧 → 债券抛售 → 利率上行。'
+                : 'Geopolitical risk / tariffs → inflation fear → bond sell-off → rates up.';
+    return zh ? '看多经济信号 → 降息预期下降 → 房贷利率趋于上行。'
+              : 'Bullish economic signal → reduces rate cut expectations → mortgage rates trend higher.';
   }
   if (impact === 'down') {
     if (t.includes('inflation') || t.includes('cpi'))
-      return 'Cooling inflation → Fed can cut sooner → bond rally → mortgage rates fall.';
+      return zh ? '通胀降温 → 美联储可能提早降息 → 债券上涨 → 房贷利率下降。'
+                : 'Cooling inflation → Fed can cut sooner → bond rally → mortgage rates fall.';
     if (t.includes('job') || t.includes('unemployment'))
-      return 'Weak jobs → economic slowdown → Fed more likely to cut → rates ease.';
+      return zh ? '就业疲软 → 经济放缓 → 美联储更可能降息 → 利率走低。'
+                : 'Weak jobs → economic slowdown → Fed more likely to cut → rates ease.';
     if (t.includes('ceasefire') || t.includes('peace') || t.includes('de-escalat'))
-      return 'Geopolitical calm → risk-off unwind → bond prices rise → yields (and rates) fall.';
+      return zh ? '地缘局势缓和 → 避险解除 → 债券价格上涨 → 收益率（及利率）下降。'
+                : 'Geopolitical calm → risk-off unwind → bond prices rise → yields (and rates) fall.';
     if (t.includes('fed cut') || t.includes('rate cut') || t.includes('dovish'))
-      return 'Fed dovish signal → market prices in more cuts → 10-yr Treasury yields drop → rates follow.';
-    return 'Bearish economic signal → increases cut expectations → mortgage rates trend lower.';
+      return zh ? '美联储鸽派信号 → 市场预期更多降息 → 10年期国债收益率下降 → 利率跟随。'
+                : 'Fed dovish signal → market prices in more cuts → 10-yr Treasury yields drop → rates follow.';
+    return zh ? '看空经济信号 → 降息预期上升 → 房贷利率趋于下行。'
+              : 'Bearish economic signal → increases cut expectations → mortgage rates trend lower.';
   }
-  return 'Mixed signals — no dominant rate driver identified in this headline.';
+  return zh ? '信号混杂 — 本条头条中未识别出主要利率驱动因素。'
+            : 'Mixed signals — no dominant rate driver identified in this headline.';
 }
 
 const FALLBACK_NEWS = [
@@ -1798,24 +2165,37 @@ function renderSentimentChart(items) {
 
   // Overall verdict
   let verdictIcon, verdictColor, verdictText;
+  const zh = currentLang === 'zh';
   if (downPct > upPct + 15) {
     verdictIcon='▼'; verdictColor='#4ade80';
-    verdictText=`<strong style="color:#8899AA">${downPct}% of headlines point to lower rates.</strong> Dominant themes: cooling inflation, Fed dovish signals, or geopolitical de-escalation — all of which push bond yields and mortgage rates down.`;
+    verdictText = zh
+      ? `<strong style="color:#4ade80">${downPct}% 的头条指向利率下降。</strong>主导主题：通胀降温、美联储鸽派信号或地缘政治降级——这些均推低债券收益率和房贷利率。`
+      : `<strong style="color:#4ade80">${downPct}% of headlines point to lower rates.</strong> Dominant themes: cooling inflation, Fed dovish signals, or geopolitical de-escalation — all of which push bond yields and mortgage rates down.`;
   } else if (upPct > downPct + 15) {
     verdictIcon='▲'; verdictColor='#f87171';
-    verdictText=`<strong style="color:#f87171">${upPct}% of headlines point to higher rates.</strong> Dominant themes: hot inflation, strong jobs, or hawkish Fed — reducing rate cut expectations and pushing mortgage rates up.`;
+    verdictText = zh
+      ? `<strong style="color:#f87171">${upPct}% 的头条指向利率上升。</strong>主导主题：通胀高企、就业强劲或美联储鹰派——降低降息预期，推升房贷利率。`
+      : `<strong style="color:#f87171">${upPct}% of headlines point to higher rates.</strong> Dominant themes: hot inflation, strong jobs, or hawkish Fed — reducing rate cut expectations and pushing mortgage rates up.`;
   } else {
     verdictIcon='→'; verdictColor='#94a3b8';
-    verdictText=`<strong style="color:#8899AA">Mixed signals across today's headlines.</strong> Bullish and bearish rate drivers are roughly balanced — expect rates to consolidate near current levels in the near term.`;
+    verdictText = zh
+      ? `<strong style="color:#8899AA">今日头条信号混杂。</strong>利率看涨和看跌因素大致平衡——预计利率短期内将在当前水平附近整理。`
+      : `<strong style="color:#8899AA">Mixed signals across today's headlines.</strong> Bullish and bearish rate drivers are roughly balanced — expect rates to consolidate near current levels in the near term.`;
   }
   document.getElementById('sentVerdict').innerHTML =
     `<span style="font-size:18px;margin-right:8px">${verdictIcon}</span>${verdictText}`;
 
   // Update button preview
-  const dominant = downPct >= upPct && downPct >= neutralPct ? '▼ Mostly bearish for rates'
-                 : upPct > downPct && upPct >= neutralPct    ? '▲ Mostly bullish for rates'
-                 : '→ Mixed signals';
-  document.getElementById('newsPreview').textContent = `${items.length} articles · ${dominant}`;
+  const dominant = zh
+    ? (downPct >= upPct && downPct >= neutralPct ? '▼ 利率偏向下行'
+      : upPct > downPct && upPct >= neutralPct    ? '▲ 利率偏向上行'
+      : '→ 信号混杂')
+    : (downPct >= upPct && downPct >= neutralPct ? '▼ Mostly bearish for rates'
+      : upPct > downPct && upPct >= neutralPct    ? '▲ Mostly bullish for rates'
+      : '→ Mixed signals');
+  document.getElementById('newsPreview').textContent = zh
+    ? `${items.length} 篇文章 · ${dominant}`
+    : `${items.length} articles · ${dominant}`;
 }
 
 function renderNews(items) {
@@ -1823,16 +2203,17 @@ function renderNews(items) {
   const list = document.getElementById('newsList');
   list.style.display = 'block';
   if (!items.length) {
-    list.innerHTML = '<p style="color:#8899AA;font-size:13px">No articles found.</p>';
+    list.innerHTML = `<p style="color:#8899AA;font-size:13px">${currentLang==='zh'?'未找到相关文章。':'No articles found.'}</p>`;
     return;
   }
   list.innerHTML = items.map(a => {
     const lbl = impactLabel(a.impact);
     const reason = impactReason(a.title, a.impact);
+    const tagLabel = currentLang==='zh' ? (a.tag==='fed'?'美联储':'利率') : (a.tag==='fed'?'Fed':'Rates');
     return `
     <div class="news-item" data-tag="${a.tag}" data-impact="${a.impact}" style="flex-direction:column;align-items:stretch;gap:6px">
       <div style="display:flex;align-items:flex-start;gap:10px">
-        <span class="news-tag ${a.tag==='fed'?'tag-fed':'tag-mortgage'}" style="flex-shrink:0;margin-top:2px">${a.tag==='fed'?'Fed':'Rates'}</span>
+        <span class="news-tag ${a.tag==='fed'?'tag-fed':'tag-mortgage'}" style="flex-shrink:0;margin-top:2px">${tagLabel}</span>
         <div style="flex:1">
           <div class="news-title"><a href="${a.url}" target="_blank">${a.title}</a></div>
           <div class="news-meta"><span class="news-source">${a.source}</span>${a.date?' · '+a.date:''}</div>
@@ -1947,13 +2328,19 @@ function calcArm(){
   // Verdict
   const verdictEl = document.getElementById('armVerdict');
   const initSave = fixedMo - armInitMo;
+  const zh = currentLang === 'zh';
   if(crossoverMonth){
     const yr = Math.floor(crossoverMonth/12);
     const mo2 = crossoverMonth % 12;
-    verdictEl.innerHTML = `📌 <strong>ARM saves ${fmt2(initSave)}/mo</strong> for the first ${armFixed} years. After that, ARM costs <strong>${fmt2(armAdjMo_val - fixedMo)}/mo more</strong>.<br>
+    verdictEl.innerHTML = zh
+      ? `📌 <strong>浮动利率前${armFixed}年每月省 ${fmt2(initSave)}</strong>。之后浮动利率每月<strong>多付 ${fmt2(armAdjMo_val - fixedMo)}</strong>。<br>
+      💡 浮动利率在大约<strong>第${yr}年${mo2>0?' 第'+mo2+'个月':''}变贵</strong>。如果您计划在此之前卖房或再融资，浮动利率可能更划算。`
+      : `📌 <strong>ARM saves ${fmt2(initSave)}/mo</strong> for the first ${armFixed} years. After that, ARM costs <strong>${fmt2(armAdjMo_val - fixedMo)}/mo more</strong>.<br>
     💡 ARM becomes more expensive around <strong>Year ${yr}${mo2>0?' Month '+mo2:''}</strong>. If you plan to sell or refi before then, ARM may save you money.`;
   } else {
-    verdictEl.innerHTML = `✅ <strong>ARM saves ${fmt2(initSave)}/mo</strong> for the first ${armFixed} years and stays cheaper — because the adjusted rate (${armAdj}%) is still below the fixed rate (${fixedRate}%).`;
+    verdictEl.innerHTML = zh
+      ? `✅ <strong>浮动利率前${armFixed}年每月省 ${fmt2(initSave)}</strong>，且持续更便宜——因为调整后利率（${armAdj}%）仍低于固定利率（${fixedRate}%）。`
+      : `✅ <strong>ARM saves ${fmt2(initSave)}/mo</strong> for the first ${armFixed} years and stays cheaper — because the adjusted rate (${armAdj}%) is still below the fixed rate (${fixedRate}%).`;
   }
 
   // Build cumulative interest for annotation
@@ -2303,21 +2690,69 @@ function downloadCard() {
   if(txt) txt.textContent=u+'\u0040'+d;
 })();
 
+// ══════════════════════════════════════════════
+// LANG TOGGLE SYSTEM — must be declared before render calls
+// ══════════════════════════════════════════════
+let currentLang = 'en';
+
+function updateHeaderSub(date) {
+  const el = document.getElementById('headerSub');
+  if (!el) return;
+  const d = date || TODAY.date;
+  el.textContent = currentLang === 'zh'
+    ? `每日利率 · Mortgage News Daily + Bankrate · ${d}`
+    : `Daily rates · Mortgage News Daily + Bankrate · ${d}`;
+}
+
+function applyLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const txt = el.getAttribute('data-' + lang);
+    if (txt === null) return;
+    if (txt.includes('<') || txt.includes('&')) {
+      el.innerHTML = txt;
+    } else {
+      el.textContent = txt;
+    }
+  });
+  document.querySelectorAll('option[data-en]').forEach(opt => {
+    const txt = opt.getAttribute('data-' + lang);
+    if (txt !== null) opt.textContent = txt;
+  });
+  const alertEmail = document.getElementById('alertEmail');
+  if (alertEmail) alertEmail.placeholder = lang === 'zh' ? '您的邮箱地址' : 'your email address';
+  const btn = document.getElementById('langToggleBtn');
+  if (btn) btn.textContent = lang === 'zh' ? 'EN' : '中文';
+  document.documentElement.lang = lang === 'zh' ? 'zh' : 'en';
+  updateHeaderSub();
+  renderForecast();
+  renderHero();
+  renderTable();
+  calc();
+  refi();
+}
+
+function toggleLang() {
+  applyLang(currentLang === 'en' ? 'zh' : 'en');
+}
+
+// Initial render
 renderHero();
 renderForecast();
 renderTable();
 
 // Set header date dynamically
-document.getElementById('headerSub').textContent =
-  `Daily rates · Mortgage News Daily + Bankrate · ${TODAY.date}`;
+updateHeaderSub();
 
 document.getElementById('cRateNum').value=LIVE30.toFixed(2);
 document.getElementById('cRateSlider').value=LIVE30;
-document.getElementById('calcRateBadge').textContent=
-  `Auto-synced: 30yr ${LIVE30.toFixed(2)}% · 15yr ${LIVE15.toFixed(2)}% · ${TODAY.date}`;
+document.getElementById('calcRateBadge').textContent =
+  currentLang === 'zh'
+    ? `实时：30年 ${LIVE30.toFixed(2)}% · 15年 ${LIVE15.toFixed(2)}% · ${TODAY.date}`
+    : `Auto-synced: 30yr ${LIVE30.toFixed(2)}% · 15yr ${LIVE15.toFixed(2)}% · ${TODAY.date}`;
 calc();
 document.getElementById('alertCurrentRate').textContent=LIVE30.toFixed(2)+'%';
-  document.getElementById('alertCurrentRate15').textContent=LIVE15.toFixed(2)+'%';
+document.getElementById('alertCurrentRate15').textContent=LIVE15.toFixed(2)+'%';
 updateThresh();
 document.getElementById('rNewNum').value=LIVE30.toFixed(2);
 document.getElementById('rNewSlider').value=LIVE30;
@@ -2352,6 +2787,7 @@ renderChart(14);
       if(rate.arm) exists.arm=rate.arm;
     }
     LIVE30=rate.r30; LIVE15=rate.r15; TODAY=data[data.length-1];
+    calcAfford();
 
     // Also fetch 90-day history from backend to fill in any missing dates
     try {
@@ -2370,13 +2806,14 @@ renderChart(14);
     } catch(e){}
 
     // Update all UI
-    document.getElementById('headerSub').textContent =
-      `Daily rates · Mortgage News Daily + Bankrate · ${rate.date}`;
-    document.getElementById('pill-date').textContent = `Updated ${rate.date}`;
+    updateHeaderSub(rate.date);
+    document.getElementById('pill-date').textContent = currentLang === 'zh'
+      ? `更新于 ${rate.date}` : `Updated ${rate.date}`;
     renderHero();
     renderChart(currentRange);
-    document.getElementById('calcRateBadge').textContent=
-      `Live: 30yr ${rate.r30.toFixed(2)}% · 15yr ${rate.r15.toFixed(2)}% · ${rate.date}`;
+    document.getElementById('calcRateBadge').textContent = currentLang === 'zh'
+      ? `实时：30年 ${rate.r30.toFixed(2)}% · 15年 ${rate.r15.toFixed(2)}% · ${rate.date}`
+      : `Live: 30yr ${rate.r30.toFixed(2)}% · 15yr ${rate.r15.toFixed(2)}% · ${rate.date}`;
     document.getElementById('alertCurrentRate').textContent=rate.r30.toFixed(2)+'%';
     document.getElementById('alertCurrentRate15').textContent=rate.r15.toFixed(2)+'%';
     document.getElementById('rNewNum').value=rate.r30.toFixed(2);
@@ -2389,6 +2826,111 @@ renderChart(14);
     console.log('[Backend unavailable — using embedded data]');
   }
 })();
+
+/* ── Compare Scenarios Calculator ── */
+function fmtCmp(id) {
+  const el = document.getElementById(id);
+  const raw = el.value.replace(/[^0-9]/g, '');
+  el.value = raw ? (+raw).toLocaleString('en-US') : '';
+}
+
+function parseCmpInput(id) {
+  return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+}
+
+function cmpMoPay(rate, loan, years) {
+  const r = rate / 100 / 12, n = years * 12;
+  return r > 0 ? loan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1) : loan/n;
+}
+
+function cmpCalc() {
+  const zh = currentLang === 'zh';
+  const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
+
+  function planCalc(pfx) {
+    const price   = parseCmpInput(pfx + 'Price');
+    const downPct = parseFloat(document.getElementById(pfx+'Down').value) || 0;
+    const rate    = parseFloat(document.getElementById(pfx+'Rate').value) || 0;
+    const points  = parseFloat(document.getElementById(pfx+'Points').value) || 0;
+    const term    = parseInt(document.getElementById(pfx+'Term').value) || 30;
+    const down    = price * downPct / 100;
+    const loan    = price - down;
+    const pi      = cmpMoPay(rate, loan, term);
+    const pmi     = downPct < 20 ? loan * 0.005 / 12 : 0;
+    const ptCost  = loan * points / 100;
+    const total   = pi + pmi;
+    const cashNeeded = down + ptCost;
+    const annualIncome = total * 12 / 0.28;
+    return { price, down, downPct, loan, rate, points, term, pi, pmi, ptCost, total, cashNeeded, annualIncome };
+  }
+
+  const A = planCalc('cmpA');
+  const B = planCalc('cmpB');
+
+  // Banner
+  document.getElementById('cmpATotal').textContent = fmt(A.total) + '/mo';
+  document.getElementById('cmpBTotal').textContent = fmt(B.total) + '/mo';
+  const diff = A.total - B.total;
+  const diffEl = document.getElementById('cmpDiff');
+  diffEl.textContent = (diff >= 0 ? '+' : '−') + '$' + Math.round(Math.abs(diff)).toLocaleString('en-US') + '/mo';
+  diffEl.style.color = diff <= 0 ? '#16a34a' : '#f87171';
+  document.getElementById('cmpDiffLabel').textContent = zh
+    ? (diff <= 0 ? 'A比B节省' : 'A比B多付')
+    : (diff <= 0 ? 'A saves vs B' : 'A costs more');
+
+  // Table rows config
+  const rows = [
+    { en: 'Home Price',    zh: '房价',       a: A.price,        b: B.price        },
+    { en: 'Down Payment',  zh: '首付',       a: A.down,         b: B.down         },
+    { en: 'Loan Amount',   zh: '贷款金额',   a: A.loan,         b: B.loan         },
+    { en: 'P&I Payment',   zh: '本息月供',   a: A.pi,           b: B.pi,   bold: true },
+    { en: 'PMI (est.)',    zh: 'PMI（估算）', a: A.pmi,          b: B.pmi          },
+    { en: 'Total Monthly', zh: '月供合计',   a: A.total,        b: B.total, bold: true, hi: true },
+    { en: 'Points Cost',   zh: '买点费用',   a: A.ptCost,       b: B.ptCost       },
+    { en: 'Cash Needed',   zh: '所需现金',   a: A.cashNeeded,   b: B.cashNeeded   },
+    { en: 'Income Needed', zh: '所需年收入', a: A.annualIncome, b: B.annualIncome },
+  ];
+
+  document.getElementById('cmpTableBody').innerHTML = rows.map(r => {
+    const d = r.a - r.b;
+    const dc = d < 0 ? '#16a34a' : d > 0 ? '#f87171' : '#8c7b6e';
+    const dt = d === 0 ? '—' : (d > 0 ? '+' : '−') + '$' + Math.round(Math.abs(d)).toLocaleString('en-US');
+    return `<tr style="${r.hi ? 'background:#fff3e6' : ''}">
+      <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;color:#8c7b6e;font-size:12px;${r.bold?'font-weight:700':''}">${zh ? r.zh : r.en}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:#1D4ED8;${r.bold?'font-weight:700':''}">${fmt(r.a)}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:#e8732a;${r.bold?'font-weight:700':''}">${fmt(r.b)}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:${dc};font-weight:600">${dt}</td>
+    </tr>`;
+  }).join('');
+
+  // Verdict
+  const cheaper = diff <= 0 ? 'A' : 'B';
+  const saving = Math.abs(diff);
+  const hasPoints = A.ptCost > 0 || B.ptCost > 0;
+  document.getElementById('cmpVerdict').innerHTML = zh
+    ? `📌 方案<strong>${cheaper}</strong>月供更低，每月节省 <strong style="color:#16a34a">$${Math.round(saving).toLocaleString()}</strong>，每年节省 <strong style="color:#16a34a">$${Math.round(saving*12).toLocaleString()}</strong>。<br>
+      💡 ${hasPoints ? '买点可降低利率，但增加前期成本——建议计算回本月数。' : '首付低于20%需支付PMI，增加每月费用。'}`
+    : `📌 Plan <strong>${cheaper}</strong> has a lower monthly payment — saves <strong style="color:#16a34a">$${Math.round(saving).toLocaleString()}/mo</strong> · <strong style="color:#16a34a">$${Math.round(saving*12).toLocaleString()}/yr</strong>.<br>
+      💡 ${hasPoints ? 'Buying points lowers your rate but adds upfront cost — calculate break-even months.' : 'Down payment below 20% triggers PMI, adding to your monthly cost.'}`;
+
+  // Preview button text
+  const prev = document.getElementById('comparePreview');
+  if (prev) prev.textContent = zh
+    ? `A: ${fmt(A.total)}/月 vs B: ${fmt(B.total)}/月`
+    : `A: ${fmt(A.total)}/mo vs B: ${fmt(B.total)}/mo`;
+}
+
+// Patch openModal to auto-sync live rate when Compare opens
+const _cmpOrigOpen = openModal;
+openModal = function(id) {
+  _cmpOrigOpen(id);
+  if (id === 'compareModal') {
+    const aRate = document.getElementById('cmpARate');
+    const bRate = document.getElementById('cmpBRate');
+    if (aRate && !aRate._synced) { aRate.value = LIVE30.toFixed(2); bRate.value = LIVE30.toFixed(2); aRate._synced = true; }
+    cmpCalc();
+  }
+};
 
 </script>
 </body>

@@ -41,19 +41,26 @@ def init_db():
         CREATE TABLE IF NOT EXISTS subscribers (
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
             email     TEXT NOT NULL UNIQUE,
-            threshold REAL NOT NULL,
+            name      TEXT DEFAULT '',
+            threshold REAL NOT NULL DEFAULT 5.0,
             rate_type TEXT DEFAULT '30yr',
             weekly    INTEGER DEFAULT 1,
             big_move  INTEGER DEFAULT 1,
             active    INTEGER DEFAULT 1,
+            source    TEXT DEFAULT 'alert',
             created   TEXT DEFAULT (datetime('now'))
         )
     """)
-    # Migration: add rate_type column if missing (existing DBs)
-    try:
-        con.execute("ALTER TABLE subscribers ADD COLUMN rate_type TEXT DEFAULT '30yr'")
-    except Exception:
-        pass  # column already exists
+    # Migrations for existing DBs
+    for col, definition in [
+        ("rate_type", "TEXT DEFAULT '30yr'"),
+        ("name",      "TEXT DEFAULT ''"),
+        ("source",    "TEXT DEFAULT 'alert'"),
+    ]:
+        try:
+            con.execute(f"ALTER TABLE subscribers ADD COLUMN {col} {definition}")
+        except Exception:
+            pass
     con.execute("""
         CREATE TABLE IF NOT EXISTS rate_log (
             date    TEXT PRIMARY KEY,
@@ -505,10 +512,12 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 class SubscribeRequest(BaseModel):
     email:     str
-    threshold: float
-    rate_type: str = "30yr"   # "30yr" or "15yr"
+    threshold: float = 5.0      # default threshold so sign-in works without setting alert
+    rate_type: str = "30yr"     # "30yr" or "15yr"
     weekly:    bool = True
     big_move:  bool = True
+    name:      str = ""         # from sign-in registration
+    source:    str = "alert"    # "alert" or "tool_signin"
 
 # ── API Routes ────────────────────────────────────────────────────────────────
 
@@ -592,16 +601,21 @@ async def subscribe(req: SubscribeRequest):
     existing = con.execute("SELECT id FROM subscribers WHERE email=?", (req.email,)).fetchone()
     if existing:
         con.execute(
-            "UPDATE subscribers SET threshold=?, rate_type=?, weekly=?, big_move=?, active=1 WHERE email=?",
-            (req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.email)
+            "UPDATE subscribers SET threshold=?, rate_type=?, weekly=?, big_move=?, active=1, name=COALESCE(NULLIF(?,''),(SELECT name FROM subscribers WHERE email=?)) WHERE email=?",
+            (req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.name, req.email, req.email)
         )
     else:
         con.execute(
-            "INSERT INTO subscribers (email, threshold, rate_type, weekly, big_move) VALUES (?,?,?,?,?)",
-            (req.email, req.threshold, req.rate_type, int(req.weekly), int(req.big_move))
+            "INSERT INTO subscribers (email, name, threshold, rate_type, weekly, big_move, source) VALUES (?,?,?,?,?,?,?)",
+            (req.email, req.name, req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.source)
         )
     con.commit()
     con.close()
+
+    # Skip confirmation email for tool sign-ins (just collecting leads)
+    if req.source == "tool_signin":
+        return {"status": "ok", "message": f"User registered: {req.email}"}
+
     label = "30yr fixed" if req.rate_type == "30yr" else "15yr fixed"
     try:
         resend.Emails.send({
@@ -638,6 +652,130 @@ async def subscriber_count():
     n = con.execute("SELECT COUNT(*) FROM subscribers WHERE active=1").fetchone()[0]
     con.close()
     return {"active": n}
+
+@app.get("/api/admin/subscribers")
+async def admin_subscribers(key: str = ""):
+    """
+    Admin endpoint — view all subscribers.
+    Protected by ADMIN_KEY env variable.
+    Usage: /api/admin/subscribers?key=your_secret_key
+    Returns HTML table in browser, or JSON if ?format=json
+    """
+    admin_key = os.getenv("ADMIN_KEY", "")
+    if not admin_key or key != admin_key:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="Invalid or missing admin key. Set ADMIN_KEY env variable in Railway.")
+
+    con = get_db()
+    rows = con.execute(
+        """SELECT email, name, threshold, rate_type, weekly, big_move, active, source, created
+           FROM subscribers
+           ORDER BY created DESC"""
+    ).fetchall()
+    con.close()
+
+    total   = len(rows)
+    active  = sum(1 for r in rows if r[6] == 1)
+    unsub   = total - active
+
+    # Build HTML response (renders nicely in browser)
+    from fastapi.responses import HTMLResponse
+    html_rows = ""
+    for r in rows:
+        email, name, thresh, rate_type, weekly, big_move, is_active, source, created = r
+        status_badge = (
+            '<span style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;padding:2px 8px;border-radius:12px;font-size:11px">✓ Active</span>'
+            if is_active else
+            '<span style="background:#fef2f2;color:#ef4444;border:1px solid #fecaca;padding:2px 8px;border-radius:12px;font-size:11px">Unsubscribed</span>'
+        )
+        source_badge = (
+            '<span style="background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe;padding:2px 7px;border-radius:12px;font-size:10px">sign-in</span>'
+            if source == "tool_signin" else
+            '<span style="background:#fff7ed;color:#e8732a;border:1px solid #fed7aa;padding:2px 7px;border-radius:12px;font-size:10px">alert</span>'
+        )
+        html_rows += f"""<tr style="border-bottom:1px solid #f0ece6">
+            <td style="padding:10px 14px;font-size:13px">{email}</td>
+            <td style="padding:10px 14px;font-size:13px;color:#6b5e52">{name or '—'}</td>
+            <td style="padding:10px 14px;font-size:13px;text-align:center">{thresh:.2f}%</td>
+            <td style="padding:10px 14px;font-size:13px;text-align:center">{rate_type or '30yr'}</td>
+            <td style="padding:10px 14px;font-size:12px;color:#8c7b6e">{(created or '')[:16]}</td>
+            <td style="padding:10px 14px">{source_badge}</td>
+            <td style="padding:10px 14px">{status_badge}</td>
+        </tr>"""
+
+    html = f"""<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SiLink — Subscribers</title>
+<style>
+  body {{ margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f4f2ee; padding:24px }}
+  .card {{ background:#fff; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.08); padding:24px; max-width:1000px; margin:0 auto }}
+  h1 {{ font-size:20px; font-weight:700; color:#1C1E27; margin:0 0 4px }}
+  .sub {{ font-size:13px; color:#8c7b6e; margin-bottom:20px }}
+  .stats {{ display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap }}
+  .stat {{ background:#faf8f5; border-radius:8px; padding:12px 20px; text-align:center }}
+  .stat-n {{ font-size:28px; font-weight:800; color:#e8732a }}
+  .stat-l {{ font-size:11px; color:#8c7b6e; text-transform:uppercase; letter-spacing:.6px; margin-top:2px }}
+  table {{ width:100%; border-collapse:collapse }}
+  th {{ font-size:11px; color:#8c7b6e; text-transform:uppercase; letter-spacing:.6px; padding:8px 14px; text-align:left; border-bottom:2px solid #e8e0d5 }}
+  tr:hover td {{ background:#faf8f5 }}
+  .export {{ margin-top:16px; font-size:12px; color:#8c7b6e }}
+  a {{ color:#e8732a }}
+</style>
+</head><body>
+<div class="card">
+  <h1>📋 SiLink Subscriber List</h1>
+  <div class="sub">Mortgage Rate Tracker · Admin View · {datetime.today().strftime('%Y-%m-%d %H:%M')} UTC</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">{total}</div><div class="stat-l">Total</div></div>
+    <div class="stat"><div class="stat-n" style="color:#16a34a">{active}</div><div class="stat-l">Active</div></div>
+    <div class="stat"><div class="stat-n" style="color:#94a3b8">{unsub}</div><div class="stat-l">Unsubscribed</div></div>
+  </div>
+  <table>
+    <thead><tr>
+      <th>Email</th>
+      <th>Name</th>
+      <th style="text-align:center">Alert %</th>
+      <th style="text-align:center">Type</th>
+      <th>Signed Up</th>
+      <th>Source</th>
+      <th>Status</th>
+    </tr></thead>
+    <tbody>{html_rows if html_rows else '<tr><td colspan="7" style="padding:20px;text-align:center;color:#8c7b6e">No subscribers yet</td></tr>'}</tbody>
+  </table>
+  <div class="export">
+    📥 Download CSV: <a href="/api/admin/subscribers/export?key={key}">Export all as CSV</a>
+  </div>
+</div>
+</body></html>"""
+    return HTMLResponse(content=html)
+
+@app.get("/api/admin/subscribers/export")
+async def export_subscribers_csv(key: str = ""):
+    """Export all subscribers as CSV."""
+    admin_key = os.getenv("ADMIN_KEY", "")
+    if not admin_key or key != admin_key:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="Invalid admin key.")
+
+    con = get_db()
+    rows = con.execute(
+        "SELECT email, threshold, rate_type, weekly, big_move, active, created FROM subscribers ORDER BY created DESC"
+    ).fetchall()
+    con.close()
+
+    from fastapi.responses import Response
+    csv_lines = ["email,threshold,rate_type,weekly,big_move,active,created"]
+    for r in rows:
+        csv_lines.append(",".join(str(x) for x in r))
+    csv_content = "\n".join(csv_lines)
+
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=silink_subscribers_{datetime.today().strftime('%Y%m%d')}.csv"}
+    )
 
 # ── News ──────────────────────────────────────────────────────────────────────
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")

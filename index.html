@@ -106,7 +106,7 @@
     .sc-detail{font-size:10px;color:#8c7b6e;margin-top:2px}
     .sc-btn.active .sc-name{color:#e8732a}
     .calc-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-    .calc-lbl{font-size:12px;color:#8c7b6e;width:76px;flex-shrink:0}
+    .calc-lbl{font-size:12px;color:#8c7b6e;width:110px;flex-shrink:0;line-height:1.4}
     .calc-field{flex:1;min-width:100px;position:relative}
     .calc-prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#8c7b6e;pointer-events:none}
     .calc-input{width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:8px 10px 8px 24px;color:#2d2420;font-size:14px;outline:none}
@@ -203,30 +203,37 @@
 <div class="container">
 
 <!-- Top navigation banner -->
-<nav style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border-radius:12px;padding:14px 28px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-  <div style="line-height:1.2"><div style="font-size:17px;font-weight:700;color:#1C1E27;letter-spacing:1px">SiLink</div><div style="font-size:10px;font-weight:400;color:#4a3f4a;letter-spacing:2px;text-transform:uppercase">Stefanie Si</div></div>
-  <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap">
-    <a href="#heroCards" data-en="Daily Rate" data-zh="今日利率" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Daily Rate</a>
-    <span style="color:rgba(60,50,60,0.25)">|</span>
-    <a href="#myChart" data-en="Chart" data-zh="走势图" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Chart</a>
-    <span style="color:rgba(60,50,60,0.25)">|</span>
-    <a href="#forecastPanel" data-en="Forecast" data-zh="预测" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Forecast</a>
-    <span style="color:rgba(60,50,60,0.25)">|</span>
-    <a href="#toolGrid" data-en="Tools" data-zh="工具" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">Tools</a>
-    <span style="color:rgba(60,50,60,0.25)">|</span>
-    <a href="https://www.silinkre.com/" target="_blank" data-en="About" data-zh="关于" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:6px 18px;transition:color .15s" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">About</a>
-    <a href="#contactFooter" data-en="CONTACT" data-zh="联系我" style="background:#1C1E27;color:#fff;text-decoration:none;font-size:11px;font-weight:600;letter-spacing:1px;padding:8px 18px;border-radius:6px;margin-left:12px;transition:background .15s" onmouseover="this.style.background='#e8732a'" onmouseout="this.style.background='#1C1E27'">CONTACT</a>
-    <button id="langToggleBtn" onclick="toggleLang()" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.5);border-radius:6px;color:#1C1E27;font-size:11px;font-weight:700;letter-spacing:.5px;padding:7px 14px;cursor:pointer;margin-left:8px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">中文</button>
+<nav style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border-radius:12px;padding:12px 16px;margin-bottom:16px">
+  <!-- Row 1: Logo + action buttons -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:8px;margin-bottom:8px">
+    <div><div style="font-size:17px;font-weight:700;color:#1C1E27;letter-spacing:1px">SiLink</div></div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <a href="#contactFooter" data-en="CONTACT" data-zh="联系我" style="background:#1C1E27;color:#fff;text-decoration:none;font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;transition:background .15s;white-space:nowrap" onmouseover="this.style.background='#e8732a'" onmouseout="this.style.background='#1C1E27'">联系我</a>
+      <button id="langToggleBtn" onclick="toggleLang()" style="background:rgba(255,255,255,0.25);border:1.5px solid rgba(255,255,255,0.6);border-radius:6px;color:#1C1E27;font-size:12px;font-weight:700;padding:7px 12px;cursor:pointer;transition:all .15s;white-space:nowrap" onmouseover="this.style.background='rgba(255,255,255,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'">EN</button>
+      <div id="authNavUser" style="display:flex;align-items:center"></div>
+    </div>
+  </div>
+  <!-- Row 2: Nav links (scrollable on mobile) -->
+  <div style="display:flex;align-items:center;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px">
+    <a href="#heroCards" data-en="Daily Rate" data-zh="今日利率" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;white-space:nowrap;transition:color .15s;flex-shrink:0" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">今日利率</a>
+    <span style="color:rgba(60,50,60,0.2);flex-shrink:0">|</span>
+    <a href="#myChart" data-en="Chart" data-zh="走势图" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;white-space:nowrap;transition:color .15s;flex-shrink:0" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">走势图</a>
+    <span style="color:rgba(60,50,60,0.2);flex-shrink:0">|</span>
+    <a href="#forecastPanel" data-en="Forecast" data-zh="预测" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;white-space:nowrap;transition:color .15s;flex-shrink:0" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">预测</a>
+    <span style="color:rgba(60,50,60,0.2);flex-shrink:0">|</span>
+    <a href="#toolGrid" data-en="Tools" data-zh="工具" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;white-space:nowrap;transition:color .15s;flex-shrink:0" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">工具</a>
+    <span style="color:rgba(60,50,60,0.2);flex-shrink:0">|</span>
+    <a href="https://www.silinkre.com/" target="_blank" data-en="About" data-zh="关于" style="color:#3a3540;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;white-space:nowrap;transition:color .15s;flex-shrink:0" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#3a3540'">关于</a>
   </div>
 </nav>
 
 <div class="header">
-  <h1 data-en="Daily Mortgage Rate Tracker" data-zh="每日房贷利率追踪">Daily Mortgage Rate Tracker</h1>
+  <h1 data-en="Daily Mortgage Rate Tracker" data-zh="每日房贷利率追踪">每日房贷利率追踪</h1>
   <p id="headerSub">Daily rates · Mortgage News Daily + Bankrate · 2026-04-08</p>
   <div class="status-bar">
-    <div class="pill pill-green"><div class="dot"></div><span id="pill-date">Updated Apr 8, 2026</span></div>
-    <div class="pill pill-blue" data-en="📅 Daily (weekdays)" data-zh="📅 工作日每日更新">📅 Daily (weekdays)</div>
-    <div class="pill pill-amber" data-en="⚡ MND Rate Index" data-zh="⚡ MND 利率指数">⚡ MND Rate Index</div>
+    <div class="pill pill-green"><div class="dot"></div><span id="pill-date" data-en="Updated Apr 8, 2026" data-zh="更新于 Apr 8, 2026">更新于 Apr 8, 2026</span></div>
+    <div class="pill pill-blue" data-en="📅 Daily (weekdays)" data-zh="📅 工作日每日更新">📅 工作日每日更新</div>
+    <div class="pill pill-amber" data-en="⚡ MND Rate Index" data-zh="⚡ MND 利率指数">⚡ MND 利率指数</div>
   </div>
 </div>
 
@@ -236,7 +243,7 @@
 <!-- Chart -->
 <div class="section">
   <div class="section-hd">
-    <h2 data-en="📈 Daily Rate Chart" data-zh="📈 每日利率走势图">📈 Daily Rate Chart</h2>
+    <h2 data-en="📈 Daily Rate Chart" data-zh="📈 每日利率走势图">📈 每日利率走势图</h2>
     <div class="tabs">
       <button class="tab active" onclick="setRange(14,this)">2W</button>
       <button class="tab" onclick="setRange(90,this)">3M</button>
@@ -255,7 +262,7 @@
   <button class="tool-trigger" onclick="openModal('calcModal')">
     <div class="tool-trigger-left">
       <div class="tool-icon">🧮</div>
-      <div class="tool-title" data-en="Payment Calculator" data-zh="月供计算器">Payment Calculator</div>
+      <div class="tool-title" data-en="Payment Calculator" data-zh="月供计算器">月供计算器</div>
       <div class="tool-sub" id="calcPreview">Loading...</div>
     </div>
     <div class="tool-arrow">↗</div>
@@ -263,64 +270,64 @@
   <button class="tool-trigger" onclick="openModal('refiModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">🔄</div>
-      <div class="tool-title" data-en="Refi Savings" data-zh="再融资节省">Refi Savings</div>
-      <div class="tool-sub" id="refiPreview" data-en="How much can you save?" data-zh="再融资能省多少？">How much can you save?</div>
-    </div>
-    <div class="tool-arrow">↗</div>
-  </button>
-  <button class="tool-trigger" onclick="openModal('histModal')">
-    <div class="tool-trigger-left">
-      <div class="tool-icon">📋</div>
-      <div class="tool-title" data-en="Rate History" data-zh="历史利率">Rate History</div>
-      <div class="tool-sub" data-en="Last 20 trading days" data-zh="近20个交易日">Last 20 trading days</div>
-    </div>
-    <div class="tool-arrow">↗</div>
-  </button>
-  <button class="tool-trigger" onclick="openModal('alertModal')" style="border-color:#e8732a">
-    <div class="tool-trigger-left">
-      <div class="tool-icon">🔔</div>
-      <div class="tool-title" data-en="Rate Alert" data-zh="利率提醒">Rate Alert</div>
-      <div class="tool-sub" id="alertPreview" data-en="Get notified when rates drop" data-zh="利率下降时通知我">Get notified when rates drop</div>
-    </div>
-    <div class="tool-arrow">↗</div>
-  </button>
-  <button class="tool-trigger" onclick="openNewsModal()" style="border-color:#e8732a">
-    <div class="tool-trigger-left">
-      <div class="tool-icon">📰</div>
-      <div class="tool-title" data-en="Market News" data-zh="市场新闻">Market News</div>
-      <div class="tool-sub" id="newsPreview" data-en="Mortgage · Fed · Economy" data-zh="房贷 · 美联储 · 经济">Mortgage · Fed · Economy</div>
-    </div>
-    <div class="tool-arrow">↗</div>
-  </button>
-  <button class="tool-trigger" onclick="openModal('armModal')" style="border-color:#e8732a">
-    <div class="tool-trigger-left">
-      <div class="tool-icon">📊</div>
-      <div class="tool-title" data-en="ARM vs Fixed" data-zh="浮动 vs 固定">ARM vs Fixed</div>
-      <div class="tool-sub" data-en="Compare loan types with chart" data-zh="图表对比贷款类型">Compare loan types with chart</div>
-    </div>
-    <div class="tool-arrow">↗</div>
-  </button>
-  <button class="tool-trigger" onclick="openShareModal()" style="border-color:#e8732a">
-    <div class="tool-trigger-left">
-      <div class="tool-icon">📤</div>
-      <div class="tool-title" data-en="Share Card" data-zh="分享卡片">Share Card</div>
-      <div class="tool-sub" data-en="Generate rate image" data-zh="生成利率图片">Generate rate image</div>
+      <div class="tool-title" data-en="Refi Savings" data-zh="再融资节省">再融资节省</div>
+      <div class="tool-sub" id="refiPreview" data-en="How much can you save?" data-zh="再融资能省多少？">再融资能省多少？</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
   <button class="tool-trigger" onclick="openModal('affordModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">🏠</div>
-      <div class="tool-title" data-en="Affordability" data-zh="购房能力">Affordability</div>
-      <div class="tool-sub" data-en="How much home can you afford?" data-zh="你能负担多少房价？">How much home can you afford?</div>
+      <div class="tool-title" data-en="Affordability" data-zh="购房能力">购房能力</div>
+      <div class="tool-sub" data-en="How much home can you afford?" data-zh="你能负担多少房价？">你能负担多少房价？</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
   <button class="tool-trigger" onclick="openModal('compareModal')" style="border-color:#e8732a">
     <div class="tool-trigger-left">
       <div class="tool-icon">⚖️</div>
-      <div class="tool-title" data-en="Compare Scenarios" data-zh="方案对比">Compare Scenarios</div>
-      <div class="tool-sub" id="comparePreview" data-en="A vs B — side by side" data-zh="A vs B 并排对比">A vs B — side by side</div>
+      <div class="tool-title" data-en="Loan Comparison" data-zh="贷款方案对比">贷款方案对比</div>
+      <div class="tool-sub" id="comparePreview" data-en="Compare Plan A vs B" data-zh="A vs B 并排对比">A vs B 并排对比</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
+  <button class="tool-trigger" onclick="openModal('histModal')">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">📋</div>
+      <div class="tool-title" data-en="Rate History" data-zh="历史利率">历史利率</div>
+      <div class="tool-sub" data-en="Last 20 trading days" data-zh="近20个交易日">近20个交易日</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
+  <button class="tool-trigger" onclick="openModal('alertModal')" style="border-color:#e8732a">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">🔔</div>
+      <div class="tool-title" data-en="Rate Alert" data-zh="利率提醒">利率提醒</div>
+      <div class="tool-sub" id="alertPreview" data-en="Get notified when rates drop" data-zh="利率下降时通知我">利率下降时通知我</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
+  <button class="tool-trigger" onclick="openNewsModal()" style="border-color:#e8732a">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">📰</div>
+      <div class="tool-title" data-en="Market News" data-zh="市场新闻">市场新闻</div>
+      <div class="tool-sub" id="newsPreview" data-en="Mortgage · Fed · Economy" data-zh="房贷 · 美联储 · 经济">房贷 · 美联储 · 经济</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
+  <button class="tool-trigger" onclick="openModal('armModal')" style="border-color:#e8732a">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">📊</div>
+      <div class="tool-title" data-en="ARM vs Fixed" data-zh="浮动 vs 固定">浮动 vs 固定</div>
+      <div class="tool-sub" data-en="Compare loan types with chart" data-zh="图表对比贷款类型">图表对比贷款类型</div>
+    </div>
+    <div class="tool-arrow">↗</div>
+  </button>
+  <button class="tool-trigger" onclick="openShareModal()" style="border-color:#e8732a">
+    <div class="tool-trigger-left">
+      <div class="tool-icon">📤</div>
+      <div class="tool-title" data-en="Share Card" data-zh="分享卡片">分享卡片</div>
+      <div class="tool-sub" data-en="Generate rate image" data-zh="生成利率图片">生成利率图片</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
@@ -332,51 +339,51 @@
 <div class="modal-overlay" id="armModal" onclick="closeOnBg(event,'armModal')">
   <div class="modal" style="max-width:640px">
     <div class="modal-header">
-      <span class="modal-title" data-en="📊 ARM vs Fixed Rate Comparison" data-zh="📊 浮动利率 vs 固定利率对比">📊 ARM vs Fixed Rate Comparison</span>
+      <span class="modal-title" data-en="📊 ARM vs Fixed Rate Comparison" data-zh="📊 浮动利率 vs 固定利率对比">📊 浮动利率 vs 固定利率对比</span>
       <button class="modal-close" onclick="closeModal('armModal')">✕</button>
     </div>
     <div class="modal-body">
       <!-- Inputs -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px" class="arm-inputs">
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Loan Amount" data-zh="贷款金额">Loan Amount</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Loan Amount" data-zh="贷款金额">贷款金额</label>
           <div style="position:relative"><span class="calc-prefix">$</span>
             <input class="calc-input" type="text" id="armLoan" value="400,000" oninput="formatInput(this);calcArm()">
           </div>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Loan Term" data-zh="贷款年限">Loan Term</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Loan Term" data-zh="贷款年限">贷款年限</label>
           <select id="armTerm" class="calc-input-bare" oninput="calcArm()">
-            <option value="30" data-en="30 years" data-zh="30年">30 years</option>
-            <option value="20" data-en="20 years" data-zh="20年">20 years</option>
-            <option value="15" data-en="15 years" data-zh="15年">15 years</option>
+            <option value="30" data-en="30 years" data-zh="30年">30年</option>
+            <option value="20" data-en="20 years" data-zh="20年">20年</option>
+            <option value="15" data-en="15 years" data-zh="15年">15年</option>
           </select>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Fixed Rate" data-zh="固定利率">Fixed Rate</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Fixed Rate" data-zh="固定利率">固定利率</label>
           <div class="calc-rate-row">
             <input type="range" id="armFixedSlider" min="3" max="10" step="0.05" value="6.5" oninput="syncArmRate('fixed')">
             <div class="calc-rate-num"><input type="number" id="armFixedNum" value="6.50" step="0.05" oninput="syncArmRate('fixedN')"><span>%</span></div>
           </div>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="ARM Initial Rate" data-zh="浮动利率初始利率">ARM Initial Rate</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="ARM Initial Rate" data-zh="浮动利率初始利率">浮动利率初始利率</label>
           <div class="calc-rate-row">
             <input type="range" id="armInitSlider" min="2" max="9" step="0.05" value="5.5" oninput="syncArmRate('init')">
             <div class="calc-rate-num"><input type="number" id="armInitNum" value="5.50" step="0.05" oninput="syncArmRate('initN')"><span>%</span></div>
           </div>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="ARM Type" data-zh="浮动利率类型">ARM Type</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="ARM Type" data-zh="浮动利率类型">浮动利率类型</label>
           <select id="armType" class="calc-input-bare" oninput="calcArm()">
-            <option value="5" data-en="5/1 ARM (fixed 5yr)" data-zh="5/1 浮动（固定5年）">5/1 ARM (fixed 5yr)</option>
-            <option value="7" data-en="7/1 ARM (fixed 7yr)" data-zh="7/1 浮动（固定7年）">7/1 ARM (fixed 7yr)</option>
-            <option value="10" data-en="10/1 ARM (fixed 10yr)" data-zh="10/1 浮动（固定10年）">10/1 ARM (fixed 10yr)</option>
-            <option value="3" data-en="3/1 ARM (fixed 3yr)" data-zh="3/1 浮动（固定3年）">3/1 ARM (fixed 3yr)</option>
+            <option value="5" data-en="5/1 ARM (fixed 5yr)" data-zh="5/1 浮动（固定5年）">5/1 浮动（固定5年）</option>
+            <option value="7" data-en="7/1 ARM (fixed 7yr)" data-zh="7/1 浮动（固定7年）">7/1 浮动（固定7年）</option>
+            <option value="10" data-en="10/1 ARM (fixed 10yr)" data-zh="10/1 浮动（固定10年）">10/1 浮动（固定10年）</option>
+            <option value="3" data-en="3/1 ARM (fixed 3yr)" data-zh="3/1 浮动（固定3年）">3/1 浮动（固定3年）</option>
           </select>
         </div>
         <div class="calc-row" style="flex-direction:column;align-items:stretch;gap:4px">
-          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Rate After Adjustment" data-zh="调整后利率">Rate After Adjustment</label>
+          <label style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px" data-en="Rate After Adjustment" data-zh="调整后利率">调整后利率</label>
           <div class="calc-rate-row">
             <input type="range" id="armAdjSlider" min="3" max="12" step="0.05" value="7.5" oninput="syncArmRate('adj')">
             <div class="calc-rate-num"><input type="number" id="armAdjNum" value="7.50" step="0.05" oninput="syncArmRate('adjN')"><span>%</span></div>
@@ -387,16 +394,16 @@
       <!-- Summary cards -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
         <div style="background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:10px;padding:12px 14px">
-          <div style="font-size:10px;color:#3B82F6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px" data-en="30yr Fixed" data-zh="30年固定">30yr Fixed</div>
+          <div style="font-size:10px;color:#3B82F6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px" data-en="30yr Fixed" data-zh="30年固定">30年固定</div>
           <div style="font-size:22px;font-weight:700;color:#1D4ED8" id="armFixedMo">—</div>
-          <div style="font-size:11px;color:#64748b;margin-top:3px" data-en="/month" data-zh="/月">/month</div>
-          <div style="font-size:11px;color:#64748b;margin-top:6px"><span data-en="Total interest: " data-zh="总利息：">Total interest: </span><strong id="armFixedTotalInt">—</strong></div>
+          <div style="font-size:11px;color:#64748b;margin-top:3px" data-en="/month" data-zh="/月">/月</div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px"><span data-en="Total interest: " data-zh="总利息：">总利息：</span><strong id="armFixedTotalInt">—</strong></div>
         </div>
         <div style="background:#FFF7ED;border:1.5px solid #e8732a;border-radius:10px;padding:12px 14px">
           <div style="font-size:10px;color:#e8732a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px" id="armTypeLabel">5/1 ARM</div>
           <div style="font-size:22px;font-weight:700;color:#e8732a" id="armArmMo">—</div>
-          <div style="font-size:11px;color:#64748b;margin-top:3px" data-en="initial /month" data-zh="初始 /月">initial /month</div>
-          <div style="font-size:11px;color:#64748b;margin-top:6px"><span data-en="After adj: " data-zh="调整后：">After adj: </span><strong id="armArmAdjMo">—</strong>/mo</div>
+          <div style="font-size:11px;color:#64748b;margin-top:3px" data-en="initial /month" data-zh="初始 /月">初始 /月</div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px"><span data-en="After adj: " data-zh="调整后：">调整后：</span><strong id="armArmAdjMo">—</strong>/mo</div>
         </div>
       </div>
 
@@ -404,7 +411,7 @@
       <div id="armVerdict" style="background:#fff7f0;border:1px solid #e8e0d5;border-radius:10px;padding:10px 14px;font-size:13px;color:#2d2420;margin-bottom:16px;line-height:1.6"></div>
 
       <!-- Chart -->
-      <div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px" data-en="Monthly Payment Over Time · hover last point for total interest" data-zh="月供走势 · 悬停最后一点查看总利息">Monthly Payment Over Time · hover last point for total interest</div>
+      <div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px" data-en="Monthly Payment Over Time · hover last point for total interest" data-zh="月供走势 · 悬停最后一点查看总利息">月供走势 · 悬停最后一点查看总利息</div>
       <div style="position:relative;height:220px"><canvas id="armChart"></canvas></div>
 
       <p style="font-size:11px;color:#8c7b6e;margin-top:12px;line-height:1.6" data-en="⚠️ ARM rates shown are estimates. Actual adjustments depend on the index (SOFR) + margin at time of reset. Consult a licensed mortgage professional for personalized advice." data-zh="⚠️ 显示的浮动利率为估算值。实际调整取决于重置时的指数（SOFR）加利差。请咨询持牌房贷专员获取个性化建议。">
@@ -418,32 +425,32 @@
 <div class="modal-overlay" id="refiModal" onclick="closeOnBg(event,'refiModal')">
   <div class="modal" style="max-width:520px">
     <div class="modal-header">
-      <span class="modal-title" data-en="🔄 Refinance Savings Calculator" data-zh="🔄 再融资节省计算器">🔄 Refinance Savings Calculator</span>
+      <span class="modal-title" data-en="🔄 Refinance Savings Calculator" data-zh="🔄 再融资节省计算器">🔄 再融资节省计算器</span>
       <button class="modal-close" onclick="closeModal('refiModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="calc-rate-badge" style="margin-bottom:16px">
         <div class="dot"></div>
-        <span data-en="New rate auto-filled from today's live data · Current rate set to last year's high" data-zh="新利率已自动填入今日实时数据 · 当前利率设为去年高点">New rate auto-filled from today's live data · Current rate set to last year's high</span>
+        <span data-en="New rate auto-filled from today's live data · Current rate set to last year's high" data-zh="新利率已自动填入今日实时数据 · 当前利率设为去年高点">新利率已自动填入今日实时数据 · 当前利率设为去年高点</span>
       </div>
 
       <!-- Savings hero — shown prominently at top -->
       <div id="refiHero" style="background:#fff7f0;border:1px solid #e8e0d5;border-radius:12px;padding:16px 20px;margin-bottom:18px;text-align:center">
-        <div style="font-size:12px;color:#8899AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="If you refinance today" data-zh="如果您今天再融资">If you refinance today</div>
+        <div style="font-size:12px;color:#8899AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="If you refinance today" data-zh="如果您今天再融资">如果您今天再融资</div>
         <div style="font-size:42px;font-weight:700;color:#059669;line-height:1" id="refiHeroAmt">—</div>
-        <div style="font-size:14px;color:#8899AA;margin-top:4px" data-en="saved every month" data-zh="每月节省">saved every month</div>
-        <div style="font-size:12px;color:#8899AA;margin-top:8px" id="refiHeroSub" data-en="From 7.50% → today's rate on your loan" data-zh="从7.50%再融资到今日利率">From 7.50% → today's rate on your loan</div>
+        <div style="font-size:14px;color:#8899AA;margin-top:4px" data-en="saved every month" data-zh="每月节省">每月节省</div>
+        <div style="font-size:12px;color:#8899AA;margin-top:8px" id="refiHeroSub" data-en="From 7.50% → today's rate on your loan" data-zh="从7.50%再融资到今日利率">从7.50%再融资到今日利率</div>
       </div>
 
       <div class="calc-row">
-        <span class="calc-lbl" data-en="Loan balance" data-zh="贷款余额">Loan balance</span>
+        <span class="calc-lbl" data-en="Loan balance" data-zh="贷款余额">贷款余额</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="rLoan" value="400,000" oninput="formatInput(this);refi()">
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl" data-en="Current rate" data-zh="当前利率">Current rate</span>
+        <span class="calc-lbl" data-en="Current rate" data-zh="当前利率">当前利率</span>
         <div class="calc-rate-row">
           <input type="range" id="rCurSlider" min="3" max="10" step="0.01" value="7.5" oninput="syncRefiRate('cur')">
           <div class="calc-rate-num">
@@ -453,7 +460,7 @@
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl" data-en="New rate" data-zh="新利率">New rate</span>
+        <span class="calc-lbl" data-en="New rate" data-zh="新利率">新利率</span>
         <div class="calc-rate-row">
           <input type="range" id="rNewSlider" min="3" max="10" step="0.01" value="6.5" oninput="syncRefiRate('new')">
           <div class="calc-rate-num">
@@ -463,18 +470,18 @@
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl" data-en="Remaining term" data-zh="剩余年限">Remaining term</span>
+        <span class="calc-lbl" data-en="Remaining term" data-zh="剩余年限">剩余年限</span>
         <div class="calc-field">
           <select id="rTerm" class="calc-input-bare" oninput="refi()">
             <option value="30" data-en="30 years" data-zh="30年" selected>30 years</option>
-            <option value="25" data-en="25 years" data-zh="25年">25 years</option>
-            <option value="20" data-en="20 years" data-zh="20年">20 years</option>
-            <option value="15" data-en="15 years" data-zh="15年">15 years</option>
+            <option value="25" data-en="25 years" data-zh="25年">25年</option>
+            <option value="20" data-en="20 years" data-zh="20年">20年</option>
+            <option value="15" data-en="15 years" data-zh="15年">15年</option>
           </select>
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl" data-en="Closing costs" data-zh="过户费用">Closing costs</span>
+        <span class="calc-lbl" data-en="Closing costs" data-zh="过户费用">过户费用</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="rCosts" value="4,000" oninput="formatInput(this);refi()">
@@ -485,12 +492,12 @@
 
       <div class="refi-compare">
         <div class="refi-side">
-          <div class="refi-side-label" data-en="Current loan" data-zh="当前贷款">Current loan</div>
+          <div class="refi-side-label" data-en="Current loan" data-zh="当前贷款">当前贷款</div>
           <div class="refi-side-rate" style="color:#f87171" id="rCurRateDisplay">7.04%</div>
           <div class="refi-side-mo" id="rCurMo">—/mo</div>
         </div>
         <div class="refi-side">
-          <div class="refi-side-label" data-en="After refinance" data-zh="再融资后">After refinance</div>
+          <div class="refi-side-label" data-en="After refinance" data-zh="再融资后">再融资后</div>
           <div class="refi-side-rate" style="color:#e8732a" id="rNewRateDisplay">—%</div>
           <div class="refi-side-mo" id="rNewMo">—/mo</div>
         </div>
@@ -498,19 +505,19 @@
 
       <div class="refi-savings">
         <div class="refi-savings-row">
-          <span class="refi-savings-label" data-en="Monthly savings" data-zh="每月节省">Monthly savings</span>
+          <span class="refi-savings-label" data-en="Monthly savings" data-zh="每月节省">每月节省</span>
           <span class="refi-savings-val" id="rMoSave">—</span>
         </div>
         <div class="refi-savings-row">
-          <span class="refi-savings-label" data-en="Annual savings" data-zh="每年节省">Annual savings</span>
+          <span class="refi-savings-label" data-en="Annual savings" data-zh="每年节省">每年节省</span>
           <span class="refi-savings-val" id="rYrSave">—</span>
         </div>
         <div class="refi-savings-row">
-          <span class="refi-savings-label" data-en="Break-even point" data-zh="回本时间">Break-even point</span>
+          <span class="refi-savings-label" data-en="Break-even point" data-zh="回本时间">回本时间</span>
           <span class="refi-savings-val" id="rBreakEven" style="color:#fbbf24">—</span>
         </div>
         <div class="refi-savings-row" style="border-top:1px solid #166534;margin-top:4px">
-          <span class="refi-savings-label" data-en="Total savings (lifetime)" data-zh="总节省（整个贷款期）">Total savings (lifetime)</span>
+          <span class="refi-savings-label" data-en="Total savings (lifetime)" data-zh="总节省（整个贷款期）">总节省（整个贷款期）</span>
           <span class="refi-savings-val" style="font-size:16px" id="rTotalSave">—</span>
         </div>
       </div>
@@ -527,7 +534,7 @@
 <div class="modal-overlay" id="newsModal" onclick="closeOnBg(event,'newsModal')">
   <div class="modal" style="max-width:680px">
     <div class="modal-header">
-      <span class="modal-title" data-en="📰 Market News & Rate Impact" data-zh="📰 市场新闻 & 利率影响">📰 Market News & Rate Impact</span>
+      <span class="modal-title" data-en="📰 Market News & Rate Impact" data-zh="📰 市场新闻 & 利率影响">📰 市场新闻 & 利率影响</span>
       <button class="modal-close" onclick="closeModal('newsModal')">✕</button>
     </div>
     <div class="modal-body">
@@ -538,21 +545,21 @@
           Overall rate impact signal — based on today's headlines
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <span style="font-size:12px;color:#16a34a;width:60px;font-weight:600" data-en="▼ Lower" data-zh="▼ 利率↓">▼ Lower</span>
+          <span style="font-size:12px;color:#16a34a;width:60px;font-weight:600" data-en="▼ Lower" data-zh="▼ 利率↓">▼ 利率↓</span>
           <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarDown" style="position:absolute;left:0;top:0;height:100%;background:#4ade80;border-radius:5px;transition:width .6s"></div>
           </div>
           <span style="font-size:13px;font-weight:700;color:#2d2420;min-width:28px;text-align:right" id="sentDownPct">0%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <span style="font-size:12px;color:#8899AA;width:60px" data-en="Neutral" data-zh="中性">Neutral</span>
+          <span style="font-size:12px;color:#8899AA;width:60px" data-en="Neutral" data-zh="中性">中性</span>
           <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarNeutral" style="position:absolute;left:0;top:0;height:100%;background:#94a3b8;border-radius:5px;transition:width .6s"></div>
           </div>
           <span style="font-size:13px;font-weight:700;color:#2d2420;min-width:28px;text-align:right" id="sentNeutralPct">0%</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <span style="font-size:12px;color:#f87171;width:60px" data-en="▲ Higher" data-zh="▲ 利率↑">▲ Higher</span>
+          <span style="font-size:12px;color:#f87171;width:60px" data-en="▲ Higher" data-zh="▲ 利率↑">▲ 利率↑</span>
           <div style="flex:1;height:10px;background:#e8e0d5;border-radius:5px;overflow:hidden;position:relative">
             <div id="sentBarUp" style="position:absolute;left:0;top:0;height:100%;background:#f87171;border-radius:5px;transition:width .6s"></div>
           </div>
@@ -563,17 +570,17 @@
 
       <!-- Filter tabs -->
       <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-        <button class="news-filter active" onclick="filterNews('all',this)" data-en="All" data-zh="全部">All</button>
-        <button class="news-filter" onclick="filterNews('mortgage',this)" data-en="Mortgage" data-zh="房贷">Mortgage</button>
-        <button class="news-filter" onclick="filterNews('fed',this)" data-en="Fed Policy" data-zh="美联储">Fed Policy</button>
-        <button class="news-filter" onclick="filterNews('up',this)" data-en="▲ Rate Up" data-zh="▲ 利率上行">▲ Rate Up</button>
-        <button class="news-filter" onclick="filterNews('down',this)" data-en="▼ Rate Down" data-zh="▼ 利率下行">▼ Rate Down</button>
-        <button class="news-filter" onclick="filterNews('neutral',this)" data-en="Neutral" data-zh="中性">Neutral</button>
+        <button class="news-filter active" onclick="filterNews('all',this)" data-en="All" data-zh="全部">全部</button>
+        <button class="news-filter" onclick="filterNews('mortgage',this)" data-en="Mortgage" data-zh="房贷">房贷</button>
+        <button class="news-filter" onclick="filterNews('fed',this)" data-en="Fed Policy" data-zh="美联储">美联储</button>
+        <button class="news-filter" onclick="filterNews('up',this)" data-en="▲ Rate Up" data-zh="▲ 利率上行">▲ 利率上行</button>
+        <button class="news-filter" onclick="filterNews('down',this)" data-en="▼ Rate Down" data-zh="▼ 利率下行">▼ 利率下行</button>
+        <button class="news-filter" onclick="filterNews('neutral',this)" data-en="Neutral" data-zh="中性">中性</button>
       </div>
 
       <div id="newsLoading" style="text-align:center;padding:32px;color:#8899AA;font-size:13px">
         <div style="width:20px;height:20px;border:2px solid #e8e0d5;border-top-color:#e8732a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
-        <span data-en="Analyzing headlines..." data-zh="正在分析新闻头条...">Analyzing headlines...</span>
+        <span data-en="Analyzing headlines..." data-zh="正在分析新闻头条...">正在分析新闻头条...</span>
       </div>
       <div id="newsList" style="display:none"></div>
 
@@ -589,14 +596,14 @@
 <div class="modal-overlay" id="alertModal" onclick="closeOnBg(event,'alertModal')">
   <div class="modal" style="max-width:480px">
     <div class="modal-header">
-      <span class="modal-title" data-en="🔔 Rate Drop Alert" data-zh="🔔 利率下跌提醒">🔔 Rate Drop Alert</span>
+      <span class="modal-title" data-en="🔔 Rate Drop Alert" data-zh="🔔 利率下跌提醒">🔔 利率下跌提醒</span>
       <button class="modal-close" onclick="closeModal('alertModal')">✕</button>
     </div>
     <div class="modal-body">
 
       <div class="calc-rate-badge" style="margin-bottom:18px">
         <div class="dot"></div>
-        <span data-en="Current 30yr rate: " data-zh="当前30年利率：">Current 30yr rate: </span><strong id="alertCurrentRate">—</strong><span data-en=" · 15yr: " data-zh=" · 15年：">&nbsp;· 15yr: </span><strong id="alertCurrentRate15">—</strong><span data-en=" · notify me when it drops below:" data-zh=" · 当利率降至以下时通知我：">&nbsp;· notify me when it drops below:</span>
+        <span data-en="Current 30yr rate: " data-zh="当前30年利率：">当前30年利率：</span><strong id="alertCurrentRate">—</strong><span data-en=" · 15yr: " data-zh=" · 15年：">&nbsp;· 15yr: </span><strong id="alertCurrentRate15">—</strong><span data-en=" · notify me when it drops below:" data-zh=" · 当利率降至以下时通知我：">&nbsp;· notify me when it drops below:</span>
       </div>
 
       <!-- Rate type toggle -->
@@ -616,7 +623,7 @@
       <!-- Threshold slider -->
       <div style="margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <span style="font-size:12px;color:#8899AA" data-en="Alert threshold" data-zh="提醒阈值">Alert threshold</span>
+          <span style="font-size:12px;color:#8899AA" data-en="Alert threshold" data-zh="提醒阈值">提醒阈值</span>
           <span style="font-size:28px;font-weight:700;color:#059669" id="threshDisplay">6.00%</span>
         </div>
         <input type="range" id="threshSlider" min="4.0" max="7.5" step="0.05" value="5.0"
@@ -628,21 +635,21 @@
 
       <!-- Email + frequency -->
       <div style="margin-bottom:14px">
-        <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px" data-en="Your email" data-zh="您的邮箱">Your email</label>
+        <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px" data-en="Your email" data-zh="您的邮箱">您的邮箱</label>
         <input type="email" id="alertEmail" placeholder="your email address"
           style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 14px;color:#2d2420;font-size:14px;outline:none"
           onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'">
       </div>
       <div style="margin-bottom:20px">
-        <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px" data-en="Also send me" data-zh="同时发送">Also send me</label>
+        <label style="font-size:12px;color:#8899AA;display:block;margin-bottom:6px" data-en="Also send me" data-zh="同时发送">同时发送</label>
         <div style="display:flex;flex-direction:column;gap:8px">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#8899AA">
             <input type="checkbox" id="chkWeekly" checked style="accent-color:#8899AA;width:15px;height:15px">
-            <span data-en="Weekly rate summary (every Monday)" data-zh="每周利率摘要（每周一）">Weekly rate summary (every Monday)</span>
+            <span data-en="Weekly rate summary (every Monday)" data-zh="每周利率摘要（每周一）">每周利率摘要（每周一）</span>
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#8899AA">
             <input type="checkbox" id="chkBigMove" checked style="accent-color:#8899AA;width:15px;height:15px">
-            <span data-en="Big move alert (rate changes ±0.15% in a day)" data-zh="大幅波动提醒（单日涨跌超±0.15%）">Big move alert (rate changes ±0.15% in a day)</span>
+            <span data-en="Big move alert (rate changes ±0.15% in a day)" data-zh="大幅波动提醒（单日涨跌超±0.15%）">大幅波动提醒（单日涨跌超±0.15%）</span>
           </label>
         </div>
       </div>
@@ -651,13 +658,13 @@
       <button id="alertSubmitBtn" onclick="submitAlert()"
         style="width:100%;background:#e8732a;border:none;border-radius:10px;padding:14px;color:white;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;box-shadow:0 2px 8px rgba(232,115,42,.3)"
         onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#166534'">
-        <span data-en="Set Alert — Notify Me Below" data-zh="设置提醒 — 当利率低于">Set Alert — Notify Me Below</span> <span id="alertBtnRate">6.00%</span> (<span id="alertBtnType">30yr</span>)
+        <span data-en="Set Alert — Notify Me Below" data-zh="设置提醒 — 当利率低于">设置提醒 — 当利率低于</span> <span id="alertBtnRate">6.00%</span> (<span id="alertBtnType">30yr</span>)
       </button>
 
       <!-- Success state (hidden) -->
       <div id="alertSuccess" style="display:none;text-align:center;padding:16px 0">
         <div style="font-size:32px;margin-bottom:8px">✅</div>
-        <div style="font-size:15px;font-weight:600;color:#8899AA;margin-bottom:4px" data-en="Alert set!" data-zh="提醒已设置！">Alert set!</div>
+        <div style="font-size:15px;font-weight:600;color:#8899AA;margin-bottom:4px" data-en="Alert set!" data-zh="提醒已设置！">提醒已设置！</div>
         <div style="font-size:13px;color:#8899AA" id="alertSuccessMsg">We'll email you when the 30yr rate drops below 6.00%</div>
       </div>
 
@@ -672,20 +679,20 @@
 <!-- Source note -->
 <div style="max-width:1000px;margin:0 auto">
 <div class="source-note" style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border:none">
-  <strong data-en="📡 Data sources:" data-zh="📡 数据来源：">📡 Data sources:</strong><br>
-  <span class="dot-red"></span><strong>Mortgage News Daily</strong> — <span data-en="Real lender rate sheets, updated ~4PM ET weekdays." data-zh="真实贷款机构报价，每个工作日下午4点ET更新。">Real lender rate sheets, updated ~4PM ET weekdays.</span><br>
-  <span class="dot-pur"></span><strong>Bankrate / Freddie Mac PMMS</strong> — <span data-en="Freddie Mac updates weekly (Thu); Bankrate daily." data-zh="Freddie Mac每周四更新；Bankrate每日更新。">Freddie Mac updates weekly (Thu); Bankrate daily.</span>
+  <strong data-en="📡 Data sources:" data-zh="📡 数据来源：">📡 数据来源：</strong><br>
+  <span class="dot-red"></span><strong>Mortgage News Daily</strong> — <span data-en="Real lender rate sheets, updated ~4PM ET weekdays." data-zh="真实贷款机构报价，每个工作日下午4点ET更新。">真实贷款机构报价，每个工作日下午4点ET更新。</span><br>
+  <span class="dot-pur"></span><strong>Bankrate / Freddie Mac PMMS</strong> — <span data-en="Freddie Mac updates weekly (Thu); Bankrate daily." data-zh="Freddie Mac每周四更新；Bankrate每日更新。">Freddie Mac每周四更新；Bankrate每日更新。</span>
 </div>
 
 <div class="disclaimer" style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border:none">
-  <strong data-en="⚠️ Disclaimer:" data-zh="⚠️ 免责声明：">⚠️ Disclaimer:</strong> <span data-en="Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional." data-zh="利率为全国平均值，仅供参考，不构成贷款承诺。计算器仅计算本息，不含税费、保险及PMI。请咨询持牌房贷专员。">Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&amp;I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional.</span>
+  <strong data-en="⚠️ Disclaimer:" data-zh="⚠️ 免责声明：">⚠️ 免责声明：</strong> <span data-en="Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional." data-zh="利率为全国平均值，仅供参考，不构成贷款承诺。计算器仅计算本息，不含税费、保险及PMI。请咨询持牌房贷专员。">Rates are national averages for informational purposes only — not a loan commitment. Calculator shows P&amp;I only, excluding taxes, insurance, and PMI. Consult a licensed mortgage professional.</span>
 </div>
 
 <!-- Contact section -->
 <div id="contactFooter" style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border-radius:12px;padding:14px 28px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
   <div>
-    <div style="font-size:13px;font-weight:600;color:#1C1E27" data-en="Have questions? Let's talk." data-zh="有问题？随时联系我。">Have questions? Let's talk.</div>
-    <div style="font-size:11px;color:#828697;margin-top:2px" data-en="Licensed MLO · Bilingual EN/中文" data-zh="持牌房贷专员 · 中英双语">Licensed MLO · Bilingual EN/中文</div>
+    <div style="font-size:13px;font-weight:600;color:#1C1E27" data-en="Have questions? Let's talk." data-zh="有问题？随时联系我。">有问题？随时联系我。</div>
+    <div style="font-size:11px;color:#828697;margin-top:2px" data-en="Licensed MLO · Bilingual EN/中文" data-zh="持牌房贷专员 · 中英双语">持牌房贷专员 · 中英双语</div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <a href="tel:+12016603602" style="display:flex;align-items:center;gap:6px;text-decoration:none;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.6);border-radius:8px;padding:7px 12px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,0.7)'" onmouseout="this.style.background='rgba(255,255,255,0.45)'">
@@ -710,10 +717,85 @@
 </div>
 </div><!-- end bottom container -->
 
+<!-- ══ MODAL: Sign In / Register ══ -->
+<div class="modal-overlay" id="authModal" style="z-index:200">
+  <div class="modal" style="max-width:400px;background:#fff">
+    <div class="modal-header" style="padding-bottom:4px">
+      <div>
+        <span class="modal-title" id="authModalTitle" style="font-size:17px">登录后使用工具</span>
+        <div style="font-size:12px;color:#8c7b6e;margin-top:3px" id="authModalSub">免费注册，保存您的计算记录</div>
+      </div>
+      <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding-top:16px">
+
+      <!-- Tab switcher -->
+      <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid #e8e0d5;border-radius:8px;overflow:hidden">
+        <button id="authTabLogin" onclick="switchAuthTab('login')"
+          style="flex:1;padding:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#1C1E27;color:#fff;transition:all .15s">
+          登录
+        </button>
+        <button id="authTabRegister" onclick="switchAuthTab('register')"
+          style="flex:1;padding:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f5f3f0;color:#8c7b6e;transition:all .15s">
+          注册
+        </button>
+      </div>
+
+      <!-- Name field (register only) -->
+      <div id="authNameRow" style="display:none;margin-bottom:12px">
+        <label style="font-size:12px;color:#8c7b6e;display:block;margin-bottom:5px">姓名</label>
+        <input id="authName" type="text" placeholder="您的姓名"
+          style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 14px;font-size:14px;color:#2d2420;outline:none"
+          onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'">
+      </div>
+
+      <!-- Email -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:#8c7b6e;display:block;margin-bottom:5px">邮箱</label>
+        <input id="authEmail" type="email" placeholder="your@email.com"
+          style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 14px;font-size:14px;color:#2d2420;outline:none"
+          onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'"
+          onkeydown="if(event.key==='Enter')authSubmit()">
+      </div>
+
+      <!-- Password -->
+      <div style="margin-bottom:6px">
+        <label style="font-size:12px;color:#8c7b6e;display:block;margin-bottom:5px">密码</label>
+        <input id="authPassword" type="password" placeholder="至少6位"
+          style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 14px;font-size:14px;color:#2d2420;outline:none"
+          onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'"
+          onkeydown="if(event.key==='Enter')authSubmit()">
+      </div>
+
+      <!-- Error message -->
+      <div id="authError" style="display:none;font-size:12px;color:#f87171;margin-bottom:8px;padding:8px 12px;background:#fff0f0;border-radius:6px"></div>
+
+      <!-- Submit -->
+      <button id="authSubmitBtn" onclick="authSubmit()"
+        style="width:100%;margin-top:14px;background:#e8732a;border:none;border-radius:10px;padding:13px;color:white;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s"
+        onmouseover="this.style.background='#c9621f'" onmouseout="this.style.background='#e8732a'">
+        登录
+      </button>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
+        <div style="flex:1;height:1px;background:#e8e0d5"></div>
+        <span style="font-size:11px;color:#8c7b6e">或</span>
+        <div style="flex:1;height:1px;background:#e8e0d5"></div>
+      </div>
+
+      <p style="font-size:11px;color:#8c7b6e;text-align:center;line-height:1.6">
+        登录即表示您同意接收来自 <strong>SiLink</strong> 的利率资讯邮件。<br>
+        随时可通过邮件退订。
+      </p>
+    </div>
+  </div>
+</div>
+
 <!-- Floating contact button -->
 <button onclick="openModal('contactModal')"
   style="position:fixed;bottom:24px;right:24px;z-index:99;background:linear-gradient(135deg,#C9A84C,#A8893C);border:none;border-radius:50px;padding:12px 20px;color:white;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(96,165,250,.3);display:flex;align-items:center;gap:8px">
-  <span style="font-size:16px">💬</span> <span data-en="Contact Me" data-zh="联系我">Contact Me</span>
+  <span style="font-size:16px">💬</span> <span data-en="Contact Me" data-zh="联系我">联系我</span>
 </button>
 
 <!-- Contact modal -->
@@ -801,7 +883,7 @@
 <div class="modal-overlay" id="compareModal" onclick="closeOnBg(event,'compareModal')">
   <div class="modal" style="max-width:700px">
     <div class="modal-header">
-      <span class="modal-title" data-en="⚖️ Compare Scenarios A vs B" data-zh="⚖️ 方案对比 A vs B">⚖️ Compare Scenarios A vs B</span>
+      <span class="modal-title" data-en="⚖️ Loan Comparison: Plan A vs B" data-zh="⚖️ 贷款方案对比：A vs B">⚖️ 贷款方案对比：A vs B</span>
       <button class="modal-close" onclick="closeModal('compareModal')">✕</button>
     </div>
     <div class="modal-body">
@@ -809,118 +891,100 @@
       <!-- Summary banner -->
       <div id="cmpBanner" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px;text-align:center">
         <div style="background:#EFF6FF;border:1.5px solid #93C5FD;border-radius:10px;padding:10px 8px">
-          <div style="font-size:10px;color:#3B82F6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" data-en="Plan A — Monthly" data-zh="方案A — 月供">Plan A — Monthly</div>
+          <div style="font-size:10px;color:#3B82F6;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" data-en="Plan A — Monthly" data-zh="方案A — 月供">方案A — 月供</div>
           <div style="font-size:26px;font-weight:800;color:#1D4ED8;line-height:1" id="cmpATotal">—</div>
         </div>
         <div style="background:#FFF7ED;border:1.5px solid #e8732a;border-radius:10px;padding:10px 8px">
-          <div style="font-size:10px;color:#e8732a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" data-en="Plan B — Monthly" data-zh="方案B — 月供">Plan B — Monthly</div>
+          <div style="font-size:10px;color:#e8732a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" data-en="Plan B — Monthly" data-zh="方案B — 月供">方案B — 月供</div>
           <div style="font-size:26px;font-weight:800;color:#e8732a;line-height:1" id="cmpBTotal">—</div>
         </div>
         <div style="background:#F0FDF4;border:1.5px solid #16a34a;border-radius:10px;padding:10px 8px">
-          <div style="font-size:10px;color:#16a34a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" id="cmpDiffLabel" data-en="A saves vs B" data-zh="A比B节省">A saves vs B</div>
+          <div style="font-size:10px;color:#16a34a;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px" id="cmpDiffLabel" data-en="A saves vs B" data-zh="A比B节省">A比B节省</div>
           <div style="font-size:26px;font-weight:800;line-height:1" id="cmpDiff">—</div>
         </div>
       </div>
 
-      <!-- Two-column inputs -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-        <!-- Plan A -->
-        <div style="background:#EFF6FF;border-radius:12px;padding:14px">
-          <div style="font-size:12px;font-weight:700;color:#1D4ED8;margin-bottom:10px;text-transform:uppercase;letter-spacing:.6px" data-en="Plan A" data-zh="方案 A">Plan A</div>
-          <div style="margin-bottom:8px">
-            <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Home price" data-zh="房价">Home price</div>
-            <div style="position:relative"><span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;color:#8c7b6e;pointer-events:none">$</span>
-              <input id="cmpAPrice" type="text" value="700,000" oninput="fmtCmp('cmpAPrice');cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 8px 7px 22px;font-size:14px;color:#1e3a8a;outline:none">
-            </div>
+      <!-- Mobile-friendly inputs: each field as a row with A | B side by side -->
+      <div style="background:#faf8f5;border-radius:12px;padding:12px;margin-bottom:14px">
+        <!-- Header row -->
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:6px;margin-bottom:8px;align-items:center">
+          <div></div>
+          <div style="text-align:center;font-size:12px;font-weight:700;color:#1D4ED8;background:#EFF6FF;border-radius:6px;padding:5px" data-en="Plan A" data-zh="方案 A">方案 A</div>
+          <div style="text-align:center;font-size:12px;font-weight:700;color:#e8732a;background:#FFF7ED;border-radius:6px;padding:5px" data-en="Plan B" data-zh="方案 B">方案 B</div>
+        </div>
+        <!-- Home price -->
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:6px;margin-bottom:7px;align-items:center">
+          <div style="font-size:11px;color:#8c7b6e" data-en="Home price" data-zh="房价">房价</div>
+          <div style="position:relative"><span style="position:absolute;left:7px;top:50%;transform:translateY(-50%);font-size:12px;color:#8c7b6e">$</span>
+            <input id="cmpAPrice" type="text" value="700,000" oninput="fmtCmp('cmpAPrice');cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 6px 7px 18px;font-size:13px;color:#1e3a8a;outline:none">
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-            <div>
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Down %" data-zh="首付 %">Down %</div>
-              <div style="position:relative">
-                <input id="cmpADown" type="number" value="10" min="0" max="100" step="1" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#1e3a8a;outline:none;text-align:right">
-                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
-              </div>
-            </div>
-            <div>
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Rate" data-zh="利率">Rate</div>
-              <div style="position:relative">
-                <input id="cmpARate" type="number" value="6.33" min="2" max="12" step="0.01" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#1e3a8a;outline:none;text-align:right">
-                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
-              </div>
-            </div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-            <div>
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Points" data-zh="买点">Points</div>
-              <div style="position:relative">
-                <input id="cmpAPoints" type="number" value="0" min="0" max="4" step="0.25" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#1e3a8a;outline:none;text-align:right">
-                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">pt</span>
-              </div>
-            </div>
-            <div>
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Term" data-zh="年限">Term</div>
-              <select id="cmpATerm" onchange="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 8px;font-size:13px;color:#1e3a8a;outline:none">
-                <option value="30" data-en="30yr" data-zh="30年" selected>30yr</option>
-                <option value="15" data-en="15yr" data-zh="15年">15yr</option>
-                <option value="20" data-en="20yr" data-zh="20年">20yr</option>
-              </select>
-            </div>
+          <div style="position:relative"><span style="position:absolute;left:7px;top:50%;transform:translateY(-50%);font-size:12px;color:#8c7b6e">$</span>
+            <input id="cmpBPrice" type="text" value="700,000" oninput="fmtCmp('cmpBPrice');cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 6px 7px 18px;font-size:13px;color:#9a3412;outline:none">
           </div>
         </div>
-
-        <!-- Plan B -->
-        <div style="background:#FFF7ED;border-radius:12px;padding:14px">
-          <div style="font-size:12px;font-weight:700;color:#e8732a;margin-bottom:10px;text-transform:uppercase;letter-spacing:.6px" data-en="Plan B" data-zh="方案 B">Plan B</div>
-          <div style="margin-bottom:8px">
-            <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Home price" data-zh="房价">Home price</div>
-            <div style="position:relative"><span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;color:#8c7b6e;pointer-events:none">$</span>
-              <input id="cmpBPrice" type="text" value="700,000" oninput="fmtCmp('cmpBPrice');cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 8px 7px 22px;font-size:14px;color:#9a3412;outline:none">
-            </div>
+        <!-- Down % -->
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:6px;margin-bottom:7px;align-items:center">
+          <div style="font-size:11px;color:#8c7b6e" data-en="Down %" data-zh="首付 %">首付 %</div>
+          <div style="position:relative">
+            <input id="cmpADown" type="number" value="10" min="0" max="100" step="1" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:13px;color:#1e3a8a;outline:none;text-align:right">
+            <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-            <div>
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Down %" data-zh="首付 %">Down %</div>
-              <div style="position:relative">
-                <input id="cmpBDown" type="number" value="20" min="0" max="100" step="1" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#9a3412;outline:none;text-align:right">
-                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
-              </div>
-            </div>
-            <div>
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Rate" data-zh="利率">Rate</div>
-              <div style="position:relative">
-                <input id="cmpBRate" type="number" value="6.33" min="2" max="12" step="0.01" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#9a3412;outline:none;text-align:right">
-                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
-              </div>
-            </div>
+          <div style="position:relative">
+            <input id="cmpBDown" type="number" value="20" min="0" max="100" step="1" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:13px;color:#9a3412;outline:none;text-align:right">
+            <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-            <div>
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Points" data-zh="买点">Points</div>
-              <div style="position:relative">
-                <input id="cmpBPoints" type="number" value="0" min="0" max="4" step="0.25" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:14px;color:#9a3412;outline:none;text-align:right">
-                <span style="position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">pt</span>
-              </div>
-            </div>
-            <div>
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:3px" data-en="Term" data-zh="年限">Term</div>
-              <select id="cmpBTerm" onchange="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 8px;font-size:13px;color:#9a3412;outline:none">
-                <option value="30" data-en="30yr" data-zh="30年" selected>30yr</option>
-                <option value="15" data-en="15yr" data-zh="15年">15yr</option>
-                <option value="20" data-en="20yr" data-zh="20年">20yr</option>
-              </select>
-            </div>
+        </div>
+        <!-- Rate -->
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:6px;margin-bottom:7px;align-items:center">
+          <div style="font-size:11px;color:#8c7b6e" data-en="Rate" data-zh="利率">利率</div>
+          <div style="position:relative">
+            <input id="cmpARate" type="number" value="6.33" min="2" max="12" step="0.01" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:13px;color:#1e3a8a;outline:none;text-align:right">
+            <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
           </div>
+          <div style="position:relative">
+            <input id="cmpBRate" type="number" value="6.33" min="2" max="12" step="0.01" oninput="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:13px;color:#9a3412;outline:none;text-align:right">
+            <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">%</span>
+          </div>
+        </div>
+        <!-- Points -->
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:6px;margin-bottom:7px;align-items:center">
+          <div>
+            <div style="font-size:11px;color:#8c7b6e" data-en="Points" data-zh="买点">买点</div>
+            <div style="font-size:9px;color:#a78bfa">1pt=−0.25%</div>
+          </div>
+          <div style="position:relative">
+            <input id="cmpAPoints" type="number" value="0" min="0" max="4" step="0.25" oninput="cmpSyncPoints('A');cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 20px 7px 8px;font-size:13px;color:#1e3a8a;outline:none;text-align:right">
+            <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">pt</span>
+          </div>
+          <div style="position:relative">
+            <input id="cmpBPoints" type="number" value="0" min="0" max="4" step="0.25" oninput="cmpSyncPoints('B');cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 20px 7px 8px;font-size:13px;color:#9a3412;outline:none;text-align:right">
+            <span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;color:#8c7b6e">pt</span>
+          </div>
+        </div>
+        <!-- Term -->
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr;gap:6px;align-items:center">
+          <div style="font-size:11px;color:#8c7b6e" data-en="Term" data-zh="年限">年限</div>
+          <select id="cmpATerm" onchange="cmpCalc()" style="width:100%;background:#fff;border:1px solid #bfdbfe;border-radius:7px;padding:7px 6px;font-size:13px;color:#1e3a8a;outline:none">
+            <option value="30" data-en="30yr" data-zh="30年" selected>30年</option>
+            <option value="15" data-en="15yr" data-zh="15年">15年</option>
+            <option value="20" data-en="20yr" data-zh="20年">20年</option>
+          </select>
+          <select id="cmpBTerm" onchange="cmpCalc()" style="width:100%;background:#fff;border:1px solid #fed7aa;border-radius:7px;padding:7px 6px;font-size:13px;color:#9a3412;outline:none">
+            <option value="30" data-en="30yr" data-zh="30年" selected>30年</option>
+            <option value="15" data-en="15yr" data-zh="15年">15年</option>
+            <option value="20" data-en="20yr" data-zh="20年">20年</option>
+          </select>
         </div>
       </div>
 
       <!-- Comparison table -->
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
         <thead>
           <tr style="background:#faf8f5">
-            <th style="text-align:left;padding:8px 10px;font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid #e8e0d5" data-en="" data-zh=""></th>
-            <th style="text-align:right;padding:8px 10px;font-size:12px;font-weight:700;color:#1D4ED8;border-bottom:2px solid #e8e0d5" data-en="Plan A" data-zh="方案 A">Plan A</th>
-            <th style="text-align:right;padding:8px 10px;font-size:12px;font-weight:700;color:#e8732a;border-bottom:2px solid #e8e0d5" data-en="Plan B" data-zh="方案 B">Plan B</th>
-            <th style="text-align:right;padding:8px 10px;font-size:12px;font-weight:700;color:#16a34a;border-bottom:2px solid #e8e0d5" data-en="A − B" data-zh="A − B">A − B</th>
+            <th style="text-align:left;padding:7px 8px;font-size:10px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #e8e0d5"></th>
+            <th style="text-align:right;padding:7px 8px;font-size:11px;font-weight:700;color:#1D4ED8;border-bottom:2px solid #e8e0d5" data-en="Plan A" data-zh="方案 A">方案 A</th>
+            <th style="text-align:right;padding:7px 8px;font-size:11px;font-weight:700;color:#e8732a;border-bottom:2px solid #e8e0d5" data-en="Plan B" data-zh="方案 B">方案 B</th>
+            <th style="text-align:right;padding:7px 8px;font-size:11px;font-weight:700;color:#16a34a;border-bottom:2px solid #e8e0d5" data-en="A − B" data-zh="A − B">A − B</th>
           </tr>
         </thead>
         <tbody id="cmpTableBody"></tbody>
@@ -940,7 +1004,7 @@
 <div class="modal-overlay" id="shareModal" onclick="closeOnBg(event,'shareModal')">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
-      <span class="modal-title" data-en="📤 Share Today's Rate Card" data-zh="📤 分享今日利率卡片">📤 Share Today's Rate Card</span>
+      <span class="modal-title" data-en="📤 Share Today's Rate Card" data-zh="📤 分享今日利率卡片">📤 分享今日利率卡片</span>
       <button class="modal-close" onclick="closeModal('shareModal')">✕</button>
     </div>
     <div class="modal-body">
@@ -960,46 +1024,46 @@
 <div class="modal-overlay" id="affordModal" onclick="closeOnBg(event,'affordModal')">
   <div class="modal" style="max-width:640px">
     <div class="modal-header">
-      <span class="modal-title" data-en="🏠 How Much Home Can You Afford?" data-zh="🏠 你最多能买多贵的房？">🏠 How Much Home Can You Afford?</span>
+      <span class="modal-title" data-en="🏠 How Much Home Can You Afford?" data-zh="🏠 你最多能买多贵的房？">🏠 你最多能买多贵的房？</span>
       <button class="modal-close" onclick="closeModal('affordModal')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="calc-rate-badge"><div class="dot"></div><span data-en="Using today's rate: " data-zh="使用今日利率：">Using today's rate: </span><strong id="affordRateBadge">—</strong></div>
+      <div class="calc-rate-badge"><div class="dot"></div><span data-en="Using today's rate: " data-zh="使用今日利率：">使用今日利率：</span><strong id="affordRateBadge">—</strong></div>
 
       <!-- Quick presets -->
       <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
-        <button class="sc-btn active" onclick="loadAffordPreset(80000,300,50000,this)" style="flex:1;min-width:100px">
-          <div class="sc-name" data-en="First-time" data-zh="首次购房">First-time</div>
-          <div class="sc-detail">$80K · $50K down</div>
+        <button class="sc-btn active" onclick="loadAffordPreset(100000,300,30000,this)" style="flex:1;min-width:100px">
+          <div class="sc-name" data-en="First-time" data-zh="首次购房">首次购房</div>
+          <div class="sc-detail">$100K · $30K down</div>
         </button>
-        <button class="sc-btn" onclick="loadAffordPreset(120000,500,100000,this)" style="flex:1;min-width:100px">
-          <div class="sc-name" data-en="Mid-career" data-zh="中期职业">Mid-career</div>
-          <div class="sc-detail">$120K · $100K down</div>
+        <button class="sc-btn" onclick="loadAffordPreset(200000,500,60000,this)" style="flex:1;min-width:100px">
+          <div class="sc-name" data-en="Mid-career" data-zh="中期职业">中期职业</div>
+          <div class="sc-detail">$200K · $60K down</div>
         </button>
-        <button class="sc-btn" onclick="loadAffordPreset(200000,800,200000,this)" style="flex:1;min-width:100px">
-          <div class="sc-name" data-en="High earner" data-zh="高收入">High earner</div>
-          <div class="sc-detail">$200K · $200K down</div>
+        <button class="sc-btn" onclick="loadAffordPreset(350000,800,100000,this)" style="flex:1;min-width:100px">
+          <div class="sc-name" data-en="High earner" data-zh="高收入">高收入</div>
+          <div class="sc-detail">$350K · $100K down</div>
         </button>
       </div>
 
-      <div class="calc-row">
-        <span class="calc-lbl" data-en="💰 Annual income (pre-tax)" data-zh="💰 年收入（税前）">💰 Annual income (pre-tax)</span>
+      <div class="calc-row" style="align-items:flex-start">
+        <span class="calc-lbl" data-en="💰 Annual income (pre-tax)" data-zh="💰 年收入（税前）" style="width:100px;flex-shrink:0;line-height:1.5">💰 <span data-en="Annual income" data-zh="年收入">年收入</span><br><span style="font-size:10px;color:#aaa" data-en="(pre-tax)" data-zh="（税前）">（税前）</span></span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="affIncome" value="120,000" onchange="formatInput(this);calcAfford()">
         </div>
       </div>
 
-      <div class="calc-row">
-        <span class="calc-lbl" data-en="💳 Monthly debts (car, student loans)" data-zh="💳 月债务（车贷、学贷等）">💳 Monthly debts (car, student loans)</span>
+      <div class="calc-row" style="align-items:flex-start">
+        <span class="calc-lbl" data-en="💳 Monthly debts (car, student loans)" data-zh="💳 月债务（车贷、学贷等）" style="width:100px;flex-shrink:0;line-height:1.5">💳 <span data-en="Monthly debts" data-zh="月债务">月债务</span><br><span style="font-size:10px;color:#aaa" data-en="(car, student loans)" data-zh="（车贷、学贷等）">（车贷、学贷等）</span></span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="affDebts" value="500" onchange="formatInput(this);calcAfford()">
         </div>
       </div>
 
-      <div class="calc-row">
-        <span class="calc-lbl" data-en="🏦 Down payment savings" data-zh="🏦 首付存款">🏦 Down payment savings</span>
+      <div class="calc-row" style="align-items:flex-start">
+        <span class="calc-lbl" data-en="🏦 Down payment savings" data-zh="🏦 首付存款" style="width:100px;flex-shrink:0;line-height:1.5">🏦 <span data-en="Down payment savings" data-zh="首付存款">首付存款</span></span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="affDown" value="100,000" onchange="formatInput(this);calcAfford()">
@@ -1010,44 +1074,44 @@
 
       <!-- Big result -->
       <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:12px;color:#8c7b6e;margin-bottom:4px" data-en="You can afford up to" data-zh="您最多可以购买">You can afford up to</div>
+        <div style="font-size:12px;color:#8c7b6e;margin-bottom:4px" data-en="You can afford up to" data-zh="您最多可以购买">您最多可以购买</div>
         <div id="affMaxHome" style="font-size:46px;font-weight:800;color:#e8732a;line-height:1">—</div>
       </div>
 
-      <div class="metric-grid">
+      <div class="metric-grid" style="grid-template-columns:1fr 1fr;gap:10px">
         <div class="metric">
-          <div class="metric-lbl" data-en="Monthly P&amp;I" data-zh="月供（本息）">Monthly P&amp;I</div>
+          <div class="metric-lbl" data-en="Monthly P&amp;I" data-zh="月供（本息）">月供（本息）</div>
           <div class="metric-val" id="affMaxPayment">—</div>
         </div>
         <div class="metric">
-          <div class="metric-lbl" data-en="Loan amount" data-zh="贷款金额">Loan amount</div>
+          <div class="metric-lbl" data-en="Loan amount" data-zh="贷款金额">贷款金额</div>
           <div class="metric-val" id="affLoanAmt">—</div>
         </div>
         <div class="metric">
-          <div class="metric-lbl" data-en="Rate (30yr)" data-zh="利率（30年）">Rate (30yr)</div>
+          <div class="metric-lbl" data-en="Rate (30yr)" data-zh="利率（30年）">利率（30年）</div>
           <div class="metric-val" id="affRate">—</div>
         </div>
         <div class="metric">
-          <div class="metric-lbl" data-en="DTI used" data-zh="使用DTI">DTI used</div>
+          <div class="metric-lbl" data-en="DTI used" data-zh="使用DTI">使用DTI</div>
           <div class="metric-val" id="affDTIused">36%</div>
         </div>
       </div>
 
       <!-- Expandable advanced -->
       <details style="margin-top:16px">
-        <summary style="cursor:pointer;font-size:12px;color:#8c7b6e;font-weight:600" data-en="⚙️ Advanced settings" data-zh="⚙️ 高级设置">⚙️ Advanced settings</summary>
+        <summary style="cursor:pointer;font-size:12px;color:#8c7b6e;font-weight:600" data-en="⚙️ Advanced settings" data-zh="⚙️ 高级设置">⚙️ 高级设置</summary>
         <div style="margin-top:12px">
           <div class="calc-row">
-            <span class="calc-lbl" data-en="Loan term" data-zh="贷款年限">Loan term</span>
+            <span class="calc-lbl" data-en="Loan term" data-zh="贷款年限">贷款年限</span>
             <div class="calc-field">
               <select id="affTerm" class="calc-input-bare" onchange="calcAfford()">
                 <option value="30" data-en="30 years" data-zh="30年" selected>30 years</option>
-                <option value="15" data-en="15 years" data-zh="15年">15 years</option>
+                <option value="15" data-en="15 years" data-zh="15年">15年</option>
               </select>
             </div>
           </div>
           <div class="calc-row">
-            <span class="calc-lbl" data-en="DTI ratio target" data-zh="目标DTI比率">DTI ratio target</span>
+            <span class="calc-lbl" data-en="DTI ratio target" data-zh="目标DTI比率">目标DTI比率</span>
             <div class="calc-rate-row">
               <input type="range" id="affDTI" min="25" max="50" step="1" value="36" oninput="calcAfford()">
               <div class="calc-rate-num">
@@ -1070,35 +1134,35 @@
 <div class="modal-overlay" id="calcModal" onclick="closeOnBg(event,'calcModal')">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title" data-en="🧮 Monthly Payment Calculator" data-zh="🧮 月供计算器">🧮 Monthly Payment Calculator</span>
+      <span class="modal-title" data-en="🧮 Monthly Payment Calculator" data-zh="🧮 月供计算器">🧮 月供计算器</span>
       <button class="modal-close" onclick="closeModal('calcModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="calc-rate-badge"><div class="dot"></div><span id="calcRateBadge">—</span></div>
       <div class="calc-scenarios">
         <button class="sc-btn active" onclick="loadScenario(500000,100000,30,'live',this)">
-          <div class="sc-name" data-en="Starter home" data-zh="入门购房">Starter home</div>
+          <div class="sc-name" data-en="Starter home" data-zh="入门购房">入门购房</div>
           <div class="sc-detail">$500K · 20% · 30yr</div>
         </button>
         <button class="sc-btn" onclick="loadScenario(800000,160000,30,'live',this)">
-          <div class="sc-name" data-en="Move-up" data-zh="改善置业">Move-up</div>
+          <div class="sc-name" data-en="Move-up" data-zh="改善置业">改善置业</div>
           <div class="sc-detail">$800K · 20% · 30yr</div>
         </button>
         <button class="sc-btn" onclick="loadScenario(1200000,240000,30,'live',this)">
-          <div class="sc-name" data-en="Jumbo" data-zh="大额贷款">Jumbo</div>
+          <div class="sc-name" data-en="Jumbo" data-zh="大额贷款">大额贷款</div>
           <div class="sc-detail">$1.2M · 20% · 30yr</div>
         </button>
       </div>
       <hr class="calc-divider">
       <div class="calc-row">
-        <span class="calc-lbl" data-en="House price" data-zh="房屋价格">House price</span>
+        <span class="calc-lbl" data-en="House price" data-zh="房屋价格">房屋价格</span>
         <div class="calc-field">
           <span class="calc-prefix">$</span>
           <input class="calc-input" type="text" id="cPrice" value="500,000" oninput="formatInput(this);calc()">
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl" data-en="Down payment" data-zh="首付">Down payment</span>
+        <span class="calc-lbl" data-en="Down payment" data-zh="首付">首付</span>
         <div class="calc-field" style="display:flex;gap:8px">
           <div style="position:relative;flex:1">
             <span class="calc-prefix">$</span>
@@ -1111,18 +1175,18 @@
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl" data-en="Loan term" data-zh="贷款年限">Loan term</span>
+        <span class="calc-lbl" data-en="Loan term" data-zh="贷款年限">贷款年限</span>
         <div class="calc-field">
           <select id="cTerm" class="calc-input-bare" oninput="calc()">
             <option value="30" data-en="30 years" data-zh="30年" selected>30 years</option>
-            <option value="20" data-en="20 years" data-zh="20年">20 years</option>
-            <option value="15" data-en="15 years" data-zh="15年">15 years</option>
-            <option value="10" data-en="10 years" data-zh="10年">10 years</option>
+            <option value="20" data-en="20 years" data-zh="20年">20年</option>
+            <option value="15" data-en="15 years" data-zh="15年">15年</option>
+            <option value="10" data-en="10 years" data-zh="10年">10年</option>
           </select>
         </div>
       </div>
       <div class="calc-row">
-        <span class="calc-lbl" data-en="Interest rate" data-zh="利率">Interest rate</span>
+        <span class="calc-lbl" data-en="Interest rate" data-zh="利率">利率</span>
         <div class="calc-rate-row">
           <input type="range" id="cRateSlider" min="3" max="10" step="0.01" value="6.47" oninput="syncRate('slider')">
           <div class="calc-rate-num">
@@ -1134,23 +1198,23 @@
       <hr class="calc-divider">
       <div class="metric-grid">
         <div class="metric">
-          <div class="metric-lbl" data-en="Monthly payment" data-zh="月供">Monthly payment</div>
+          <div class="metric-lbl" data-en="Monthly payment" data-zh="月供">月供</div>
           <div class="metric-val" id="mMonthly">—</div>
-          <div class="metric-sub" data-en="Principal + interest" data-zh="本金 + 利息">Principal + interest</div>
+          <div class="metric-sub" data-en="Principal + interest" data-zh="本金 + 利息">本金 + 利息</div>
         </div>
         <div class="metric">
-          <div class="metric-lbl" data-en="Total interest" data-zh="总利息">Total interest</div>
+          <div class="metric-lbl" data-en="Total interest" data-zh="总利息">总利息</div>
           <div class="metric-val" id="mInt">—</div>
           <div class="metric-sub" id="mIntPct">—</div>
         </div>
         <div class="metric">
-          <div class="metric-lbl" data-en="Total cost" data-zh="总费用">Total cost</div>
+          <div class="metric-lbl" data-en="Total cost" data-zh="总费用">总费用</div>
           <div class="metric-val" id="mTotal">—</div>
           <div class="metric-sub" id="mLoan">—</div>
         </div>
       </div>
       <div class="bar-wrap">
-        <div class="bar-lbl" data-en="Principal vs interest over loan life" data-zh="贷款期间本金与利息占比">Principal vs interest over loan life</div>
+        <div class="bar-lbl" data-en="Principal vs interest over loan life" data-zh="贷款期间本金与利息占比">贷款期间本金与利息占比</div>
         <div class="bar-track">
           <div class="bar-p" id="barP" style="width:70%"></div>
           <div class="bar-i" id="barI" style="width:30%"></div>
@@ -1161,9 +1225,9 @@
         </div>
       </div>
       <div class="amort-wrap">
-        <div class="amort-lbl" data-en="Amortization — first 5 years" data-zh="还款计划 — 前5年">Amortization — first 5 years</div>
+        <div class="amort-lbl" data-en="Amortization — first 5 years" data-zh="还款计划 — 前5年">还款计划 — 前5年</div>
         <table class="amort-table">
-          <thead><tr><th data-en="Year" data-zh="年份">Year</th><th data-en="Principal paid" data-zh="已还本金">Principal paid</th><th data-en="Interest paid" data-zh="已还利息">Interest paid</th><th data-en="Balance" data-zh="余额">Balance</th></tr></thead>
+          <thead><tr><th data-en="Year" data-zh="年份">年份</th><th data-en="Principal paid" data-zh="已还本金">已还本金</th><th data-en="Interest paid" data-zh="已还利息">已还利息</th><th data-en="Balance" data-zh="余额">余额</th></tr></thead>
           <tbody id="amortBody"></tbody>
         </table>
       </div>
@@ -1176,14 +1240,14 @@
 <div class="modal-overlay" id="histModal" onclick="closeOnBg(event,'histModal')">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title" data-en="📋 Recent Daily Rate History" data-zh="📋 近期每日利率记录">📋 Recent Daily Rate History</span>
+      <span class="modal-title" data-en="📋 Recent Daily Rate History" data-zh="📋 近期每日利率记录">📋 近期每日利率记录</span>
       <button class="modal-close" onclick="closeModal('histModal')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:12px;color:#8899AA;margin-bottom:14px" data-en="30-Year Fixed · MND Index · Last 20 trading days" data-zh="30年固定利率 · MND指数 · 近20个交易日">30-Year Fixed · MND Index · Last 20 trading days</p>
+      <p style="font-size:12px;color:#8899AA;margin-bottom:14px" data-en="30-Year Fixed · MND Index · Last 20 trading days" data-zh="30年固定利率 · MND指数 · 近20个交易日">30年固定利率 · MND指数 · 近20个交易日</p>
       <table>
         <thead>
-          <tr><th style="width:30%" data-en="Date" data-zh="日期">Date</th><th style="width:12%" data-en="30yr" data-zh="30年">30yr</th><th style="width:12%" data-en="15yr" data-zh="15年">15yr</th><th style="width:12%" data-en="ARM 5/1" data-zh="ARM 5/1">ARM 5/1</th><th style="width:16%;text-align:right" data-en="Change" data-zh="涨跌">Change</th><th style="width:18%" data-en="Note" data-zh="备注">Note</th></tr>
+          <tr><th style="width:30%" data-en="Date" data-zh="日期">日期</th><th style="width:12%" data-en="30yr" data-zh="30年">30年</th><th style="width:12%" data-en="15yr" data-zh="15年">15年</th><th style="width:12%" data-en="ARM 5/1" data-zh="ARM 5/1">ARM 5/1</th><th style="width:16%;text-align:right" data-en="Change" data-zh="涨跌">涨跌</th><th style="width:18%" data-en="Note" data-zh="备注">备注</th></tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -2693,7 +2757,7 @@ function downloadCard() {
 // ══════════════════════════════════════════════
 // LANG TOGGLE SYSTEM — must be declared before render calls
 // ══════════════════════════════════════════════
-let currentLang = 'en';
+let currentLang = 'zh';
 
 function updateHeaderSub(date) {
   const el = document.getElementById('headerSub');
@@ -2736,10 +2800,8 @@ function toggleLang() {
   applyLang(currentLang === 'en' ? 'zh' : 'en');
 }
 
-// Initial render
-renderHero();
-renderForecast();
-renderTable();
+// Initial render — default Chinese
+applyLang('zh');
 
 // Set header date dynamically
 updateHeaderSub();
@@ -2828,6 +2890,21 @@ renderChart(14);
 })();
 
 /* ── Compare Scenarios Calculator ── */
+// Store base rates (before point adjustment)
+const _cmpBaseRate = { A: null, B: null };
+
+function cmpSyncPoints(plan) {
+  const rateEl  = document.getElementById('cmp' + plan + 'Rate');
+  const pointEl = document.getElementById('cmp' + plan + 'Points');
+  const pts = parseFloat(pointEl.value) || 0;
+  // Store base rate on first interaction
+  if (_cmpBaseRate[plan] === null) {
+    _cmpBaseRate[plan] = parseFloat(rateEl.value) || LIVE30;
+  }
+  // Each point reduces rate by 0.25%
+  const adjusted = Math.max(1, +(_cmpBaseRate[plan] - pts * 0.25).toFixed(3));
+  rateEl.value = adjusted.toFixed(2);
+}
 function fmtCmp(id) {
   const el = document.getElementById(id);
   const raw = el.value.replace(/[^0-9]/g, '');
@@ -2850,9 +2927,11 @@ function cmpCalc() {
   function planCalc(pfx) {
     const price   = parseCmpInput(pfx + 'Price');
     const downPct = parseFloat(document.getElementById(pfx+'Down').value) || 0;
-    const rate    = parseFloat(document.getElementById(pfx+'Rate').value) || 0;
+    const rateInput = parseFloat(document.getElementById(pfx+'Rate').value) || 0;
     const points  = parseFloat(document.getElementById(pfx+'Points').value) || 0;
     const term    = parseInt(document.getElementById(pfx+'Term').value) || 30;
+    // Each point bought lowers rate by 0.25%
+    const rate    = Math.max(0, rateInput - points * 0.25);
     const down    = price * downPct / 100;
     const loan    = price - down;
     const pi      = cmpMoPay(rate, loan, term);
@@ -2861,7 +2940,7 @@ function cmpCalc() {
     const total   = pi + pmi;
     const cashNeeded = down + ptCost;
     const annualIncome = total * 12 / 0.28;
-    return { price, down, downPct, loan, rate, points, term, pi, pmi, ptCost, total, cashNeeded, annualIncome };
+    return { price, down, downPct, loan, rate, rateInput, points, term, pi, pmi, ptCost, total, cashNeeded, annualIncome };
   }
 
   const A = planCalc('cmpA');
@@ -2880,26 +2959,41 @@ function cmpCalc() {
 
   // Table rows config
   const rows = [
-    { en: 'Home Price',    zh: '房价',       a: A.price,        b: B.price        },
-    { en: 'Down Payment',  zh: '首付',       a: A.down,         b: B.down         },
-    { en: 'Loan Amount',   zh: '贷款金额',   a: A.loan,         b: B.loan         },
-    { en: 'P&I Payment',   zh: '本息月供',   a: A.pi,           b: B.pi,   bold: true },
-    { en: 'PMI (est.)',    zh: 'PMI（估算）', a: A.pmi,          b: B.pmi          },
-    { en: 'Total Monthly', zh: '月供合计',   a: A.total,        b: B.total, bold: true, hi: true },
-    { en: 'Points Cost',   zh: '买点费用',   a: A.ptCost,       b: B.ptCost       },
-    { en: 'Cash Needed',   zh: '所需现金',   a: A.cashNeeded,   b: B.cashNeeded   },
-    { en: 'Income Needed', zh: '所需年收入', a: A.annualIncome, b: B.annualIncome },
+    { en: 'Home Price',      zh: '房价',         a: A.price,        b: B.price,        isMoney: true },
+    { en: 'Down Payment',    zh: '首付',          a: A.down,         b: B.down,         isMoney: true },
+    { en: 'Loan Amount',     zh: '贷款金额',      a: A.loan,         b: B.loan,         isMoney: true },
+    { en: 'Effective Rate',  zh: '实际利率',      a: A.rate,         b: B.rate,         isRate: true  },
+    { en: 'P&I Payment',     zh: '本息月供',      a: A.pi,           b: B.pi,           isMoney: true, bold: true },
+    { en: 'PMI (est.)',      zh: 'PMI（估算）',   a: A.pmi,          b: B.pmi,          isMoney: true },
+    { en: 'Total Monthly',   zh: '月供合计',      a: A.total,        b: B.total,        isMoney: true, bold: true, hi: true },
+    { en: 'Points Cost',     zh: '买点费用',      a: A.ptCost,       b: B.ptCost,       isMoney: true },
+    { en: 'Cash Needed',     zh: '所需现金',      a: A.cashNeeded,   b: B.cashNeeded,   isMoney: true },
+    { en: 'Income Needed',   zh: '所需年收入',    a: A.annualIncome, b: B.annualIncome, isMoney: true },
   ];
 
   document.getElementById('cmpTableBody').innerHTML = rows.map(r => {
+    let fmtVal, fmtDiff;
+    if (r.isRate) {
+      fmtVal = v => v.toFixed(2) + '%';
+      const d = A.rate - B.rate;
+      fmtDiff = d === 0 ? '—' : (d > 0 ? '+' : '') + d.toFixed(2) + '%';
+      const dc = d < 0 ? '#16a34a' : d > 0 ? '#f87171' : '#8c7b6e';
+      return `<tr style="${r.hi ? 'background:#fff3e6' : ''}">
+        <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;color:#8c7b6e;font-size:12px">${zh ? r.zh : r.en}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:#1D4ED8">${fmtVal(r.a)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:#e8732a">${fmtVal(r.b)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:${dc};font-weight:600">${fmtDiff}</td>
+      </tr>`;
+    }
+    fmtVal = v => '$' + Math.round(v).toLocaleString('en-US');
     const d = r.a - r.b;
     const dc = d < 0 ? '#16a34a' : d > 0 ? '#f87171' : '#8c7b6e';
     const dt = d === 0 ? '—' : (d > 0 ? '+' : '−') + '$' + Math.round(Math.abs(d)).toLocaleString('en-US');
     return `<tr style="${r.hi ? 'background:#fff3e6' : ''}">
-      <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;color:#8c7b6e;font-size:12px;${r.bold?'font-weight:700':''}">${zh ? r.zh : r.en}</td>
-      <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:#1D4ED8;${r.bold?'font-weight:700':''}">${fmt(r.a)}</td>
-      <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:#e8732a;${r.bold?'font-weight:700':''}">${fmt(r.b)}</td>
-      <td style="padding:8px 10px;border-bottom:1px solid #f0ebe4;text-align:right;color:${dc};font-weight:600">${dt}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid #f0ebe4;color:#8c7b6e;font-size:11px;${r.bold?'font-weight:700':''}">${zh ? r.zh : r.en}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid #f0ebe4;text-align:right;color:#1D4ED8;font-size:12px;${r.bold?'font-weight:700':''}">${fmtVal(r.a)}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid #f0ebe4;text-align:right;color:#e8732a;font-size:12px;${r.bold?'font-weight:700':''}">${fmtVal(r.b)}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid #f0ebe4;text-align:right;color:${dc};font-size:12px;font-weight:600">${dt}</td>
     </tr>`;
   }).join('');
 
@@ -2927,10 +3021,176 @@ openModal = function(id) {
   if (id === 'compareModal') {
     const aRate = document.getElementById('cmpARate');
     const bRate = document.getElementById('cmpBRate');
-    if (aRate && !aRate._synced) { aRate.value = LIVE30.toFixed(2); bRate.value = LIVE30.toFixed(2); aRate._synced = true; }
+    if (aRate && !aRate._synced) {
+      aRate.value = LIVE30.toFixed(2);
+      bRate.value = LIVE30.toFixed(2);
+      aRate._synced = true;
+    }
+    // Reset base rates so point-sync starts fresh
+    _cmpBaseRate.A = parseFloat(document.getElementById('cmpARate').value) || LIVE30;
+    _cmpBaseRate.B = parseFloat(document.getElementById('cmpBRate').value) || LIVE30;
+    // Reset points to 0
+    document.getElementById('cmpAPoints').value = 0;
+    document.getElementById('cmpBPoints').value = 0;
     cmpCalc();
   }
 };
+
+/* ══════════════════════════════════════════
+   AUTH SYSTEM — gate all tools behind sign-in
+   ══════════════════════════════════════════ */
+
+const AUTH_KEY = 'silink_user';
+let _pendingModalId = null;  // which tool to open after login
+let _authTab = 'login';
+
+// Check if user is already signed in
+function isSignedIn() {
+  try { return !!localStorage.getItem(AUTH_KEY); } catch(e) { return false; }
+}
+
+function getUser() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || null; } catch(e) { return null; }
+}
+
+function saveUser(email, name) {
+  try { localStorage.setItem(AUTH_KEY, JSON.stringify({ email, name, ts: Date.now() })); } catch(e) {}
+}
+
+// Intercept tool opens — redirect to auth if not signed in
+const TOOL_MODALS = ['calcModal','refiModal','affordModal','compareModal','histModal',
+                     'alertModal','newsModal','armModal','shareModal'];
+
+// Patch the global openModal to require auth for tool modals
+const _authOrigOpen = (typeof _cmpOrigOpen !== 'undefined') ? _cmpOrigOpen : openModal;
+openModal = function(id) {
+  if (TOOL_MODALS.includes(id) && !isSignedIn()) {
+    _pendingModalId = id;
+    showAuthModal();
+    return;
+  }
+  _authOrigOpen(id);
+};
+
+// Also patch openNewsModal (it doesn't use openModal)
+const _origOpenNewsModal = openNewsModal;
+openNewsModal = function() {
+  if (!isSignedIn()) {
+    _pendingModalId = '__news__';
+    showAuthModal();
+    return;
+  }
+  _origOpenNewsModal();
+};
+
+// Also patch openShareModal
+const _origOpenShareModal = openShareModal;
+openShareModal = function() {
+  if (!isSignedIn()) {
+    _pendingModalId = '__share__';
+    showAuthModal();
+    return;
+  }
+  _origOpenShareModal();
+};
+
+function showAuthModal() {
+  const overlay = document.getElementById('authModal');
+  overlay.style.display = 'flex';
+  overlay.classList.add('open');
+  setTimeout(() => document.getElementById('authEmail').focus(), 200);
+  updateAuthUI();
+}
+
+function closeAuthModal() {
+  const overlay = document.getElementById('authModal');
+  overlay.style.display = '';
+  overlay.classList.remove('open');
+  _pendingModalId = null;
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authPassword').value = '';
+}
+
+function switchAuthTab(tab) {
+  _authTab = tab;
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const isLogin = _authTab === 'login';
+  document.getElementById('authTabLogin').style.background    = isLogin ? '#1C1E27' : '#f5f3f0';
+  document.getElementById('authTabLogin').style.color         = isLogin ? '#fff' : '#8c7b6e';
+  document.getElementById('authTabRegister').style.background = isLogin ? '#f5f3f0' : '#1C1E27';
+  document.getElementById('authTabRegister').style.color      = isLogin ? '#8c7b6e' : '#fff';
+  document.getElementById('authNameRow').style.display        = isLogin ? 'none' : 'block';
+  document.getElementById('authSubmitBtn').textContent        = isLogin ? '登录' : '注册并登录';
+  document.getElementById('authModalTitle').textContent       = isLogin ? '登录后使用工具' : '注册免费账号';
+  document.getElementById('authModalSub').textContent         = isLogin ? '免费注册，保存您的计算记录' : '填写信息即可使用全部工具';
+  document.getElementById('authError').style.display          = 'none';
+}
+
+function authSubmit() {
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const name     = document.getElementById('authName').value.trim();
+  const errEl    = document.getElementById('authError');
+
+  // Basic validation
+  if (!email || !email.includes('@')) {
+    errEl.textContent = '请输入有效的邮箱地址';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (password.length < 6) {
+    errEl.textContent = '密码至少需要6位';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Save user (front-end only — no real auth)
+  const displayName = name || email.split('@')[0];
+  saveUser(email, displayName);
+
+  // Notify backend (fire and forget — used to collect leads)
+  fetch(`${BACKEND}/api/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, name: displayName, source: 'tool_signin' })
+  }).catch(() => {});
+
+  // Update nav to show signed-in state
+  updateAuthNav();
+
+  // Close auth modal and open the pending tool
+  closeAuthModal();
+  if (_pendingModalId === '__news__')  { _origOpenNewsModal();  return; }
+  if (_pendingModalId === '__share__') { _origOpenShareModal(); return; }
+  if (_pendingModalId)                { _authOrigOpen(_pendingModalId); }
+  _pendingModalId = null;
+}
+
+function signOut() {
+  try { localStorage.removeItem(AUTH_KEY); } catch(e) {}
+  updateAuthNav();
+}
+
+function updateAuthNav() {
+  const user = getUser();
+  const navUser = document.getElementById('authNavUser');
+  if (!navUser) return;
+  if (user) {
+    navUser.innerHTML = `<span style="font-size:11px;color:#3a3540;padding:6px 10px;display:flex;align-items:center;gap:5px">
+      <span style="width:20px;height:20px;background:#e8732a;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700">${user.name[0].toUpperCase()}</span>
+      ${user.name}
+    </span>
+    <button onclick="signOut()" style="font-size:11px;color:#8c7b6e;background:none;border:none;cursor:pointer;padding:6px 8px" onmouseover="this.style.color='#e8732a'" onmouseout="this.style.color='#8c7b6e'">退出</button>`;
+  } else {
+    navUser.innerHTML = `<button onclick="showAuthModal()" style="font-size:11px;color:#3a3540;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.5);border-radius:6px;padding:7px 14px;cursor:pointer;font-weight:600" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">登录 / 注册</button>`;
+  }
+}
+
+// On page load — restore auth state in nav
+updateAuthNav();
 
 </script>
 </body>

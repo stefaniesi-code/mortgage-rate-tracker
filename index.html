@@ -209,7 +209,7 @@
     <div><div style="font-size:17px;font-weight:700;color:#1C1E27;letter-spacing:1px">SiLink</div></div>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
       <a href="#contactFooter" data-en="CONTACT" data-zh="联系我" style="background:#1C1E27;color:#fff;text-decoration:none;font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;transition:background .15s;white-space:nowrap" onmouseover="this.style.background='#e8732a'" onmouseout="this.style.background='#1C1E27'">联系我</a>
-      <button id="langToggleBtn" onclick="toggleLang()" style="background:rgba(255,255,255,0.25);border:1.5px solid rgba(255,255,255,0.6);border-radius:6px;color:#1C1E27;font-size:12px;font-weight:700;padding:7px 12px;cursor:pointer;transition:all .15s;white-space:nowrap" onmouseover="this.style.background='rgba(255,255,255,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'">EN</button>
+      <button id="langToggleBtn" onclick="toggleLang()" style="background:rgba(255,255,255,0.25);border:1.5px solid rgba(255,255,255,0.6);border-radius:6px;color:#1C1E27;font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;transition:all .15s;white-space:nowrap" onmouseover="this.style.background='rgba(255,255,255,0.45)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'">EN</button>
       <div id="authNavUser" style="display:flex;align-items:center"></div>
     </div>
   </div>
@@ -692,7 +692,7 @@
 <div id="contactFooter" style="background:linear-gradient(135deg,#E6D4D4 0%,#CAACB3 50%,#ADAFB8 100%);border-radius:12px;padding:14px 28px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
   <div>
     <div style="font-size:13px;font-weight:600;color:#1C1E27" data-en="Have questions? Let's talk." data-zh="有问题？随时联系我。">有问题？随时联系我。</div>
-    <div style="font-size:11px;color:#828697;margin-top:2px" data-en="Licensed MLO · Bilingual EN/中文" data-zh="持牌房贷专员 · 中英双语">持牌房贷专员 · 中英双语</div>
+    <div style="font-size:11px;color:#828697;margin-top:2px" data-en="Licensed MLO · NMLS#2800972 · Bilingual EN/中文" data-zh="持牌房贷专员 · NMLS#2800972 · 中英双语">持牌房贷专员 · NMLS#2800972 · 中英双语</div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <a href="tel:+12016603602" style="display:flex;align-items:center;gap:6px;text-decoration:none;background:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.6);border-radius:8px;padding:7px 12px;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,0.7)'" onmouseout="this.style.background='rgba(255,255,255,0.45)'">
@@ -710,6 +710,8 @@
   Built by <strong style="color:#000000">Stefanie Si</strong>
   <span style="color:#2d2420;margin:0 8px">·</span>
   <span style="color:#000000">Licensed MLO</span>
+  <span style="color:#2d2420;margin:0 6px">|</span>
+  <span style="color:#000000">NMLS#2800972</span>
   <span style="color:#2d2420;margin:0 6px">|</span>
   <span style="color:#000000">CFA</span>
   <span style="color:#2d2420;margin:0 6px">|</span>
@@ -811,7 +813,7 @@
         <div style="width:64px;height:64px;border-radius:50%;background:#e8732a;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:white;flex-shrink:0">S</div>
         <div>
           <div style="font-size:20px;font-weight:700;color:#2d2420">Stefanie Si</div>
-          <div style="font-size:12px;color:#8c7b6e;margin-top:3px">Licensed MLO · CFA · FRM</div>
+          <div style="font-size:12px;color:#8c7b6e;margin-top:3px">Licensed MLO · NMLS#2800972 · CFA · FRM</div>
         </div>
       </div>
 
@@ -1885,6 +1887,13 @@ function refi(){
   document.getElementById('refiPreview').textContent = moSave>0
     ? (zh ? `再融资可省 ${fmt2(moSave)}/月` : `Save ${fmt2(moSave)}/mo refinancing`)
     : (zh ? '请输入当前利率' : 'Enter your current rate');
+  // Track refi calc with debounce
+  if (newRate > 0 && loan > 0) {
+    clearTimeout(refi._t);
+    refi._t = setTimeout(() => {
+      trackEvent('refiModal', 'calc', {loan: Math.round(loan), curRate, newRate, moSave: Math.round(moSave), breakEven});
+    }, 1500);
+  }
 }
 
 /* ── Calculator ── */
@@ -1932,6 +1941,11 @@ function calc(){
   }
   document.getElementById('amortBody').innerHTML=html;
   document.getElementById('calcPreview').textContent=`$500K · ${rate.toFixed(2)}% → ${fmt(mo)}/月`;
+  // Track with debounce (fire 1.5s after user stops typing)
+  clearTimeout(calc._t);
+  calc._t = setTimeout(() => {
+    trackEvent('calcModal', 'calc', {price: Math.round(price), rate, term, monthly: Math.round(mo)});
+  }, 1500);
 }
 function loadScenario(price,down,term,rateKey,el){
   document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('active'));
@@ -1997,6 +2011,13 @@ function calcAfford(){
   document.getElementById('affDTIused').textContent = dti + '%';
   document.getElementById('affordRateBadge').textContent =
     '30yr: ' + LIVE30.toFixed(2) + '% · 15yr: ' + LIVE15.toFixed(2) + '%';
+  // Track with debounce
+  if (income > 0) {
+    clearTimeout(calcAfford._t);
+    calcAfford._t = setTimeout(() => {
+      trackEvent('affordModal', 'calc', {income: Math.round(income), down: Math.round(down), maxHome: Math.round(maxHome), rate});
+    }, 1500);
+  }
 }
 
 /* ── History table ── */
@@ -2643,7 +2664,7 @@ function drawCard() {
   ctx.fillText('Stefanie Si', LX+12, 320);
   ctx.fillStyle = '#e8732a';
   ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('Licensed MLO  ·  CFA  ·  FRM', LX+12, 338);
+  ctx.fillText('Licensed MLO  ·  NMLS#2800972  ·  CFA  ·  FRM', LX+12, 338);
   ctx.fillStyle = '#8c7b6e';
   ctx.font = '11px -apple-system, sans-serif';
   ctx.fillText('📱 201-660-3602', LX+12, 356);
@@ -2785,6 +2806,7 @@ function applyLang(lang) {
   });
   const alertEmail = document.getElementById('alertEmail');
   if (alertEmail) alertEmail.placeholder = lang === 'zh' ? '您的邮箱地址' : 'your email address';
+  // Update toggle button label
   const btn = document.getElementById('langToggleBtn');
   if (btn) btn.textContent = lang === 'zh' ? 'EN' : '中文';
   document.documentElement.lang = lang === 'zh' ? 'zh' : 'en';
@@ -3012,6 +3034,16 @@ function cmpCalc() {
   if (prev) prev.textContent = zh
     ? `A: ${fmt(A.total)}/月 vs B: ${fmt(B.total)}/月`
     : `A: ${fmt(A.total)}/mo vs B: ${fmt(B.total)}/mo`;
+
+  // Track with debounce
+  clearTimeout(cmpCalc._t);
+  cmpCalc._t = setTimeout(() => {
+    trackEvent('compareModal', 'calc', {
+      aPrice: Math.round(A.price), aDown: A.downPct, aRate: A.rate,
+      bPrice: Math.round(B.price), bDown: B.downPct, bRate: B.rate,
+      diff: Math.round(diff)
+    });
+  }, 1500);
 }
 
 // Patch openModal to auto-sync live rate when Compare opens
@@ -3035,6 +3067,19 @@ openModal = function(id) {
     cmpCalc();
   }
 };
+
+/* ── Event Tracking ── */
+function trackEvent(tool, action, data) {
+  try {
+    const user = getUser();
+    const email = user ? user.email : '';
+    fetch(`${BACKEND}/api/event`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, tool, action: action||'open', data: data ? JSON.stringify(data) : ''})
+    }).catch(()=>{});
+  } catch(e) {}
+}
 
 /* ══════════════════════════════════════════
    AUTH SYSTEM — gate all tools behind sign-in
@@ -3070,6 +3115,8 @@ openModal = function(id) {
     return;
   }
   _authOrigOpen(id);
+  // Track tool open
+  if (TOOL_MODALS.includes(id)) trackEvent(id, 'open');
 };
 
 // Also patch openNewsModal (it doesn't use openModal)
@@ -3157,6 +3204,9 @@ function authSubmit() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, name: displayName, source: 'tool_signin' })
   }).catch(() => {});
+
+  // Track sign-in event
+  trackEvent('auth', 'submit', {source: _authTab, tool: _pendingModalId || ''});
 
   // Update nav to show signed-in state
   updateAuthNav();

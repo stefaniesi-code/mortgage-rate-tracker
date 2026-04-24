@@ -41,26 +41,19 @@ def init_db():
         CREATE TABLE IF NOT EXISTS subscribers (
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
             email     TEXT NOT NULL UNIQUE,
-            name      TEXT DEFAULT '',
-            threshold REAL NOT NULL DEFAULT 5.0,
+            threshold REAL NOT NULL,
             rate_type TEXT DEFAULT '30yr',
             weekly    INTEGER DEFAULT 1,
             big_move  INTEGER DEFAULT 1,
             active    INTEGER DEFAULT 1,
-            source    TEXT DEFAULT 'alert',
             created   TEXT DEFAULT (datetime('now'))
         )
     """)
-    # Migrations for existing DBs
-    for col, definition in [
-        ("rate_type", "TEXT DEFAULT '30yr'"),
-        ("name",      "TEXT DEFAULT ''"),
-        ("source",    "TEXT DEFAULT 'alert'"),
-    ]:
-        try:
-            con.execute(f"ALTER TABLE subscribers ADD COLUMN {col} {definition}")
-        except Exception:
-            pass
+    # Migration: add rate_type column if missing (existing DBs)
+    try:
+        con.execute("ALTER TABLE subscribers ADD COLUMN rate_type TEXT DEFAULT '30yr'")
+    except Exception:
+        pass  # column already exists
     con.execute("""
         CREATE TABLE IF NOT EXISTS rate_log (
             date    TEXT PRIMARY KEY,
@@ -71,10 +64,18 @@ def init_db():
             fetched TEXT DEFAULT (datetime('now'))
         )
     """)
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS events (
+            id      INTEGER PRIMARY KEY AUTOINCREMENT,
+            email   TEXT DEFAULT '',
+            tool    TEXT NOT NULL,
+            action  TEXT DEFAULT 'open',
+            data    TEXT DEFAULT '',
+            ts      TEXT DEFAULT (datetime('now'))
+        )
+    """)
     con.commit()
     con.close()
-
-def get_db():
     return sqlite3.connect(DB_PATH)
 
 def save_rate(rate: dict):
@@ -512,12 +513,18 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 class SubscribeRequest(BaseModel):
     email:     str
-    threshold: float = 5.0      # default threshold so sign-in works without setting alert
-    rate_type: str = "30yr"     # "30yr" or "15yr"
+    threshold: float = 5.0
+    rate_type: str = "30yr"
     weekly:    bool = True
     big_move:  bool = True
-    name:      str = ""         # from sign-in registration
-    source:    str = "alert"    # "alert" or "tool_signin"
+    name:      str = ""
+    source:    str = "alert"
+
+class EventRequest(BaseModel):
+    email:  str = ""
+    tool:   str
+    action: str = "open"
+    data:   str = ""
 
 # ── API Routes ────────────────────────────────────────────────────────────────
 
@@ -601,21 +608,16 @@ async def subscribe(req: SubscribeRequest):
     existing = con.execute("SELECT id FROM subscribers WHERE email=?", (req.email,)).fetchone()
     if existing:
         con.execute(
-            "UPDATE subscribers SET threshold=?, rate_type=?, weekly=?, big_move=?, active=1, name=COALESCE(NULLIF(?,''),(SELECT name FROM subscribers WHERE email=?)) WHERE email=?",
-            (req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.name, req.email, req.email)
+            "UPDATE subscribers SET threshold=?, rate_type=?, weekly=?, big_move=?, active=1 WHERE email=?",
+            (req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.email)
         )
     else:
         con.execute(
-            "INSERT INTO subscribers (email, name, threshold, rate_type, weekly, big_move, source) VALUES (?,?,?,?,?,?,?)",
-            (req.email, req.name, req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.source)
+            "INSERT INTO subscribers (email, threshold, rate_type, weekly, big_move) VALUES (?,?,?,?,?)",
+            (req.email, req.threshold, req.rate_type, int(req.weekly), int(req.big_move))
         )
     con.commit()
     con.close()
-
-    # Skip confirmation email for tool sign-ins (just collecting leads)
-    if req.source == "tool_signin":
-        return {"status": "ok", "message": f"User registered: {req.email}"}
-
     label = "30yr fixed" if req.rate_type == "30yr" else "15yr fixed"
     try:
         resend.Emails.send({
@@ -646,6 +648,18 @@ async def unsubscribe(email: str):
     con.close()
     return {"status": "ok"}
 
+@app.post("/api/event")
+async def track_event(req: EventRequest):
+    """Track user tool usage. Called by frontend on every tool open + key interactions."""
+    con = get_db()
+    con.execute(
+        "INSERT INTO events (email, tool, action, data) VALUES (?,?,?,?)",
+        (req.email, req.tool, req.action, req.data)
+    )
+    con.commit()
+    con.close()
+    return {"status": "ok"}
+
 @app.get("/api/subscribers/count")
 async def subscriber_count():
     con = get_db()
@@ -655,97 +669,184 @@ async def subscriber_count():
 
 @app.get("/api/admin/subscribers")
 async def admin_subscribers(key: str = ""):
-    """
-    Admin endpoint — view all subscribers.
-    Protected by ADMIN_KEY env variable.
-    Usage: /api/admin/subscribers?key=your_secret_key
-    Returns HTML table in browser, or JSON if ?format=json
-    """
+    """Admin endpoint — view all subscribers + recent activity."""
     admin_key = os.getenv("ADMIN_KEY", "")
     if not admin_key or key != admin_key:
         from fastapi import HTTPException
-        raise HTTPException(status_code=401, detail="Invalid or missing admin key. Set ADMIN_KEY env variable in Railway.")
+        raise HTTPException(status_code=401, detail="Invalid or missing admin key.")
 
     con = get_db()
-    rows = con.execute(
-        """SELECT email, name, threshold, rate_type, weekly, big_move, active, source, created
-           FROM subscribers
-           ORDER BY created DESC"""
+    subs = con.execute(
+        "SELECT email, name, threshold, rate_type, active, source, created FROM subscribers ORDER BY created DESC"
     ).fetchall()
+
+    # Recent events — last 200
+    evts = con.execute(
+        "SELECT email, tool, action, data, ts FROM events ORDER BY ts DESC LIMIT 200"
+    ).fetchall()
+
+    # Per-user event counts
+    user_tools = {}
+    for email, tool, action, data, ts in evts:
+        if email not in user_tools:
+            user_tools[email] = []
+        user_tools[email].append((tool, action, data, ts))
+
+    # Tool open counts
+    tool_counts = {}
+    for _, tool, action, _, _ in evts:
+        if action == "open":
+            tool_counts[tool] = tool_counts.get(tool, 0) + 1
+
     con.close()
 
-    total   = len(rows)
-    active  = sum(1 for r in rows if r[6] == 1)
-    unsub   = total - active
+    total  = len(subs)
+    active = sum(1 for r in subs if r[4] == 1)
 
-    # Build HTML response (renders nicely in browser)
+    # Tool name map
+    TOOL_NAMES = {
+        "calcModal": "月供计算器", "refiModal": "再融资", "affordModal": "购房能力",
+        "compareModal": "方案对比", "histModal": "历史利率", "alertModal": "利率提醒",
+        "newsModal": "市场新闻", "armModal": "ARM vs Fixed", "shareModal": "分享卡片",
+    }
+
     from fastapi.responses import HTMLResponse
-    html_rows = ""
-    for r in rows:
-        email, name, thresh, rate_type, weekly, big_move, is_active, source, created = r
-        status_badge = (
-            '<span style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;padding:2px 8px;border-radius:12px;font-size:11px">✓ Active</span>'
-            if is_active else
-            '<span style="background:#fef2f2;color:#ef4444;border:1px solid #fecaca;padding:2px 8px;border-radius:12px;font-size:11px">Unsubscribed</span>'
-        )
-        source_badge = (
-            '<span style="background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe;padding:2px 7px;border-radius:12px;font-size:10px">sign-in</span>'
-            if source == "tool_signin" else
-            '<span style="background:#fff7ed;color:#e8732a;border:1px solid #fed7aa;padding:2px 7px;border-radius:12px;font-size:10px">alert</span>'
-        )
-        html_rows += f"""<tr style="border-bottom:1px solid #f0ece6">
-            <td style="padding:10px 14px;font-size:13px">{email}</td>
-            <td style="padding:10px 14px;font-size:13px;color:#6b5e52">{name or '—'}</td>
-            <td style="padding:10px 14px;font-size:13px;text-align:center">{thresh:.2f}%</td>
-            <td style="padding:10px 14px;font-size:13px;text-align:center">{rate_type or '30yr'}</td>
-            <td style="padding:10px 14px;font-size:12px;color:#8c7b6e">{(created or '')[:16]}</td>
-            <td style="padding:10px 14px">{source_badge}</td>
-            <td style="padding:10px 14px">{status_badge}</td>
+
+    # Subscribers table rows
+    sub_rows = ""
+    for email, name, thresh, rate_type, is_active, source, created in subs:
+        status = ('<span style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;padding:2px 8px;border-radius:12px;font-size:11px">活跃</span>'
+                  if is_active else
+                  '<span style="background:#fef2f2;color:#ef4444;border:1px solid #fecaca;padding:2px 8px;border-radius:12px;font-size:11px">已退订</span>')
+        src = ('<span style="background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe;padding:2px 7px;border-radius:12px;font-size:10px">登录</span>'
+               if source == "tool_signin" else
+               '<span style="background:#fff7ed;color:#e8732a;border:1px solid #fed7aa;padding:2px 7px;border-radius:12px;font-size:10px">利率提醒</span>')
+        # Tools this user opened
+        tools_used = ""
+        if email in user_tools:
+            seen = []
+            for tool, action, data, ts in user_tools[email]:
+                if action == "open" and tool not in seen:
+                    seen.append(tool)
+                    tools_used += f'<span style="background:#faf8f5;border:1px solid #e8e0d5;padding:1px 6px;border-radius:10px;font-size:10px;margin:1px">{TOOL_NAMES.get(tool, tool)}</span>'
+        sub_rows += f"""<tr>
+            <td style="padding:9px 12px;font-size:13px">{email}</td>
+            <td style="padding:9px 12px;font-size:12px;color:#6b5e52">{name or '—'}</td>
+            <td style="padding:9px 12px;font-size:13px;text-align:center">{thresh:.2f}%</td>
+            <td style="padding:9px 12px">{src}</td>
+            <td style="padding:9px 12px;font-size:11px;color:#8c7b6e">{(created or '')[:16]}</td>
+            <td style="padding:9px 12px">{tools_used or '<span style="color:#8c7b6e;font-size:11px">—</span>'}</td>
+            <td style="padding:9px 12px">{status}</td>
         </tr>"""
+
+    # Events table rows
+    evt_rows = ""
+    for email, tool, action, data, ts in evts[:50]:
+        tool_label = TOOL_NAMES.get(tool, tool)
+        action_badge = {
+            "open": '<span style="background:#eff6ff;color:#3b82f6;font-size:10px;padding:1px 6px;border-radius:10px">打开</span>',
+            "calc": '<span style="background:#f0fdf4;color:#16a34a;font-size:10px;padding:1px 6px;border-radius:10px">计算</span>',
+            "submit": '<span style="background:#fff7ed;color:#e8732a;font-size:10px;padding:1px 6px;border-radius:10px">提交</span>',
+        }.get(action, f'<span style="font-size:10px">{action}</span>')
+        # Parse data JSON for display
+        data_display = ""
+        if data:
+            try:
+                import json as _json
+                d = _json.loads(data)
+                data_display = " · ".join(f"{k}={v}" for k, v in list(d.items())[:3])
+            except:
+                data_display = data[:60]
+        evt_rows += f"""<tr>
+            <td style="padding:7px 10px;font-size:11px;color:#8c7b6e">{ts[:16]}</td>
+            <td style="padding:7px 10px;font-size:12px">{email or '—'}</td>
+            <td style="padding:7px 10px;font-size:12px">{tool_label}</td>
+            <td style="padding:7px 10px">{action_badge}</td>
+            <td style="padding:7px 10px;font-size:11px;color:#8c7b6e">{data_display}</td>
+        </tr>"""
+
+    # Top tools bar
+    top_tools_html = ""
+    for tool, count in sorted(tool_counts.items(), key=lambda x: -x[1]):
+        pct = round(count / max(len(evts), 1) * 100)
+        top_tools_html += f"""<div style="margin-bottom:6px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
+                <span>{TOOL_NAMES.get(tool, tool)}</span><span style="color:#8c7b6e">{count}次</span>
+            </div>
+            <div style="height:6px;background:#f0ebe4;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:{min(pct*2,100)}%;background:#e8732a;border-radius:3px"></div>
+            </div>
+        </div>"""
 
     html = f"""<!DOCTYPE html>
 <html><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SiLink — Subscribers</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SiLink Admin</title>
 <style>
-  body {{ margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f4f2ee; padding:24px }}
-  .card {{ background:#fff; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.08); padding:24px; max-width:1000px; margin:0 auto }}
-  h1 {{ font-size:20px; font-weight:700; color:#1C1E27; margin:0 0 4px }}
-  .sub {{ font-size:13px; color:#8c7b6e; margin-bottom:20px }}
-  .stats {{ display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap }}
-  .stat {{ background:#faf8f5; border-radius:8px; padding:12px 20px; text-align:center }}
-  .stat-n {{ font-size:28px; font-weight:800; color:#e8732a }}
-  .stat-l {{ font-size:11px; color:#8c7b6e; text-transform:uppercase; letter-spacing:.6px; margin-top:2px }}
-  table {{ width:100%; border-collapse:collapse }}
-  th {{ font-size:11px; color:#8c7b6e; text-transform:uppercase; letter-spacing:.6px; padding:8px 14px; text-align:left; border-bottom:2px solid #e8e0d5 }}
-  tr:hover td {{ background:#faf8f5 }}
-  .export {{ margin-top:16px; font-size:12px; color:#8c7b6e }}
-  a {{ color:#e8732a }}
+  body{{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f2ee;padding:20px}}
+  .wrap{{max-width:1100px;margin:0 auto}}
+  .card{{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:20px;margin-bottom:20px}}
+  h2{{font-size:15px;font-weight:600;color:#1C1E27;margin:0 0 14px}}
+  .stats{{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}}
+  .stat{{background:#faf8f5;border-radius:8px;padding:10px 18px;text-align:center}}
+  .stat-n{{font-size:26px;font-weight:800;color:#e8732a}}
+  .stat-l{{font-size:10px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;margin-top:1px}}
+  table{{width:100%;border-collapse:collapse}}
+  th{{font-size:10px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.6px;padding:7px 12px;text-align:left;border-bottom:2px solid #e8e0d5}}
+  tr:hover td{{background:#faf8f5}}
+  .tabs{{display:flex;gap:4px;margin-bottom:16px}}
+  .tab{{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid #e8e0d5;background:#faf8f5;color:#8c7b6e}}
+  .tab.active{{background:#1C1E27;color:#fff;border-color:#1C1E27}}
+  a{{color:#e8732a}}
 </style>
 </head><body>
-<div class="card">
-  <h1>📋 SiLink Subscriber List</h1>
-  <div class="sub">Mortgage Rate Tracker · Admin View · {datetime.today().strftime('%Y-%m-%d %H:%M')} UTC</div>
-  <div class="stats">
-    <div class="stat"><div class="stat-n">{total}</div><div class="stat-l">Total</div></div>
-    <div class="stat"><div class="stat-n" style="color:#16a34a">{active}</div><div class="stat-l">Active</div></div>
-    <div class="stat"><div class="stat-n" style="color:#94a3b8">{unsub}</div><div class="stat-l">Unsubscribed</div></div>
+<div class="wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div><div style="font-size:20px;font-weight:700;color:#1C1E27">📋 SiLink Admin</div>
+    <div style="font-size:12px;color:#8c7b6e">{datetime.today().strftime('%Y-%m-%d %H:%M')} UTC</div></div>
+    <a href="/api/admin/subscribers/export?key={key}" style="font-size:12px">⬇ 导出CSV</a>
   </div>
-  <table>
-    <thead><tr>
-      <th>Email</th>
-      <th>Name</th>
-      <th style="text-align:center">Alert %</th>
-      <th style="text-align:center">Type</th>
-      <th>Signed Up</th>
-      <th>Source</th>
-      <th>Status</th>
-    </tr></thead>
-    <tbody>{html_rows if html_rows else '<tr><td colspan="7" style="padding:20px;text-align:center;color:#8c7b6e">No subscribers yet</td></tr>'}</tbody>
-  </table>
-  <div class="export">
-    📥 Download CSV: <a href="/api/admin/subscribers/export?key={key}">Export all as CSV</a>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n">{total}</div><div class="stat-l">总注册</div></div>
+    <div class="stat"><div class="stat-n" style="color:#16a34a">{active}</div><div class="stat-l">活跃用户</div></div>
+    <div class="stat"><div class="stat-n" style="color:#3b82f6">{len(evts)}</div><div class="stat-l">近期操作</div></div>
+    <div class="stat"><div class="stat-n" style="color:#8c7b6e">{len(user_tools)}</div><div class="stat-l">活跃用户数</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card">
+      <h2>🔥 工具使用频率</h2>
+      {top_tools_html or '<div style="color:#8c7b6e;font-size:13px">暂无数据</div>'}
+    </div>
+    <div class="card" style="font-size:12px;color:#8c7b6e;line-height:1.8">
+      <h2>📌 说明</h2>
+      <div>• <b>登录</b>：通过工具门槛注册的用户</div>
+      <div>• <b>利率提醒</b>：设置了利率提醒的用户</div>
+      <div>• <b>打开</b>：点击工具按钮</div>
+      <div>• <b>计算</b>：在工具里输入了数据</div>
+      <div>• <b>提交</b>：提交了表单（如设置提醒）</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>👥 注册用户 <span style="font-weight:400;color:#8c7b6e;font-size:12px">({total}人)</span></h2>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>邮箱</th><th>姓名</th><th>提醒%</th><th>来源</th><th>注册时间</th><th>使用过的工具</th><th>状态</th></tr></thead>
+      <tbody>{sub_rows or '<tr><td colspan="7" style="padding:20px;text-align:center;color:#8c7b6e">暂无用户</td></tr>'}</tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📊 最近操作记录 <span style="font-weight:400;color:#8c7b6e;font-size:12px">(最新50条)</span></h2>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>时间</th><th>用户</th><th>工具</th><th>操作</th><th>数据</th></tr></thead>
+      <tbody>{evt_rows or '<tr><td colspan="5" style="padding:20px;text-align:center;color:#8c7b6e">暂无记录</td></tr>'}</tbody>
+    </table>
+    </div>
   </div>
 </div>
 </body></html>"""
@@ -753,28 +854,22 @@ async def admin_subscribers(key: str = ""):
 
 @app.get("/api/admin/subscribers/export")
 async def export_subscribers_csv(key: str = ""):
-    """Export all subscribers as CSV."""
     admin_key = os.getenv("ADMIN_KEY", "")
     if not admin_key or key != admin_key:
         from fastapi import HTTPException
         raise HTTPException(status_code=401, detail="Invalid admin key.")
-
     con = get_db()
     rows = con.execute(
-        "SELECT email, threshold, rate_type, weekly, big_move, active, created FROM subscribers ORDER BY created DESC"
+        "SELECT email, name, threshold, rate_type, active, source, created FROM subscribers ORDER BY created DESC"
     ).fetchall()
     con.close()
-
     from fastapi.responses import Response
-    csv_lines = ["email,threshold,rate_type,weekly,big_move,active,created"]
+    csv_lines = ["email,name,threshold,rate_type,active,source,created"]
     for r in rows:
-        csv_lines.append(",".join(str(x) for x in r))
-    csv_content = "\n".join(csv_lines)
-
+        csv_lines.append(",".join(str(x or '') for x in r))
     return Response(
-        content=csv_content,
-        media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename=silink_subscribers_{datetime.today().strftime('%Y%m%d')}.csv"}
+        content="\n".join(csv_lines), media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=silink_{datetime.today().strftime('%Y%m%d')}.csv"}
     )
 
 # ── News ──────────────────────────────────────────────────────────────────────

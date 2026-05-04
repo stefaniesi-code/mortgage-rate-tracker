@@ -92,6 +92,8 @@ def init_db():
     """)
     con.commit()
     con.close()
+
+def get_db():
     return sqlite3.connect(DB_PATH)
 
 def save_rate(rate: dict):

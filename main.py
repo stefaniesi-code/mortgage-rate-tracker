@@ -74,6 +74,22 @@ def init_db():
             ts      TEXT DEFAULT (datetime('now'))
         )
     """)
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS weekly_reports (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            week_of   TEXT NOT NULL,
+            r30       REAL,
+            r30_prev  REAL,
+            r15       REAL,
+            r15_prev  REAL,
+            arm       REAL,
+            analysis  TEXT DEFAULT '',
+            advice    TEXT DEFAULT '',
+            example   TEXT DEFAULT '',
+            published INTEGER DEFAULT 1,
+            created   TEXT DEFAULT (datetime('now'))
+        )
+    """)
     con.commit()
     con.close()
     return sqlite3.connect(DB_PATH)
@@ -1063,4 +1079,101 @@ async def manual_seed():
 async def root():
     return {"status": "ok", "message": "Mortgage Rate Tracker API v2",
             "endpoints": ["/api/rates/today", "/api/rates/chart", "/api/rates/history",
-                          "/api/news", "/api/subscribe", "/api/unsubscribe"]}
+                          "/api/news", "/api/subscribe", "/api/unsubscribe",
+                          "/api/reports", "/api/reports/{id}"]}
+
+# ── Weekly Reports ─────────────────────────────────────────────────────────────
+
+class ReportRequest(BaseModel):
+    week_of:   str           # e.g. "2026-04-28"
+    r30:       float
+    r30_prev:  float
+    r15:       float
+    r15_prev:  float
+    arm:       float = 0.0
+    analysis:  str = ""
+    advice:    str = ""
+    example:   str = ""
+    published: int = 1
+    key:       str = ""      # ADMIN_KEY for auth
+
+@app.get("/api/reports")
+async def get_reports(limit: int = 20):
+    """Public endpoint — returns published weekly reports."""
+    con = get_db()
+    rows = con.execute(
+        """SELECT id, week_of, r30, r30_prev, r15, r15_prev, arm,
+                  analysis, advice, example, created
+           FROM weekly_reports WHERE published=1
+           ORDER BY week_of DESC LIMIT ?""", (limit,)
+    ).fetchall()
+    con.close()
+    return [
+        {
+            "id": r[0], "week_of": r[1],
+            "r30": r[2], "r30_prev": r[3],
+            "r30_chg": round((r[2] or 0) - (r[3] or 0), 2),
+            "r15": r[4], "r15_prev": r[5],
+            "r15_chg": round((r[4] or 0) - (r[5] or 0), 2),
+            "arm": r[6],
+            "analysis": r[7], "advice": r[8], "example": r[9],
+            "created": r[10]
+        }
+        for r in rows
+    ]
+
+@app.get("/api/reports/{report_id}")
+async def get_report(report_id: int):
+    con = get_db()
+    r = con.execute(
+        """SELECT id, week_of, r30, r30_prev, r15, r15_prev, arm,
+                  analysis, advice, example, created
+           FROM weekly_reports WHERE id=? AND published=1""", (report_id,)
+    ).fetchone()
+    con.close()
+    if not r:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Report not found")
+    return {
+        "id": r[0], "week_of": r[1],
+        "r30": r[2], "r30_prev": r[3],
+        "r30_chg": round((r[2] or 0) - (r[3] or 0), 2),
+        "r15": r[4], "r15_prev": r[5],
+        "r15_chg": round((r[4] or 0) - (r[5] or 0), 2),
+        "arm": r[6],
+        "analysis": r[7], "advice": r[8], "example": r[9],
+        "created": r[10]
+    }
+
+@app.post("/api/reports")
+async def create_report(req: ReportRequest):
+    """Admin only — create a new weekly report."""
+    admin_key = os.getenv("ADMIN_KEY", "")
+    if not admin_key or req.key != admin_key:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="Invalid admin key")
+    con = get_db()
+    cur = con.execute(
+        """INSERT INTO weekly_reports
+           (week_of, r30, r30_prev, r15, r15_prev, arm, analysis, advice, example, published)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (req.week_of, req.r30, req.r30_prev, req.r15, req.r15_prev,
+         req.arm, req.analysis, req.advice, req.example, req.published)
+    )
+    report_id = cur.lastrowid
+    con.commit()
+    con.close()
+    return {"status": "ok", "id": report_id, "week_of": req.week_of}
+
+@app.delete("/api/reports/{report_id}")
+async def delete_report(report_id: int, key: str = ""):
+    """Admin only — unpublish a report."""
+    admin_key = os.getenv("ADMIN_KEY", "")
+    if not admin_key or key != admin_key:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="Invalid admin key")
+    con = get_db()
+    con.execute("UPDATE weekly_reports SET published=0 WHERE id=?", (report_id,))
+    con.commit()
+    con.close()
+    return {"status": "ok", "unpublished": report_id}

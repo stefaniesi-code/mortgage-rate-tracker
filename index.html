@@ -3655,10 +3655,12 @@ async function submitReport() {
   if (el) el.value = iso;
 })();
 
-// Show write button if admin key stored
+// Show write button if URL has ?admin=true
 (function() {
-  const savedKey = sessionStorage.getItem('silink_admin_key');
-  if (savedKey) document.getElementById('adminReportBtn').style.display = 'block';
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('admin') === 'true') {
+    document.getElementById('adminReportBtn').style.display = 'block';
+  }
 })();
 
 // Load reports on page load

@@ -1268,19 +1268,70 @@ async def manual_backfill(from_date: str = ""):
 
 @app.get("/api/restore")
 async def restore_daily_data():
-    """Restore 1 year of true daily data from FRED OBMMIC30YF (ICE daily 30yr fixed rate)."""
+    """Fill 2002-2025 gap by fetching FRED data in date-range chunks."""
+    saved = 0
+    errors = []
+    date_ranges = [
+        ("2001-01-01", "2010-12-31"),
+        ("2011-01-01", "2020-12-31"),
+        ("2021-01-01", "2026-12-31"),
+    ]
+    async with httpx.AsyncClient(timeout=30) as client:
+        for start_date, end_date in date_ranges:
+            try:
+                params = {
+                    "series_id": "MORTGAGE30US",
+                    "api_key": FRED_API_KEY or "5a5740f7a77aa3024c57da29a49f6960",
+                    "file_type": "json",
+                    "sort_order": "asc",
+                    "observation_start": start_date,
+                    "observation_end": end_date,
+                    "limit": 1000,
+                }
+                r = await client.get(
+                    "https://api.stlouisfed.org/fred/series/observations",
+                    params=params
+                )
+                r30_obs = [(o["date"], float(o["value"])) for o in r.json().get("observations", [])
+                           if o["value"] not in (".", None, "")]
+
+                # Get r15 for same period
+                params["series_id"] = "MORTGAGE15US"
+                r2 = await client.get(
+                    "https://api.stlouisfed.org/fred/series/observations",
+                    params=params
+                )
+                r15_map = {o["date"]: float(o["value"]) for o in r2.json().get("observations", [])
+                           if o["value"] not in (".", None, "")}
+
+                for date, r30_val in r30_obs:
+                    r15_val = r15_map.get(date, round(r30_val - 0.71, 2))
+                    save_rate({
+                        "date": date,
+                        "r30": round(r30_val, 2),
+                        "r15": round(r15_val, 2),
+                        "arm": round(r30_val - 0.52, 2),
+                        "source": "FRED/restore",
+                    })
+                    saved += 1
+                print(f"[restore] {start_date}~{end_date}: {len(r30_obs)} rows saved")
+            except Exception as e:
+                errors.append(f"{start_date}: {e}")
+                print(f"[restore error] {start_date}: {e}")
+
+    # Also fetch OBMMIC30YF for recent daily data
     daily = await fetch_mnd_history(days=365)
-    if not daily:
-        return {"status": "error", "message": "Could not fetch FRED daily data (OBMMIC30YF)"}
     for item in daily:
         save_rate(item)
+        saved += 1
+
     con = get_db()
-    count   = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
-    new_max = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
-    daily_count = con.execute("SELECT COUNT(*) FROM rate_log WHERE source='FRED/daily'").fetchone()[0]
+    count    = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
+    latest   = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
+    earliest = con.execute("SELECT MIN(date) FROM rate_log").fetchone()[0]
     con.close()
-    return {"status": "ok", "daily_rows_saved": len(daily), "total_rows": count,
-            "latest": new_max, "daily_in_db": daily_count}
+    return {"status": "ok", "saved": saved, "total_rows": count,
+            "earliest": earliest, "latest": latest, "errors": errors}
 
 @app.get("/")
 async def root():

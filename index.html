@@ -1743,13 +1743,20 @@ function renderHero(){
 let myChart;
 const BACKEND = 'https://mortgage-rate-tracker-production.up.railway.app';
 
+const _chartCache = {};
 async function loadChartData(days) {
+  // Cache: same days = reuse for 5 minutes
+  const cacheKey = days;
+  const now = Date.now();
+  if (_chartCache[cacheKey] && (now - _chartCache[cacheKey].ts) < 5 * 60 * 1000) {
+    return _chartCache[cacheKey].data;
+  }
   try {
     const res = await fetch(`${BACKEND}/api/rates/chart?days=${days === 0 ? 3650 : days}`);
     if (!res.ok) throw new Error('backend unavailable');
     const cd = await res.json();
-    // If backend has less than 10 data points, fall back to local data
     if (!cd.dates || cd.dates.length < 10) throw new Error('insufficient data');
+    _chartCache[cacheKey] = { data: cd, ts: now };
     return cd;
   } catch(e) {
     // Fallback: use embedded local data

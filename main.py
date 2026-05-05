@@ -1131,12 +1131,18 @@ async def manual_seed():
     return {"status": "ok", "rows": count}
 
 @app.get("/api/backfill")
-async def manual_backfill():
-    """Fill data gap between last real entry and today. Call once to fix Apr 8 → May 4 gap."""
+async def manual_backfill(from_date: str = ""):
+    """Fill data gap. Use ?from_date=2026-04-08 to force backfill from a specific date."""
     con = get_db()
-    latest = con.execute(
-        "SELECT MAX(date) FROM rate_log WHERE source NOT LIKE 'backfill%'"
-    ).fetchone()[0]
+    if from_date:
+        latest = from_date
+        # Remove old backfill data after this date to redo it
+        con.execute("DELETE FROM rate_log WHERE date > ? AND source LIKE 'backfill%'", (from_date,))
+        con.commit()
+    else:
+        latest = con.execute(
+            "SELECT MAX(date) FROM rate_log WHERE source NOT LIKE 'backfill%'"
+        ).fetchone()[0]
     con.close()
     if not latest:
         return {"status": "error", "message": "No data in DB"}

@@ -94,10 +94,11 @@ def init_db():
             r30     REAL,
             r15     REAL,
             arm     REAL,
-            source  TEXT DEFAULT \'FRED\',
+            source  TEXT DEFAULT 'FRED',
             fetched TEXT DEFAULT (NOW()::TEXT)
         )
     """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_rate_log_date ON rate_log (date DESC)")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS events (
             id      SERIAL PRIMARY KEY,

@@ -247,11 +247,12 @@ async def backfill_recent_gap(latest_date: str):
         print(f"[backfill error] {e}")
 
 async def seed_history_if_empty():
-    """On first boot, seed DB with 2yr of FRED history. Also auto-backfill gaps."""
+    """On first boot, seed DB with 2yr of FRED history. Also auto-backfill recent gap."""
     con = get_db()
     count  = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
     latest = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
     con.close()
+
     # Detect gap: latest entry is more than 5 days ago
     has_gap = False
     if latest:
@@ -259,9 +260,11 @@ async def seed_history_if_empty():
         has_gap = days_since > 5
         if has_gap:
             print(f"[seed] Gap detected: latest={latest}, {days_since} days ago")
+
     if count >= 100 and not has_gap:
         print(f"[seed] DB has {count} rows, latest={latest}, OK")
         return
+
     if count < 100:
         print(f"[seed] DB has only {count} rows — fetching 2yr FRED history...")
         try:
@@ -279,13 +282,21 @@ async def seed_history_if_empty():
                     "source": "FRED/seed",
                 })
             print(f"[seed] Done — {len(r30_data)} weeks loaded")
-            con = get_db()
-            latest = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
-            con.close()
         except Exception as e:
             print(f"[seed error] {e}")
-    if has_gap and latest:
-        await backfill_recent_gap(latest)
+
+    # Always backfill from 30 days ago to fill weekday gaps with interpolated data
+    from_date = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
+    # Find the last real data point within that window as our baseline
+    con = get_db()
+    row = con.execute(
+        "SELECT date FROM rate_log WHERE date <= ? ORDER BY date DESC LIMIT 1",
+        (from_date,)
+    ).fetchone()
+    con.close()
+    baseline = row[0] if row else from_date
+    print(f"[seed] Auto-backfilling weekday gaps from {baseline}...")
+    await backfill_recent_gap(baseline)
 
 # ── Technical Indicators ──────────────────────────────────────────────────────
 def sma(data: list[float], period: int) -> list:

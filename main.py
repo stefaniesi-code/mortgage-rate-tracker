@@ -141,11 +141,11 @@ def save_rate(rate: dict):
 
 # ── FRED API ──────────────────────────────────────────────────────────────────
 async def fetch_fred_series(series_id: str, limit: int = 260) -> list[dict]:
-    """Fetch a FRED series using public graph endpoint (no API key needed)."""
+    """Fetch a FRED series. Uses public graph endpoint (no limit) first."""
+    # Try public graph endpoint first — no API key, no limit
     try:
-        # Try public graph endpoint first (no API key, more permissive)
-        url = f"https://fred.stlouisfed.org/graph/fredgraph.json"
-        async with httpx.AsyncClient(timeout=15) as client:
+        url = "https://fred.stlouisfed.org/graph/fredgraph.json"
+        async with httpx.AsyncClient(timeout=30) as client:
             r = await client.get(url, params={"id": series_id})
             r.raise_for_status()
             rows = r.json()
@@ -154,25 +154,48 @@ async def fetch_fred_series(series_id: str, limit: int = 260) -> list[dict]:
                 for x in rows
                 if x.get("value") not in (".", None, "")
             ]
-            return result[-limit:]  # return last N, ascending
-    except Exception:
-        # Fallback to API key endpoint
-        url = "https://api.stlouisfed.org/fred/series/observations"
-        params = {
-            "series_id":  series_id,
-            "api_key":    FRED_API_KEY,
-            "file_type":  "json",
-            "sort_order": "asc",
-            "limit":      limit,
-        }
-        async with httpx.AsyncClient(timeout=15) as client:
-            r = await client.get(url, params=params)
-            r.raise_for_status()
-            obs = r.json().get("observations", [])
-            return [
-                {"date": o["date"], "value": round(float(o["value"]), 2)}
-                for o in obs if o["value"] not in (".", None, "")
-            ]
+            if result:
+                print(f"[FRED] {series_id}: {len(result)} total, returning last {limit}")
+                return result[-limit:]
+    except Exception as e:
+        print(f"[FRED public endpoint failed] {e}")
+
+    # Fallback: paginated API calls (max 100 per request)
+    all_results = []
+    batch = 100
+    offset = 0
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            while True:
+                params = {
+                    "series_id":  series_id,
+                    "api_key":    FRED_API_KEY,
+                    "file_type":  "json",
+                    "sort_order": "asc",
+                    "limit":      batch,
+                    "offset":     offset,
+                }
+                r = await client.get(
+                    "https://api.stlouisfed.org/fred/series/observations",
+                    params=params
+                )
+                r.raise_for_status()
+                obs = r.json().get("observations", [])
+                valid = [
+                    {"date": o["date"], "value": round(float(o["value"]), 2)}
+                    for o in obs if o["value"] not in (".", None, "")
+                ]
+                all_results.extend(valid)
+                if len(obs) < batch:
+                    break
+                offset += batch
+                if offset >= limit:
+                    break
+        print(f"[FRED API] {series_id}: {len(all_results)} rows via pagination")
+        return all_results[-limit:]
+    except Exception as e:
+        print(f"[FRED API error] {e}")
+        return []
 
 async def fetch_mnd_history(days: int = 90) -> list[dict]:
     """Fetch daily mortgage rate history from FRED OBMMIC30YF (ICE daily 30yr fixed)."""

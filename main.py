@@ -131,7 +131,7 @@ def init_db():
 def save_rate(rate: dict):
     con = get_db()
     con.execute(
-        "INSERT INTO rate_log (date, r30, r15, arm, source) VALUES (?,?,?,?,?)",
+        "INSERT INTO rate_log (date, r30, r15, arm, source) VALUES (%s,%s,%s,%s,%s)",
         (rate["date"], rate["r30"], rate["r15"],
          rate.get("arm", round(rate["r30"] - 0.52, 2)),
          rate.get("source", "FRED"))
@@ -780,7 +780,7 @@ async def subscribe(req: SubscribeRequest):
         )
     else:
         con.execute(
-            "INSERT INTO subscribers (email, threshold, rate_type, weekly, big_move) VALUES (?,?,?,?,?)",
+            "INSERT INTO subscribers (email, threshold, rate_type, weekly, big_move) VALUES (%s,%s,%s,%s,%s)",
             (req.email, req.threshold, req.rate_type, int(req.weekly), int(req.big_move))
         )
     con.commit()
@@ -820,7 +820,7 @@ async def track_event(req: EventRequest):
     """Track user tool usage. Called by frontend on every tool open + key interactions."""
     con = get_db()
     con.execute(
-        "INSERT INTO events (email, tool, action, data) VALUES (?,?,?,?)",
+        "INSERT INTO events (email, tool, action, data) VALUES (%s,%s,%s,%s)",
         (req.email, req.tool, req.action, req.data)
     )
     con.commit()
@@ -1344,7 +1344,7 @@ async def create_report(req: ReportRequest):
     cur = con.execute(
         """INSERT INTO weekly_reports
            (week_of, r30, r30_prev, r15, r15_prev, arm, analysis, advice, example, published)
-           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
         (req.week_of, req.r30, req.r30_prev, req.r15, req.r15_prev,
          req.arm, req.analysis, req.advice, req.example, req.published)
     )

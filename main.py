@@ -40,25 +40,30 @@ class _PGConn:
     def __init__(self, url):
         self._conn = psycopg2.connect(url)
         self._conn.autocommit = False
+    def cursor(self):
+        return _PGCursor(self._conn.cursor(), self._conn)
     def execute(self, sql, params=None):
         cur = self._conn.cursor()
-        # Convert SQLite INSERT -> PostgreSQL upsert handled in SQL
         cur.execute(sql, params or ())
         return _PGCursor(cur, self._conn)
     def commit(self): self._conn.commit()
     def close(self): self._conn.close()
 
 class _PGCursor:
-    def __init__(self, cur, conn):
+    def __init__(self, cur, conn=None):
         self._cur = cur
         self._conn = conn
+    def execute(self, sql, params=None):
+        self._cur.execute(sql, params or ())
+        return self
     def fetchone(self):
         row = self._cur.fetchone()
         if row is None: return None
-        return list(row.values()) if hasattr(row, 'values') else row
+        return list(row)
     def fetchall(self):
-        rows = self._cur.fetchall()
-        return [list(r.values()) if hasattr(r, 'values') else r for r in rows]
+        return [list(r) for r in self._cur.fetchall()]
+    def close(self): self._cur.close()
+    def __iter__(self): return iter(self.fetchall())
     @property
     def lastrowid(self):
         self._cur.execute("SELECT LASTVAL()")

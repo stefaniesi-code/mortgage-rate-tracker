@@ -1,12 +1,13 @@
 """
 Mortgage Rate Alert Backend  v2
-Stack: Python + FastAPI + Resend + SQLite
-Run:   pip install fastapi uvicorn resend httpx apscheduler python-dotenv --break-system-packages
+Stack: Python + FastAPI + Resend + PostgreSQL (Railway)
+Run:   pip install fastapi uvicorn resend httpx apscheduler python-dotenv psycopg2-binary --break-system-packages
        uvicorn main:app --reload
 """
 
 import os
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import httpx
 from datetime import datetime, timedelta
 from contextlib import asynccontextmanager
@@ -26,80 +27,106 @@ FROM_EMAIL     = os.getenv("FROM_EMAIL", "Mortgage Rate Tracker <alerts@silinkre
 SITE_NAME      = "Mortgage Rate Tracker"
 SITE_URL       = "https://silinkre.com"
 LOGO_URL       = "https://stefaniesi-code.github.io/mortgage-rate-tracker/favicon-192.png"
-DB_PATH        = os.getenv("DB_PATH", "/data/mortgage.db")
-
-# Ensure data directory exists
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+DATABASE_URL   = os.getenv("DATABASE_URL", "")
 FRED_API_KEY   = os.getenv("FRED_API_KEY", "")
 
 resend.api_key = RESEND_API_KEY
 
 # ── Database ──────────────────────────────────────────────────────────────────
+def get_db():
+    return _PGConn(DATABASE_URL)
+class _PGConn:
+    """Thin wrapper to make psycopg2 work like sqlite3 in this codebase."""
+    def __init__(self, url):
+        self._conn = psycopg2.connect(url)
+        self._conn.autocommit = False
+    def execute(self, sql, params=None):
+        cur = self._conn.cursor()
+        # Convert SQLite INSERT -> PostgreSQL upsert handled in SQL
+        cur.execute(sql, params or ())
+        return _PGCursor(cur, self._conn)
+    def commit(self): self._conn.commit()
+    def close(self): self._conn.close()
+
+class _PGCursor:
+    def __init__(self, cur, conn):
+        self._cur = cur
+        self._conn = conn
+    def fetchone(self):
+        row = self._cur.fetchone()
+        if row is None: return None
+        return list(row.values()) if hasattr(row, 'values') else row
+    def fetchall(self):
+        rows = self._cur.fetchall()
+        return [list(r.values()) if hasattr(r, 'values') else r for r in rows]
+    @property
+    def lastrowid(self):
+        self._cur.execute("SELECT LASTVAL()")
+        return self._cur.fetchone()[0]
+
+
+
 def init_db():
-    con = sqlite3.connect(DB_PATH)
-    con.execute("""
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS subscribers (
-            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            id        SERIAL PRIMARY KEY,
             email     TEXT NOT NULL UNIQUE,
-            threshold REAL NOT NULL,
+            threshold REAL NOT NULL DEFAULT 5.0,
             rate_type TEXT DEFAULT '30yr',
             weekly    INTEGER DEFAULT 1,
             big_move  INTEGER DEFAULT 1,
             active    INTEGER DEFAULT 1,
-            created   TEXT DEFAULT (datetime('now'))
+            name      TEXT DEFAULT \'\',
+            source    TEXT DEFAULT \'alert\',
+            created   TEXT DEFAULT (NOW()::TEXT)
         )
     """)
-    # Migration: add rate_type column if missing (existing DBs)
-    try:
-        con.execute("ALTER TABLE subscribers ADD COLUMN rate_type TEXT DEFAULT '30yr'")
-    except Exception:
-        pass  # column already exists
-    con.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS rate_log (
             date    TEXT PRIMARY KEY,
             r30     REAL,
             r15     REAL,
             arm     REAL,
-            source  TEXT DEFAULT 'FRED',
-            fetched TEXT DEFAULT (datetime('now'))
+            source  TEXT DEFAULT \'FRED\',
+            fetched TEXT DEFAULT (NOW()::TEXT)
         )
     """)
-    con.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS events (
-            id      INTEGER PRIMARY KEY AUTOINCREMENT,
-            email   TEXT DEFAULT '',
+            id      SERIAL PRIMARY KEY,
+            email   TEXT DEFAULT \'\',
             tool    TEXT NOT NULL,
-            action  TEXT DEFAULT 'open',
-            data    TEXT DEFAULT '',
-            ts      TEXT DEFAULT (datetime('now'))
+            action  TEXT DEFAULT \'open\',
+            data    TEXT DEFAULT \'\',
+            ts      TEXT DEFAULT (NOW()::TEXT)
         )
     """)
-    con.execute("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS weekly_reports (
-            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            id        SERIAL PRIMARY KEY,
             week_of   TEXT NOT NULL,
             r30       REAL,
             r30_prev  REAL,
             r15       REAL,
             r15_prev  REAL,
             arm       REAL,
-            analysis  TEXT DEFAULT '',
-            advice    TEXT DEFAULT '',
-            example   TEXT DEFAULT '',
+            analysis  TEXT DEFAULT \'\',
+            advice    TEXT DEFAULT \'\',
+            example   TEXT DEFAULT \'\',
             published INTEGER DEFAULT 1,
-            created   TEXT DEFAULT (datetime('now'))
+            created   TEXT DEFAULT (NOW()::TEXT)
         )
     """)
     con.commit()
+    cur.close()
     con.close()
-
-def get_db():
-    return sqlite3.connect(DB_PATH)
 
 def save_rate(rate: dict):
     con = get_db()
     con.execute(
-        "INSERT OR REPLACE INTO rate_log (date, r30, r15, arm, source) VALUES (?,?,?,?,?)",
+        "INSERT INTO rate_log (date, r30, r15, arm, source) VALUES (?,?,?,?,?)",
         (rate["date"], rate["r30"], rate["r15"],
          rate.get("arm", round(rate["r30"] - 0.52, 2)),
          rate.get("source", "FRED"))
@@ -141,6 +168,43 @@ async def fetch_fred_series(series_id: str, limit: int = 260) -> list[dict]:
                 {"date": o["date"], "value": round(float(o["value"]), 2)}
                 for o in obs if o["value"] not in (".", None, "")
             ]
+
+async def fetch_mnd_history(days: int = 90) -> list[dict]:
+    """Fetch daily mortgage rate history from FRED OBMMIC30YF (ICE daily 30yr fixed)."""
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            # OBMMIC30YF = ICE Benchmark Administration 30yr Fixed Rate (daily)
+            from_date = (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
+            url = "https://api.stlouisfed.org/fred/series/observations"
+            params = {
+                "series_id":        "OBMMIC30YF",
+                "api_key":          FRED_API_KEY or "5a5740f7a77aa3024c57da29a49f6960",
+                "file_type":        "json",
+                "sort_order":       "asc",
+                "observation_start": from_date,
+            }
+            r = await client.get(url, params=params)
+            if r.status_code == 200:
+                obs = r.json().get("observations", [])
+                results = []
+                for o in obs:
+                    if o["value"] in (".", None, ""):
+                        continue
+                    r30 = round(float(o["value"]), 2)
+                    if 3.0 < r30 < 12.0:
+                        results.append({
+                            "date":   o["date"],
+                            "r30":    r30,
+                            "r15":    round(r30 - 0.69, 2),
+                            "arm":    round(r30 - 0.31, 2),
+                            "source": "FRED/daily",
+                        })
+                if results:
+                    print(f"[FRED daily] Got {len(results)} days from OBMMIC30YF")
+                    return results
+    except Exception as e:
+        print(f"[FRED daily error] {e}")
+    return []
 
 async def fetch_mnd_rate() -> dict | None:
     """Scrape MND daily rate index — updated ~4PM ET weekdays."""
@@ -207,7 +271,7 @@ async def fetch_current_rate() -> dict:
                 "date": str(datetime.today().date()), "source": "default"}
 
 async def backfill_recent_gap(latest_date: str):
-    """Fill missing weekday rows between latest_date and today using linear interpolation."""
+    """Fill missing daily rows using MND history first, then interpolation as fallback."""
     from datetime import date as date_cls
     try:
         start = datetime.strptime(latest_date, "%Y-%m-%d").date() + timedelta(days=1)
@@ -215,19 +279,34 @@ async def backfill_recent_gap(latest_date: str):
         if start >= end:
             print(f"[backfill] No gap to fill (latest={latest_date})")
             return
+
+        # Try MND history first (real daily data)
+        mnd_history = await fetch_mnd_history(days=120)
+        if mnd_history:
+            gap_dates = {str(start + timedelta(days=i))
+                        for i in range((end - start).days + 1)}
+            filled = 0
+            for item in mnd_history:
+                if item["date"] in gap_dates:
+                    save_rate(item)
+                    filled += 1
+            if filled > 0:
+                print(f"[backfill] Filled {filled} days from MND history")
+                return
+
+        # Fallback: linear interpolation
+        print(f"[backfill] MND history unavailable, using interpolation...")
         con = get_db()
         row = con.execute(
-            "SELECT r30, r15, arm FROM rate_log WHERE date=?", (latest_date,)
+            "SELECT r30, r15, arm FROM rate_log WHERE date=%s", (latest_date,)
         ).fetchone()
         con.close()
         if not row:
             return
-        base_r30, base_r15, base_arm = row
-        # Use today's MND rate as endpoint if available
+        base_r30, base_r15, base_arm = row[0], row[1], row[2]
         mnd = await fetch_mnd_rate()
         today_r30 = mnd["r30"] if mnd else base_r30
         today_r15 = mnd["r15"] if mnd else base_r15
-        # Build weekday list
         current, weekdays = start, []
         while current <= end:
             if current.weekday() < 5:
@@ -242,7 +321,7 @@ async def backfill_recent_gap(latest_date: str):
             r15 = round(base_r15 + (today_r15 - base_r15) * t, 2)
             save_rate({"date": str(day), "r30": r30, "r15": r15,
                        "arm": round(r30 - 0.52, 2), "source": "backfill/interp"})
-        print(f"[backfill] Filled {n} days: {start} → {end}")
+        print(f"[backfill] Interpolated {n} days: {start} -> {end}")
     except Exception as e:
         print(f"[backfill error] {e}")
 
@@ -269,8 +348,8 @@ async def seed_history_if_empty():
         print(f"[seed] DB has only {count} rows — fetching 2yr FRED history...")
         try:
             r30_data, r15_data = await asyncio_gather(
-                fetch_fred_series("MORTGAGE30US", 104),
-                fetch_fred_series("MORTGAGE15US", 104),
+                fetch_fred_series("MORTGAGE30US", 1560),
+                fetch_fred_series("MORTGAGE15US", 1560),
             )
             r15_map = {x["date"]: x["value"] for x in r15_data}
             for item in r30_data:
@@ -290,7 +369,7 @@ async def seed_history_if_empty():
     # Find the last real data point within that window as our baseline
     con = get_db()
     row = con.execute(
-        "SELECT date FROM rate_log WHERE date <= ? ORDER BY date DESC LIMIT 1",
+        "SELECT date FROM rate_log WHERE date <= %s ORDER BY date DESC LIMIT 1",
         (from_date,)
     ).fetchone()
     con.close()
@@ -630,7 +709,7 @@ async def rates_chart(days: int = 90):
     # Pull a bit more history so MA/RSI have enough warmup data
     warmup_cutoff = (datetime.today() - timedelta(days=days+60)).strftime("%Y-%m-%d")
     rows = con.execute(
-        "SELECT date, r30, r15, arm FROM rate_log WHERE date >= ? ORDER BY date ASC",
+        "SELECT date, r30, r15, arm FROM rate_log WHERE date >= %s ORDER BY date ASC",
         (warmup_cutoff,)
     ).fetchall()
     con.close()
@@ -640,7 +719,7 @@ async def rates_chart(days: int = 90):
         await seed_history_if_empty()
         con = get_db()
         rows = con.execute(
-            "SELECT date, r30, r15, arm FROM rate_log WHERE date >= ? ORDER BY date ASC",
+            "SELECT date, r30, r15, arm FROM rate_log WHERE date >= %s ORDER BY date ASC",
             (warmup_cutoff,)
         ).fetchall()
         con.close()
@@ -680,7 +759,7 @@ async def rates_chart(days: int = 90):
 async def rate_history(days: int = 30):
     con = get_db()
     rows = con.execute(
-        "SELECT date, r30, r15 FROM rate_log ORDER BY date DESC LIMIT ?", (days,)
+        "SELECT date, r30, r15 FROM rate_log ORDER BY date DESC LIMIT %s", (days,)
     ).fetchall()
     con.close()
     return [{"date": r[0], "r30": r[1], "r15": r[2]} for r in rows]
@@ -688,10 +767,10 @@ async def rate_history(days: int = 30):
 @app.post("/api/subscribe")
 async def subscribe(req: SubscribeRequest):
     con = get_db()
-    existing = con.execute("SELECT id FROM subscribers WHERE email=?", (req.email,)).fetchone()
+    existing = con.execute("SELECT id FROM subscribers WHERE email=%s", (req.email,)).fetchone()
     if existing:
         con.execute(
-            "UPDATE subscribers SET threshold=?, rate_type=?, weekly=?, big_move=?, active=1 WHERE email=?",
+            "UPDATE subscribers SET threshold=%s, rate_type=%s, weekly=%s, big_move=%s, active=1 WHERE email=%s",
             (req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.email)
         )
     else:
@@ -726,7 +805,7 @@ async def subscribe(req: SubscribeRequest):
 @app.get("/api/unsubscribe")
 async def unsubscribe(email: str):
     con = get_db()
-    con.execute("UPDATE subscribers SET active=0 WHERE email=?", (email,))
+    con.execute("UPDATE subscribers SET active=0 WHERE email=%s", (email,))
     con.commit()
     con.close()
     return {"status": "ok"}
@@ -1147,12 +1226,11 @@ async def manual_backfill(from_date: str = ""):
     con = get_db()
     if from_date:
         latest = from_date
-        # Remove old backfill data after this date to redo it
-        con.execute("DELETE FROM rate_log WHERE date > ? AND source LIKE 'backfill%'", (from_date,))
+        con.execute("DELETE FROM rate_log WHERE date > %s AND source LIKE 'backfill%%'", (from_date,))
         con.commit()
     else:
         latest = con.execute(
-            "SELECT MAX(date) FROM rate_log WHERE source NOT LIKE 'backfill%'"
+            "SELECT MAX(date) FROM rate_log WHERE source NOT LIKE 'backfill%%'"
         ).fetchone()[0]
     con.close()
     if not latest:
@@ -1164,12 +1242,28 @@ async def manual_backfill(from_date: str = ""):
     con.close()
     return {"status": "ok", "rows": count, "latest": new_max}
 
+@app.get("/api/restore")
+async def restore_daily_data():
+    """Restore 1 year of true daily data from FRED OBMMIC30YF (ICE daily 30yr fixed rate)."""
+    daily = await fetch_mnd_history(days=365)
+    if not daily:
+        return {"status": "error", "message": "Could not fetch FRED daily data (OBMMIC30YF)"}
+    for item in daily:
+        save_rate(item)
+    con = get_db()
+    count   = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
+    new_max = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
+    daily_count = con.execute("SELECT COUNT(*) FROM rate_log WHERE source='FRED/daily'").fetchone()[0]
+    con.close()
+    return {"status": "ok", "daily_rows_saved": len(daily), "total_rows": count,
+            "latest": new_max, "daily_in_db": daily_count}
+
 @app.get("/")
 async def root():
     return {"status": "ok", "message": "Mortgage Rate Tracker API v2",
             "endpoints": ["/api/rates/today", "/api/rates/chart", "/api/rates/history",
                           "/api/news", "/api/subscribe", "/api/unsubscribe",
-                          "/api/reports", "/api/reports/{id}", "/api/backfill"]}
+                          "/api/reports", "/api/reports/{id}", "/api/backfill", "/api/restore"]}
 
 # ── Weekly Reports ─────────────────────────────────────────────────────────────
 
@@ -1194,7 +1288,7 @@ async def get_reports(limit: int = 20):
         """SELECT id, week_of, r30, r30_prev, r15, r15_prev, arm,
                   analysis, advice, example, created
            FROM weekly_reports WHERE published=1
-           ORDER BY week_of DESC LIMIT ?""", (limit,)
+           ORDER BY week_of DESC LIMIT %s""", (limit,)
     ).fetchall()
     con.close()
     return [
@@ -1217,7 +1311,7 @@ async def get_report(report_id: int):
     r = con.execute(
         """SELECT id, week_of, r30, r30_prev, r15, r15_prev, arm,
                   analysis, advice, example, created
-           FROM weekly_reports WHERE id=? AND published=1""", (report_id,)
+           FROM weekly_reports WHERE id=%s AND published=1""", (report_id,)
     ).fetchone()
     con.close()
     if not r:
@@ -1262,7 +1356,7 @@ async def delete_report(report_id: int, key: str = ""):
         from fastapi import HTTPException
         raise HTTPException(status_code=401, detail="Invalid admin key")
     con = get_db()
-    con.execute("UPDATE weekly_reports SET published=0 WHERE id=?", (report_id,))
+    con.execute("UPDATE weekly_reports SET published=0 WHERE id=%s", (report_id,))
     con.commit()
     con.close()
     return {"status": "ok", "unpublished": report_id}

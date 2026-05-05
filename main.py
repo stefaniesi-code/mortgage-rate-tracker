@@ -132,7 +132,7 @@ def init_db():
 def save_rate(rate: dict):
     con = get_db()
     con.execute(
-        "INSERT INTO rate_log (date, r30, r15, arm, source) VALUES (%s,%s,%s,%s,%s)",
+        "INSERT INTO rate_log (date, r30, r15, arm, source) VALUES (%s,%s,%s,%s,%s) ON CONFLICT (date) DO UPDATE SET r30=EXCLUDED.r30, r15=EXCLUDED.r15, arm=EXCLUDED.arm, source=EXCLUDED.source",
         (rate["date"], rate["r30"], rate["r15"],
          rate.get("arm", round(rate["r30"] - 0.52, 2)),
          rate.get("source", "FRED"))
@@ -355,7 +355,7 @@ async def backfill_recent_gap(latest_date: str):
         print(f"[backfill error] {e}")
 
 async def seed_history_if_empty():
-    """On first boot, seed DB with 2yr of FRED history. Also auto-backfill recent gap."""
+    """On first boot, seed DB with 30yr of FRED history. Also auto-backfill recent gap."""
     con = get_db()
     count  = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
     latest = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
@@ -369,33 +369,36 @@ async def seed_history_if_empty():
         if has_gap:
             print(f"[seed] Gap detected: latest={latest}, {days_since} days ago")
 
-    if count >= 100 and not has_gap:
+    # Need at least 1000 rows for meaningful historical data
+    if count >= 1000 and not has_gap:
         print(f"[seed] DB has {count} rows, latest={latest}, OK")
         return
 
-    if count < 100:
-        print(f"[seed] DB has only {count} rows — fetching 2yr FRED history...")
+    if count < 1000:
+        print(f"[seed] DB has only {count} rows — fetching 30yr FRED history...")
         try:
             r30_data, r15_data = await asyncio_gather(
                 fetch_fred_series("MORTGAGE30US", 1560),
                 fetch_fred_series("MORTGAGE15US", 1560),
             )
-            r15_map = {x["date"]: x["value"] for x in r15_data}
-            for item in r30_data:
-                save_rate({
-                    "date":   item["date"],
-                    "r30":    item["value"],
-                    "r15":    r15_map.get(item["date"], round(item["value"] - 0.71, 2)),
-                    "arm":    round(item["value"] - 0.52, 2),
-                    "source": "FRED/seed",
-                })
-            print(f"[seed] Done — {len(r30_data)} weeks loaded")
+            if not r30_data:
+                print("[seed error] FRED returned no data")
+            else:
+                r15_map = {x["date"]: x["value"] for x in r15_data}
+                for item in r30_data:
+                    save_rate({
+                        "date":   item["date"],
+                        "r30":    item["value"],
+                        "r15":    r15_map.get(item["date"], round(item["value"] - 0.71, 2)),
+                        "arm":    round(item["value"] - 0.52, 2),
+                        "source": "FRED/seed",
+                    })
+                print(f"[seed] Done — {len(r30_data)} weeks loaded")
         except Exception as e:
             print(f"[seed error] {e}")
 
-    # Always backfill from 30 days ago to fill weekday gaps with interpolated data
-    from_date = (datetime.today() - timedelta(days=30)).strftime("%Y-%m-%d")
-    # Find the last real data point within that window as our baseline
+    # Backfill recent daily gaps using OBMMIC30YF
+    from_date = (datetime.today() - timedelta(days=90)).strftime("%Y-%m-%d")
     con = get_db()
     row = con.execute(
         "SELECT date FROM rate_log WHERE date <= %s ORDER BY date DESC LIMIT 1",
@@ -1237,17 +1240,20 @@ async def get_news():
     }
 
 @app.get("/api/seed")
-async def manual_seed():
-    """Manually trigger history seed."""
+async def manual_seed(force: str = ""):
+    """Manually trigger history seed. Use ?force=yes to re-seed from scratch."""
     con = get_db()
-    con.execute("DELETE FROM rate_log")
-    con.commit()
+    if force == "yes":
+        con.execute("DELETE FROM rate_log")
+        con.commit()
+    count_before = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
     con.close()
     await seed_history_if_empty()
     con = get_db()
     count = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
+    latest = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
     con.close()
-    return {"status": "ok", "rows": count}
+    return {"status": "ok", "rows": count, "added": count - count_before, "latest": latest}
 
 @app.get("/api/backfill")
 async def manual_backfill(from_date: str = ""):

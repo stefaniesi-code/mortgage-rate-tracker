@@ -731,49 +731,38 @@ async def rates_today():
 
 @app.get("/api/rates/chart")
 async def rates_chart(days: int = 90):
-    """
-    Historical rates + technical indicators for the chart.
-    Frontend calls: /api/rates/chart?days=90
-    Returns: { dates, r30, r15, ma7, ma30, bb_upper, bb_lower, rsi14, signal }
-    """
     con = get_db()
-    cutoff = (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
-    # Pull a bit more history so MA/RSI have enough warmup data
-    warmup_cutoff = (datetime.today() - timedelta(days=days+60)).strftime("%Y-%m-%d")
-    rows = con.execute(
-        "SELECT date, r30, r15, arm FROM rate_log WHERE date >= %s ORDER BY date ASC",
-        (warmup_cutoff,)
-    ).fetchall()
-    con.close()
-
-    # If not enough data, seed from FRED
-    if len(rows) < 30:
-        await seed_history_if_empty()
-        con = get_db()
+    # For "All" view, just get everything
+    if days >= 3650:
         rows = con.execute(
-            "SELECT date, r30, r15, arm FROM rate_log WHERE date >= %s ORDER BY date ASC",
+            "SELECT date, r30, r15, arm FROM rate_log WHERE r30 IS NOT NULL ORDER BY date ASC"
+        ).fetchall()
+    else:
+        warmup_cutoff = (datetime.today() - timedelta(days=days+60)).strftime("%Y-%m-%d")
+        cutoff = (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
+        rows = con.execute(
+            "SELECT date, r30, r15, arm FROM rate_log WHERE date >= %s AND r30 IS NOT NULL ORDER BY date ASC",
             (warmup_cutoff,)
         ).fetchall()
-        con.close()
+    con.close()
 
-    if not rows:
+    if len(rows) < 5:
         return {"dates": [], "r30": [], "r15": [], "ma7": [], "ma30": [],
                 "bb_upper": [], "bb_lower": [], "rsi14": [], "signal": {}}
 
+    cutoff = (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
     all_dates = [r[0] for r in rows]
     all_r30   = [r[1] for r in rows]
     all_r15   = [r[2] for r in rows]
     all_arm   = [r[3] for r in rows]
 
-    # Compute indicators on full warmup window
     ma7_full      = sma(all_r30, 7)
     ma30_full     = sma(all_r30, 30)
     bb_u_full, bb_l_full = bollinger_bands(all_r30, 20, 2)
     rsi_full      = rsi(all_r30, 14)
     signal        = compute_signal(all_r30, ma7_full, ma30_full, rsi_full)
 
-    # Trim to requested window
-    trim_start = next((i for i, d in enumerate(all_dates) if d >= cutoff), 0)
+    trim_start = next((i for i, d in enumerate(all_dates) if d >= cutoff), 0) if days < 3650 else 0
     return {
         "dates":    all_dates[trim_start:],
         "r30":      all_r30[trim_start:],

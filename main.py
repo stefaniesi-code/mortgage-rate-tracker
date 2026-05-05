@@ -30,7 +30,7 @@ DB_PATH        = os.getenv("DB_PATH", "/data/mortgage.db")
 
 # Ensure data directory exists
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-FRED_API_KEY   = os.getenv("FRED_API_KEY", "5a5740f7a77aa3024c57da29a49f6960")
+FRED_API_KEY   = os.getenv("FRED_API_KEY", "")
 
 resend.api_key = RESEND_API_KEY
 
@@ -207,15 +207,14 @@ async def fetch_current_rate() -> dict:
                 "date": str(datetime.today().date()), "source": "default"}
 
 async def backfill_recent_gap(latest_date: str):
-    """Fill missing weekday rows between latest_date and today using MND + interpolation."""
+    """Fill missing weekday rows between latest_date and today using linear interpolation."""
     from datetime import date as date_cls
     try:
         start = datetime.strptime(latest_date, "%Y-%m-%d").date() + timedelta(days=1)
         end   = date_cls.today()
         if start >= end:
+            print(f"[backfill] No gap to fill (latest={latest_date})")
             return
-
-        # Get last known rates as baseline
         con = get_db()
         row = con.execute(
             "SELECT r30, r15, arm FROM rate_log WHERE date=?", (latest_date,)
@@ -224,61 +223,47 @@ async def backfill_recent_gap(latest_date: str):
         if not row:
             return
         base_r30, base_r15, base_arm = row
-
-        # Try to get today's MND rate
+        # Use today's MND rate as endpoint if available
         mnd = await fetch_mnd_rate()
         today_r30 = mnd["r30"] if mnd else base_r30
         today_r15 = mnd["r15"] if mnd else base_r15
-
-        # Count weekdays in gap
-        current = start
-        weekdays = []
+        # Build weekday list
+        current, weekdays = start, []
         while current <= end:
-            if current.weekday() < 5:  # Mon-Fri only
+            if current.weekday() < 5:
                 weekdays.append(current)
             current += timedelta(days=1)
-
-        if not weekdays:
-            return
-
         n = len(weekdays)
+        if not n:
+            return
         for i, day in enumerate(weekdays):
-            # Linear interpolation between base and today
-            t = (i + 1) / n
+            t   = (i + 1) / n
             r30 = round(base_r30 + (today_r30 - base_r30) * t, 2)
             r15 = round(base_r15 + (today_r15 - base_r15) * t, 2)
-            arm = round(r30 - 0.52, 2)
-            save_rate({
-                "date": str(day),
-                "r30": r30,
-                "r15": r15,
-                "arm": arm,
-                "source": "backfill/interp",
-            })
-        print(f"[backfill] Filled {n} days from {start} to {end}")
+            save_rate({"date": str(day), "r30": r30, "r15": r15,
+                       "arm": round(r30 - 0.52, 2), "source": "backfill/interp"})
+        print(f"[backfill] Filled {n} days: {start} → {end}")
     except Exception as e:
         print(f"[backfill error] {e}")
 
 async def seed_history_if_empty():
-    """On first boot, seed DB with 2yr of FRED history + backfill recent gap."""
+    """On first boot, seed DB with 2yr of FRED history. Also auto-backfill gaps."""
     con = get_db()
-    count = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
+    count  = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
     latest = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
     con.close()
-
-    # Check if we have a gap (latest date is more than 5 days ago)
+    # Detect gap: latest entry is more than 5 days ago
     has_gap = False
     if latest:
-        latest_dt = datetime.strptime(latest, "%Y-%m-%d")
-        days_since = (datetime.today() - latest_dt).days
+        days_since = (datetime.today() - datetime.strptime(latest, "%Y-%m-%d")).days
         has_gap = days_since > 5
-
+        if has_gap:
+            print(f"[seed] Gap detected: latest={latest}, {days_since} days ago")
     if count >= 100 and not has_gap:
-        print(f"[seed] DB has {count} rows, latest={latest}, skipping seed")
+        print(f"[seed] DB has {count} rows, latest={latest}, OK")
         return
-
     if count < 100:
-        print(f"[seed] DB has only {count} rows — fetching 2yr history from FRED...")
+        print(f"[seed] DB has only {count} rows — fetching 2yr FRED history...")
         try:
             r30_data, r15_data = await asyncio_gather(
                 fetch_fred_series("MORTGAGE30US", 104),
@@ -294,11 +279,12 @@ async def seed_history_if_empty():
                     "source": "FRED/seed",
                 })
             print(f"[seed] Done — {len(r30_data)} weeks loaded")
+            con = get_db()
+            latest = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
+            con.close()
         except Exception as e:
             print(f"[seed error] {e}")
-
-    if has_gap:
-        print(f"[seed] Gap detected (latest={latest}, {days_since} days ago) — backfilling...")
+    if has_gap and latest:
         await backfill_recent_gap(latest)
 
 # ── Technical Indicators ──────────────────────────────────────────────────────
@@ -1134,7 +1120,6 @@ async def get_news():
 @app.get("/api/seed")
 async def manual_seed():
     """Manually trigger history seed."""
-    # Force re-seed regardless of current row count
     con = get_db()
     con.execute("DELETE FROM rate_log")
     con.commit()
@@ -1146,10 +1131,9 @@ async def manual_seed():
     return {"status": "ok", "rows": count}
 
 @app.get("/api/backfill")
-async def trigger_backfill():
-    """Fill the gap between last real data and today using interpolation."""
+async def manual_backfill():
+    """Fill data gap between last real entry and today. Call once to fix Apr 8 → May 4 gap."""
     con = get_db()
-    # Find latest date that's NOT interpolated
     latest = con.execute(
         "SELECT MAX(date) FROM rate_log WHERE source NOT LIKE 'backfill%'"
     ).fetchone()[0]
@@ -1158,17 +1142,17 @@ async def trigger_backfill():
         return {"status": "error", "message": "No data in DB"}
     await backfill_recent_gap(latest)
     con = get_db()
-    count = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
-    new_latest = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
+    count   = con.execute("SELECT COUNT(*) FROM rate_log").fetchone()[0]
+    new_max = con.execute("SELECT MAX(date) FROM rate_log").fetchone()[0]
     con.close()
-    return {"status": "ok", "rows": count, "latest": new_latest}
+    return {"status": "ok", "rows": count, "latest": new_max}
 
 @app.get("/")
 async def root():
     return {"status": "ok", "message": "Mortgage Rate Tracker API v2",
             "endpoints": ["/api/rates/today", "/api/rates/chart", "/api/rates/history",
                           "/api/news", "/api/subscribe", "/api/unsubscribe",
-                          "/api/reports", "/api/reports/{id}"]}
+                          "/api/reports", "/api/reports/{id}", "/api/backfill"]}
 
 # ── Weekly Reports ─────────────────────────────────────────────────────────────
 

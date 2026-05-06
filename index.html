@@ -1023,10 +1023,16 @@
       <!-- Password -->
       <div style="margin-bottom:6px">
         <label style="font-size:12px;color:#8c7b6e;display:block;margin-bottom:5px">密码</label>
-        <input id="authPassword" type="password" placeholder="至少6位"
-          style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 14px;font-size:14px;color:#2d2420;outline:none"
-          onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'"
-          onkeydown="if(event.key==='Enter')authSubmit()">
+        <div style="position:relative">
+          <input id="authPassword" type="password" placeholder="至少6位"
+            style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 42px 10px 14px;font-size:14px;color:#2d2420;outline:none"
+            onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'"
+            onkeydown="if(event.key==='Enter')authSubmit()">
+          <button type="button" onclick="const p=document.getElementById('authPassword');const e=document.getElementById('eyeIcon');p.type=p.type==='password'?'text':'password';e.textContent=p.type==='password'?'👁':'🙈'"
+            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:2px">
+            <span id="eyeIcon">👁</span>
+          </button>
+        </div>
       </div>
 
       <!-- Error message -->
@@ -2524,8 +2530,8 @@ function renderSentimentChart(items) {
   } else {
     verdictIcon='→'; verdictColor='#94a3b8';
     verdictText = zh
-      ? `<strong style="color:#8899AA">今日头条信号混杂。</strong>利率看涨和看跌因素大致平衡——预计利率短期内将在当前水平附近整理。`
-      : `<strong style="color:#8899AA">Mixed signals across today's headlines.</strong> Bullish and bearish rate drivers are roughly balanced — expect rates to consolidate near current levels in the near term.`;
+      ? `利率看涨和看跌因素大致平衡——预计利率短期内将在当前水平附近整理。`
+      : `Bullish and bearish rate drivers are roughly balanced — expect rates to consolidate near current levels.`;
   }
   document.getElementById('sentVerdict').innerHTML =
     `<span style="font-size:18px;margin-right:8px">${verdictIcon}</span>${verdictText}`;
@@ -2534,10 +2540,10 @@ function renderSentimentChart(items) {
   const dominant = zh
     ? (downPct >= upPct && downPct >= neutralPct ? '▼ 利率偏向下行'
       : upPct > downPct && upPct >= neutralPct    ? '▲ 利率偏向上行'
-      : '→ 信号混杂')
+      : '→ 中性')
     : (downPct >= upPct && downPct >= neutralPct ? '▼ Mostly bearish for rates'
       : upPct > downPct && upPct >= neutralPct    ? '▲ Mostly bullish for rates'
-      : '→ Mixed signals');
+      : '→ Neutral');
   document.getElementById('newsPreview').textContent = zh
     ? `${items.length} 篇文章 · ${dominant}`
     : `${items.length} articles · ${dominant}`;
@@ -2551,7 +2557,12 @@ function renderNews(items) {
     list.innerHTML = `<p style="color:#8899AA;font-size:13px">${currentLang==='zh'?'未找到相关文章。':'No articles found.'}</p>`;
     return;
   }
-  list.innerHTML = items.map(a => {
+  // Sort: up/down first, neutral last
+  const sorted = [...items].sort((a, b) => {
+    const order = {up: 0, down: 0, neutral: 1};
+    return (order[a.impact] ?? 1) - (order[b.impact] ?? 1);
+  });
+  list.innerHTML = sorted.map(a => {
     const lbl = impactLabel(a.impact);
     const reason = impactReason(a.title, a.impact);
     const tagLabel = currentLang==='zh' ? (a.tag==='fed'?'美联储':'利率') : (a.tag==='fed'?'Fed':'Rates');
@@ -3078,6 +3089,8 @@ function applyLang(lang) {
   renderTable();
   calc();
   refi();
+  // Re-render weekly reports with new language
+  if (window._cachedReports) renderReports(window._cachedReports);
 }
 
 function toggleLang() {
@@ -3509,6 +3522,7 @@ async function loadReports() {
   try {
     const res = await fetch(`${BACKEND}/api/reports?limit=10`);
     const reports = await res.json();
+    window._cachedReports = reports;
     renderReports(reports);
   } catch(e) {
     document.getElementById('reportsList').innerHTML =
@@ -3531,7 +3545,11 @@ function renderReports(reports) {
 
   el.innerHTML = reports.map((r, i) => {
     const dt = new Date(r.week_of+'T00:00:00');
-    const weekLabel = dt.toLocaleDateString('zh-CN', {year:'numeric', month:'long', day:'numeric'});
+    const zh = currentLang === 'zh';
+    const weekLabel = zh
+      ? dt.toLocaleDateString('zh-CN', {year:'numeric', month:'long', day:'numeric'})
+      : dt.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+    const reportTitle = zh ? `📝 利率周报 · ${weekLabel}` : `📝 Weekly Report · ${weekLabel}`;
     const isFirst = i === 0;
 
     return `
@@ -3540,12 +3558,12 @@ function renderReports(reports) {
       <div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none"
            onclick="toggleReport(${r.id})">
         <div style="display:flex;align-items:center;gap:10px">
-          ${isFirst?'<span style="background:#e8732a;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">最新</span>':''}
+          ${isFirst?`<span style="background:#e8732a;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">${zh?'最新':'Latest'}</span>`:''}
           <div>
-            <div style="font-size:14px;font-weight:600;color:#1C1E27">📝 利率周报 · ${weekLabel}</div>
+            <div style="font-size:14px;font-weight:600;color:#1C1E27">${reportTitle}</div>
             <div style="font-size:12px;color:#8c7b6e;margin-top:2px">
-              30年 <strong>${r.r30}%</strong> ${chgBadge(r.r30_chg)} &nbsp;·&nbsp;
-              15年 <strong>${r.r15}%</strong> ${chgBadge(r.r15_chg)}
+              ${zh?'30年':'30yr'} <strong>${r.r30}%</strong> ${chgBadge(r.r30_chg)} &nbsp;·&nbsp;
+              ${zh?'15年':'15yr'} <strong>${r.r15}%</strong> ${chgBadge(r.r15_chg)}
             </div>
           </div>
         </div>
@@ -3558,9 +3576,9 @@ function renderReports(reports) {
         <!-- Rate table -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
           ${[
-            ['30年固定', r.r30, r.r30_chg, '#60a5fa'],
-            ['15年固定', r.r15, r.r15_chg, '#a78bfa'],
-            ['5/1 ARM',  r.arm, null,       '#8c7b6e'],
+            [zh?'30年固定':'30yr Fixed', r.r30, r.r30_chg, '#60a5fa'],
+            [zh?'15年固定':'15yr Fixed', r.r15, r.r15_chg, '#a78bfa'],
+            ['5/1 ARM',                  r.arm, null,       '#8c7b6e'],
           ].map(([lbl, val, chg, col]) => `
             <div style="background:#faf8f5;border-radius:10px;padding:10px 12px;text-align:center">
               <div style="font-size:11px;color:#8c7b6e;margin-bottom:4px">${lbl}</div>
@@ -3572,25 +3590,25 @@ function renderReports(reports) {
 
         ${r.analysis ? `
         <div style="margin-bottom:12px">
-          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">📰 本周市场动态</div>
+          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '📰 本周市场动态' : '📰 Market Update'}</div>
           <div style="font-size:13px;color:#2d2420;line-height:1.7;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #e8732a">${r.analysis}</div>
         </div>` : ''}
 
         ${r.advice ? `
         <div style="margin-bottom:12px">
-          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">💡 买房建议</div>
+          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '💡 买房建议' : '💡 Buying Advice'}</div>
           <div style="font-size:13px;color:#2d2420;line-height:1.7;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #a78bfa">${r.advice}</div>
         </div>` : ''}
 
         ${r.example ? `
         <div style="margin-bottom:14px">
-          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">🔢 举个例子</div>
+          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '🔢 举个例子' : '🔢 Example'}</div>
           <div style="font-size:13px;color:#2d2420;line-height:1.7;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #60a5fa">${r.example}</div>
         </div>` : ''}
 
         <div style="font-size:12px;color:#8c7b6e;padding-top:10px;border-top:1px solid #f0ebe4;display:flex;align-items:center;justify-content:space-between">
-          <span>📱 利率变了，你的月供变了多少？</span>
-          <a href="#toolGrid" style="color:#e8732a;font-weight:600;text-decoration:none" onclick="closeModal('writeReportModal')">免费计算 →</a>
+          <span>${zh ? '📱 利率变了，你的月供变了多少？' : '📱 How does this rate change affect your payment?'}</span>
+          <a href="#toolGrid" style="color:#e8732a;font-weight:600;text-decoration:none" onclick="closeModal('writeReportModal')">${zh ? '免费计算 →' : 'Calculate →'}</a>
         </div>
       </div>
     </div>`;

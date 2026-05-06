@@ -789,39 +789,48 @@ async def rate_history(days: int = 30):
 async def subscribe(req: SubscribeRequest):
     con = get_db()
     existing = con.execute("SELECT id FROM subscribers WHERE email=%s", (req.email,)).fetchone()
+    is_new = existing is None
+
     if existing:
+        # Existing user — update preferences, skip email
         con.execute(
             "UPDATE subscribers SET threshold=%s, rate_type=%s, weekly=%s, big_move=%s, active=1 WHERE email=%s",
             (req.threshold, req.rate_type, int(req.weekly), int(req.big_move), req.email)
         )
     else:
+        # New user — insert
         con.execute(
             "INSERT INTO subscribers (email, threshold, rate_type, weekly, big_move) VALUES (%s,%s,%s,%s,%s)",
             (req.email, req.threshold, req.rate_type, int(req.weekly), int(req.big_move))
         )
     con.commit()
     con.close()
+
+    # Only send confirmation email on first registration
+    if is_new and req.source != "tool_signin":
+        label = "30yr fixed" if req.rate_type == "30yr" else "15yr fixed"
+        try:
+            resend.Emails.send({
+                "from": FROM_EMAIL, "to": req.email,
+                "subject": f"✅ Rate alert set: {label} below {req.threshold:.2f}%",
+                "html": _email_wrap(f"""
+                    <div style="text-align:center;margin-bottom:20px">
+                      <div style="display:inline-block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:50%;width:48px;height:48px;line-height:48px;font-size:24px">✅</div>
+                    </div>
+                    <h2 style="margin:0 0 8px;font-size:18px;color:#2d2420;text-align:center">Alert Activated</h2>
+                    <p style="text-align:center;color:#64748b;margin:0 0 20px">You're all set! We'll notify you when rates hit your target.</p>
+                    <table style="width:100%;border-collapse:collapse;background:#faf8f5;border-radius:8px;overflow:hidden;margin-bottom:16px">
+                      <tr><td style="padding:12px 16px;font-size:13px;color:#8c7b6e;border-bottom:1px solid #f0ece6">Rate type</td><td style="padding:12px 16px;font-size:14px;font-weight:600;text-align:right;border-bottom:1px solid #f0ece6">{label}</td></tr>
+                      <tr><td style="padding:12px 16px;font-size:13px;color:#8c7b6e">Alert below</td><td style="padding:12px 16px;font-size:14px;font-weight:600;text-align:right;color:#e8732a">{req.threshold:.2f}%</td></tr>
+                    </table>
+                    <p style="font-size:12px;color:#94a3b8;text-align:center;margin:0">You'll also receive weekly summaries and big move alerts based on your preferences.</p>
+                """, req.email)
+            })
+        except Exception as e:
+            print(f"Confirmation email error: {e}")
+
     label = "30yr fixed" if req.rate_type == "30yr" else "15yr fixed"
-    try:
-        resend.Emails.send({
-            "from": FROM_EMAIL, "to": req.email,
-            "subject": f"✅ Rate alert set: {label} below {req.threshold:.2f}%",
-            "html": _email_wrap(f"""
-                <div style="text-align:center;margin-bottom:20px">
-                  <div style="display:inline-block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:50%;width:48px;height:48px;line-height:48px;font-size:24px">✅</div>
-                </div>
-                <h2 style="margin:0 0 8px;font-size:18px;color:#2d2420;text-align:center">Alert Activated</h2>
-                <p style="text-align:center;color:#64748b;margin:0 0 20px">You're all set! We'll notify you when rates hit your target.</p>
-                <table style="width:100%;border-collapse:collapse;background:#faf8f5;border-radius:8px;overflow:hidden;margin-bottom:16px">
-                  <tr><td style="padding:12px 16px;font-size:13px;color:#8c7b6e;border-bottom:1px solid #f0ece6">Rate type</td><td style="padding:12px 16px;font-size:14px;font-weight:600;text-align:right;border-bottom:1px solid #f0ece6">{label}</td></tr>
-                  <tr><td style="padding:12px 16px;font-size:13px;color:#8c7b6e">Alert below</td><td style="padding:12px 16px;font-size:14px;font-weight:600;text-align:right;color:#e8732a">{req.threshold:.2f}%</td></tr>
-                </table>
-                <p style="font-size:12px;color:#94a3b8;text-align:center;margin:0">You'll also receive weekly summaries and big move alerts based on your preferences.</p>
-            """, req.email)
-        })
-    except Exception as e:
-        print(f"Confirmation email error: {e}")
-    return {"status": "ok", "message": f"Alert set for {req.email} ({label} < {req.threshold:.2f}%)"}
+    return {"status": "ok", "message": f"Alert set for {req.email} ({label} < {req.threshold:.2f}%)", "is_new": is_new}
 
 @app.get("/api/unsubscribe")
 async def unsubscribe(email: str):

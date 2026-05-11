@@ -2557,10 +2557,10 @@ function renderNews(items) {
     list.innerHTML = `<p style="color:#8899AA;font-size:13px">${currentLang==='zh'?'未找到相关文章。':'No articles found.'}</p>`;
     return;
   }
-  // Sort: up/down first, neutral last
+  // Sort: up first, then down, neutral last
   const sorted = [...items].sort((a, b) => {
-    const order = {up: 0, down: 0, neutral: 1};
-    return (order[a.impact] ?? 1) - (order[b.impact] ?? 1);
+    const order = {up: 0, down: 1, neutral: 2};
+    return (order[a.impact] ?? 2) - (order[b.impact] ?? 2);
   });
   list.innerHTML = sorted.map(a => {
     const lbl = impactLabel(a.impact);
@@ -3536,6 +3536,16 @@ function chgBadge(chg) {
   return `<span style="color:${up?'#f87171':'#16a34a'};font-weight:600">${up?'↑':'↓'} ${Math.abs(chg).toFixed(2)}%</span>`;
 }
 
+function formatReportText(text) {
+  if (!text) return '';
+  return text
+    .replace(/([。！？])\s*/g, '$1\n')
+    .split('\n')
+    .map(s => s.trim())
+    .filter(s => s.length > 0)
+    .join('<br>');
+}
+
 function renderReports(reports) {
   const el = document.getElementById('reportsList');
   if (!reports.length) {
@@ -3591,19 +3601,19 @@ function renderReports(reports) {
         ${r.analysis ? `
         <div style="margin-bottom:12px">
           <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '📰 本周市场动态' : '📰 Market Update'}</div>
-          <div style="font-size:13px;color:#2d2420;line-height:1.7;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #e8732a">${r.analysis}</div>
+          <div style="font-size:13px;color:#2d2420;line-height:1.9;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #e8732a">${formatReportText(r.analysis)}</div>
         </div>` : ''}
 
         ${r.advice ? `
         <div style="margin-bottom:12px">
           <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '💡 买房建议' : '💡 Buying Advice'}</div>
-          <div style="font-size:13px;color:#2d2420;line-height:1.7;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #a78bfa">${r.advice}</div>
+          <div style="font-size:13px;color:#2d2420;line-height:1.9;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #a78bfa">${formatReportText(r.advice)}</div>
         </div>` : ''}
 
         ${r.example ? `
         <div style="margin-bottom:14px">
           <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '🔢 举个例子' : '🔢 Example'}</div>
-          <div style="font-size:13px;color:#2d2420;line-height:1.7;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #60a5fa">${r.example}</div>
+          <div style="font-size:13px;color:#2d2420;line-height:1.9;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #60a5fa">${formatReportText(r.example)}</div>
         </div>` : ''}
 
         <div style="font-size:12px;color:#8c7b6e;padding-top:10px;border-top:1px solid #f0ebe4;display:flex;align-items:center;justify-content:space-between">

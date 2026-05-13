@@ -984,32 +984,14 @@
   <div class="modal" style="max-width:400px;background:#fff">
     <div class="modal-header" style="padding-bottom:4px">
       <div>
-        <span class="modal-title" id="authModalTitle" style="font-size:17px">登录后使用工具</span>
-        <div style="font-size:12px;color:#8c7b6e;margin-top:3px" id="authModalSub">免费注册，保存您的计算记录</div>
+        <span class="modal-title" id="authModalTitle" style="font-size:17px">免费使用全部工具</span>
+        <div style="font-size:12px;color:#8c7b6e;margin-top:3px" id="authModalSub">输入邮箱即可使用</div>
       </div>
       <button class="modal-close" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="modal-body" style="padding-top:16px">
 
-      <!-- Tab switcher -->
-      <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid #e8e0d5;border-radius:8px;overflow:hidden">
-        <button id="authTabLogin" onclick="switchAuthTab('login')"
-          style="flex:1;padding:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#1C1E27;color:#fff;transition:all .15s">
-          登录
-        </button>
-        <button id="authTabRegister" onclick="switchAuthTab('register')"
-          style="flex:1;padding:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f5f3f0;color:#8c7b6e;transition:all .15s">
-          注册
-        </button>
-      </div>
-
-      <!-- Name field (register only) -->
-      <div id="authNameRow" style="display:none;margin-bottom:12px">
-        <label style="font-size:12px;color:#8c7b6e;display:block;margin-bottom:5px">姓名</label>
-        <input id="authName" type="text" placeholder="您的姓名"
-          style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 14px;font-size:14px;color:#2d2420;outline:none"
-          onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'">
-      </div>
+      <!-- Tab switcher removed — email only -->
 
       <!-- Email -->
       <div style="margin-bottom:12px">
@@ -1020,21 +1002,6 @@
           onkeydown="if(event.key==='Enter')authSubmit()">
       </div>
 
-      <!-- Password -->
-      <div style="margin-bottom:6px">
-        <label style="font-size:12px;color:#8c7b6e;display:block;margin-bottom:5px">密码</label>
-        <div style="position:relative">
-          <input id="authPassword" type="password" placeholder="至少6位"
-            style="width:100%;background:#faf8f5;border:1px solid #e8e0d5;border-radius:8px;padding:10px 42px 10px 14px;font-size:14px;color:#2d2420;outline:none"
-            onfocus="this.style.borderColor='#e8732a'" onblur="this.style.borderColor='#e8e0d5'"
-            onkeydown="if(event.key==='Enter')authSubmit()">
-          <button type="button" onclick="const p=document.getElementById('authPassword');const e=document.getElementById('eyeIcon');p.type=p.type==='password'?'text':'password';e.textContent=p.type==='password'?'👁':'🙈'"
-            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:2px">
-            <span id="eyeIcon">👁</span>
-          </button>
-        </div>
-      </div>
-
       <!-- Error message -->
       <div id="authError" style="display:none;font-size:12px;color:#f87171;margin-bottom:8px;padding:8px 12px;background:#fff0f0;border-radius:6px"></div>
 
@@ -1042,15 +1009,7 @@
       <button id="authSubmitBtn" onclick="authSubmit()"
         style="width:100%;margin-top:14px;background:#e8732a;border:none;border-radius:10px;padding:13px;color:white;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s"
         onmouseover="this.style.background='#c9621f'" onmouseout="this.style.background='#e8732a'">
-        登录
-      </button>
-
-      <!-- Divider -->
-      <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
-        <div style="flex:1;height:1px;background:#e8e0d5"></div>
-        <span style="font-size:11px;color:#8c7b6e">或</span>
-        <div style="flex:1;height:1px;background:#e8e0d5"></div>
-      </div>
+        登录 / 注册
 
       <p style="font-size:11px;color:#8c7b6e;text-align:center;line-height:1.6">
         登录即表示您同意接收来自 <strong>SiLink</strong> 的利率资讯邮件。<br>
@@ -3433,63 +3392,31 @@ function closeAuthModal() {
   overlay.classList.remove('open');
   _pendingModalId = null;
   document.getElementById('authError').style.display = 'none';
-  document.getElementById('authPassword').value = '';
-}
-
-function switchAuthTab(tab) {
-  _authTab = tab;
-  updateAuthUI();
-}
-
-function updateAuthUI() {
-  const isLogin = _authTab === 'login';
-  document.getElementById('authTabLogin').style.background    = isLogin ? '#1C1E27' : '#f5f3f0';
-  document.getElementById('authTabLogin').style.color         = isLogin ? '#fff' : '#8c7b6e';
-  document.getElementById('authTabRegister').style.background = isLogin ? '#f5f3f0' : '#1C1E27';
-  document.getElementById('authTabRegister').style.color      = isLogin ? '#8c7b6e' : '#fff';
-  document.getElementById('authNameRow').style.display        = isLogin ? 'none' : 'block';
-  document.getElementById('authSubmitBtn').textContent        = isLogin ? '登录' : '注册并登录';
-  document.getElementById('authModalTitle').textContent       = isLogin ? '登录后使用工具' : '注册免费账号';
-  document.getElementById('authModalSub').textContent         = isLogin ? '免费注册，保存您的计算记录' : '填写信息即可使用全部工具';
-  document.getElementById('authError').style.display          = 'none';
 }
 
 function authSubmit() {
-  const email    = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const name     = document.getElementById('authName').value.trim();
-  const errEl    = document.getElementById('authError');
+  const email  = document.getElementById('authEmail').value.trim();
+  const errEl  = document.getElementById('authError');
 
-  // Basic validation
   if (!email || !email.includes('@')) {
     errEl.textContent = '请输入有效的邮箱地址';
     errEl.style.display = 'block';
     return;
   }
-  if (password.length < 6) {
-    errEl.textContent = '密码至少需要6位';
-    errEl.style.display = 'block';
-    return;
-  }
 
-  // Save user (front-end only — no real auth)
-  const displayName = name || email.split('@')[0];
+  // Save user (front-end only)
+  const displayName = email.split('@')[0];
   saveUser(email, displayName);
 
-  // Notify backend (fire and forget — used to collect leads)
+  // Notify backend
   fetch(`${BACKEND}/api/subscribe`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, name: displayName, source: 'tool_signin' })
   }).catch(() => {});
 
-  // Track sign-in event
-  trackEvent('auth', 'submit', {source: _authTab, tool: _pendingModalId || ''});
-
-  // Update nav to show signed-in state
+  trackEvent('auth', 'submit', { tool: _pendingModalId || '' });
   updateAuthNav();
-
-  // Close auth modal and open the pending tool
   closeAuthModal();
   if (_pendingModalId === '__news__')  { _origOpenNewsModal();  return; }
   if (_pendingModalId === '__share__') { _origOpenShareModal(); return; }

@@ -10,7 +10,7 @@
   <meta name="cf-2fa-verify" content="none">
 
   <!-- ══ PRIMARY SEO ══ -->
-  <title>每日房贷利率追踪 | SiLink · Stefanie Si · NJ/NY 华人房贷专家 NMLS#2800972</title>
+  <title>房贷利率追踪 | SiLink · Stefanie Si · NJ/NY 华人房贷专家 NMLS#2800972</title>
   <meta name="description" content="实时追踪美国30年、15年固定利率及ARM浮动利率，每个工作日更新。提供月供计算器、再融资节省分析、购房能力评估。服务纽约、新泽西华人客户。Stefanie Si，持牌房贷专员，NMLS#2800972。">
   <meta name="keywords" content="房贷利率,mortgage rate today,30 year fixed rate,15 year fixed rate,NJ mortgage,New Jersey mortgage rates,NYC mortgage,纽约房贷,新泽西房贷,华人房贷,Chinese mortgage broker,今日利率,月供计算器,mortgage calculator,refinance calculator,再融资,NMLS 2800972,Stefanie Si,SiLink">
   <meta name="author" content="Stefanie Si, SiLink, NMLS#2800972">
@@ -3083,6 +3083,9 @@ function applyLang(lang) {
   const btn = document.getElementById('langToggleBtn');
   if (btn) btn.textContent = lang === 'zh' ? 'EN' : '中文';
   document.documentElement.lang = lang === 'zh' ? 'zh' : 'en';
+  document.title = lang === 'zh'
+    ? '房贷利率追踪 | SiLink · Stefanie Si · NJ/NY 华人房贷专家 NMLS#2800972'
+    : 'Mortgage Rate Tracker | SiLink · Stefanie Si · NJ/NY NMLS#2800972';
   updateHeaderSub();
   renderForecast();
   renderHero();

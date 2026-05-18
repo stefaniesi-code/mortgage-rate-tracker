@@ -981,7 +981,7 @@
   </div>
 
   <!-- Reports list -->
-  <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;max-height:800px;overflow-y:auto;padding-right:4px">
+  <div id="reportsList" style="display:flex;flex-direction:column;gap:8px;padding-right:4px">
     <div style="text-align:center;padding:32px;color:#8c7b6e;font-size:13px">
       <div style="width:20px;height:20px;border:2px solid #e8e0d5;border-top-color:#e8732a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
       <span data-en="Loading reports..." data-zh="加载中...">加载中...</span>
@@ -3723,14 +3723,12 @@ updateAuthNav();
 async function loadReports() {
   try {
     const res = await fetch(`${BACKEND}/api/reports?limit=10`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const reports = await res.json();
     window._cachedReports = reports;
     renderReports(reports);
   } catch(e) {
-    console.error('loadReports error:', e);
     document.getElementById('reportsList').innerHTML =
-      `<div style="text-align:center;padding:20px;color:#8c7b6e;font-size:13px">加载失败: ${e.message}</div>`;
+      '<div style="text-align:center;padding:20px;color:#8c7b6e;font-size:13px">暂无周报</div>';
   }
 }
 
@@ -3781,11 +3779,11 @@ function renderReports(reports) {
             </div>
           </div>
         </div>
-        <span id="rpt_arrow_${r.id}" style="color:#8c7b6e;font-size:16px;transition:transform .2s">▼</span>
+        <span id="rpt_arrow_${r.id}" style="color:#8c7b6e;font-size:16px;transition:transform .2s">${isFirst?'▲':'▼'}</span>
       </div>
 
-      <!-- Body (collapsed by default) -->
-      <div id="rpt_body_${r.id}" style="display:none;border-top:1px solid #f0ebe4;padding:16px 18px">
+      <!-- Body (first report expanded by default) -->
+      <div id="rpt_body_${r.id}" style="display:${isFirst?'block':'none'};border-top:1px solid #f0ebe4;padding:16px 18px">
 
         <!-- Rate table -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">

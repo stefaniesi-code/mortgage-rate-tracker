@@ -3765,7 +3765,7 @@ function renderReports(reports) {
     const isFirst = i === 0;
 
     return `
-    <div style="background:rgba(255,255,255,0.85);backdrop-filter:blur(10px);border:1px solid ${isFirst?'rgba(232,115,42,.35)':'rgba(255,255,255,0.8)'};border-radius:12px;overflow:hidden">
+    <div style="background:rgba(255,255,255,0.85);backdrop-filter:blur(10px);border:1px solid ${isFirst?'rgba(232,115,42,.35)':'rgba(255,255,255,0.8)'};border-radius:12px">
       <!-- Header -->
       <div style="padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none"
            onclick="toggleReport(${r.id})">
@@ -3779,11 +3779,11 @@ function renderReports(reports) {
             </div>
           </div>
         </div>
-        <span id="rpt_arrow_${r.id}" style="color:#8c7b6e;font-size:16px;transition:transform .2s">${isFirst?'▲':'▼'}</span>
+        <span id="rpt_arrow_${r.id}" style="color:#8c7b6e;font-size:16px;transition:transform .2s">▼</span>
       </div>
 
-      <!-- Body (first report expanded by default) -->
-      <div id="rpt_body_${r.id}" style="display:${isFirst?'block':'none'};border-top:1px solid #f0ebe4;padding:16px 18px">
+      <!-- Body (collapsed by default) -->
+      <div id="rpt_body_${r.id}" style="display:none;border-top:1px solid #f0ebe4;padding:16px 18px">
 
         <!-- Rate table -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">

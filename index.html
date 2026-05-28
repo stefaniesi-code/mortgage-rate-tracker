@@ -623,7 +623,7 @@
     <div class="tool-trigger-left">
       <div class="tool-icon">📤</div>
       <div class="tool-title" data-en="Share Card" data-zh="分享卡片">分享卡片</div>
-      <div class="tool-sub" data-en="Generate rate image" data-zh="生成利率图片">生成利率图片</div>
+      <div class="tool-sub" data-en="Generate clean rate note" data-zh="生成利率分享图">生成利率分享图</div>
     </div>
     <div class="tool-arrow">↗</div>
   </button>
@@ -1401,18 +1401,18 @@
 
 <!-- Share card modal -->
 <div class="modal-overlay" id="shareModal" onclick="closeOnBg(event,'shareModal')">
-  <div class="modal" style="max-width:420px">
+  <div class="modal" style="max-width:560px">
     <div class="modal-header">
-      <span class="modal-title" data-en="📤 Share Today's Rate Card" data-zh="📤 分享今日利率卡片">📤 分享今日利率卡片</span>
+      <span class="modal-title" data-en="Share Rate Note" data-zh="生成利率分享图">生成利率分享图</span>
       <button class="modal-close" onclick="closeModal('shareModal')">✕</button>
     </div>
     <div class="modal-body">
       <canvas id="shareCanvas" style="width:100%;border-radius:12px;display:block"></canvas>
-      <button onclick="downloadCard()" style="width:100%;margin-top:14px;background:#1d4ed8;border:none;border-radius:10px;padding:12px;color:white;font-size:14px;font-weight:600;cursor:pointer" data-en="⬇ Download Card" data-zh="⬇ 下载卡片">
-        ⬇ Download Card
+      <button onclick="downloadCard()" style="width:100%;margin-top:14px;background:#1C1E27;border:none;border-radius:10px;padding:12px;color:white;font-size:14px;font-weight:600;cursor:pointer" data-en="Download Image" data-zh="下载分享图">
+        下载分享图
       </button>
-      <p style="font-size:11px;color:#8899AA;margin-top:10px;text-align:center" data-en="Save and share on WeChat, 小红书, or send to clients directly" data-zh="保存后分享到微信、小红书，或直接发送给客户">
-        Save and share on WeChat, 小红书, or send to clients directly
+      <p style="font-size:11px;color:#8899AA;margin-top:10px;text-align:center" data-en="A cleaner daily rate note for WeChat, RedNote, or client follow-up." data-zh="适合发小红书、微信，或发给客户做今日利率参考。">
+        适合发小红书、微信，或发给客户做今日利率参考。
       </p>
     </div>
   </div>
@@ -3073,7 +3073,7 @@ function openShareModal() {
 function drawCard() {
   const canvas = document.getElementById('shareCanvas');
   const dpr = window.devicePixelRatio || 1;
-  const W = 800, H = 440;
+  const W = 800, H = 1130;
   canvas.width  = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width  = '100%';
@@ -3082,165 +3082,99 @@ function drawCard() {
   ctx.scale(dpr, dpr);
 
   // Background
-  ctx.fillStyle = '#FFF3E8';
+  ctx.fillStyle = '#F7EFEA';
   ctx.fillRect(0, 0, W, H);
 
-  // Top gradient bar
-  const grad = ctx.createLinearGradient(0,0,W,0);
-  grad.addColorStop(0,'#C9A84C');
-  grad.addColorStop(1,'#8899AA');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, 4);
-
-  // ── LEFT COLUMN (x: 30 to 370) ──
-  const LX = 30, RX = 410;
-
-  // Date + title
-  ctx.fillStyle = '#f5ede4';
-  ctx.font = '12px -apple-system, sans-serif';
-  ctx.fillText(TODAY.date + '  ·  Daily Mortgage Rate Tracker', LX, 30);
-
-  // 30yr box
-  ctx.fillStyle = '#ffffff';
-  roundRect(ctx, LX, 44, 160, 90, 8); ctx.fill();
-  ctx.fillStyle = '#8c7b6e';
-  ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('30-Year Fixed', LX+12, 64);
-  ctx.fillStyle = '#e8732a';
-  ctx.font = 'bold 36px -apple-system, sans-serif';
-  ctx.fillText(LIVE30.toFixed(2)+'%', LX+12, 114);
-
-  // 15yr box
-  ctx.fillStyle = '#ffffff';
-  roundRect(ctx, LX+172, 44, 160, 90, 8); ctx.fill();
-  ctx.fillStyle = '#8c7b6e';
-  ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('15-Year Fixed', LX+184, 64);
-  ctx.fillStyle = '#d4622a';
-  ctx.font = 'bold 36px -apple-system, sans-serif';
-  ctx.fillText(LIVE15.toFixed(2)+'%', LX+184, 114);
-
-  // Change
+  const pad = 58;
   const prev = data[data.length-2];
-  if(prev){
-    const chg = +(LIVE30-prev.r30).toFixed(2);
-    ctx.fillStyle = chg>0?'#f87171':'#4ade80';
-    ctx.font = '13px -apple-system, sans-serif';
-    ctx.fillText((chg>0?'▲ +':'▼ ')+Math.abs(chg).toFixed(2)+'% vs yesterday', LX, 158);
-  }
+  const chg30 = prev ? +(LIVE30 - prev.r30).toFixed(2) : 0;
+  const chg15 = prev ? +(LIVE15 - prev.r15).toFixed(2) : 0;
+  const chgColor = chg => chg > 0 ? '#D85A30' : chg < 0 ? '#2F7A4D' : '#8C7B6E';
+  const chgText = chg => chg === 0 ? '持平' : `${chg > 0 ? '+' : '-'}${Math.abs(chg).toFixed(2)} 较前一日`;
+  const payment = Math.round(moPay(LIVE30, 400000, 30)).toLocaleString('en-US');
 
-  // Monthly payment
-  ctx.fillStyle = '#8c7b6e';
-  ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('$500K home · 20% down · 30yr', LX, 188);
-  ctx.fillStyle = '#2d2420';
-  ctx.font = 'bold 22px -apple-system, sans-serif';
-  ctx.fillText('$'+Math.round(moPay(LIVE30,400000,30)).toLocaleString()+'/mo', LX, 216);
+  // Header
+  ctx.fillStyle = '#1C1E27';
+  ctx.beginPath(); ctx.arc(pad, 58, 6, 0, Math.PI*2); ctx.fill();
+  ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('SiLink', pad + 22, 69);
+  ctx.fillStyle = '#8C7B6E';
+  ctx.font = '18px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('Rate Note · ' + TODAY.date, pad + 150, 67);
 
-  // 52-week range bar
-  const last52 = data.slice(-52).map(d=>d.r30);
-  const lo52 = Math.min(...last52), hi52 = Math.max(...last52);
-  const pct52 = Math.round((LIVE30-lo52)/(hi52-lo52)*100);
-  ctx.fillStyle = '#8c7b6e';
-  ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('52-Wk Range', LX, 248);
-  ctx.fillStyle = '#334155';
-  roundRect(ctx, LX, 256, 330, 8, 4); ctx.fill();
-  ctx.fillStyle = '#e8732a';
-  roundRect(ctx, LX, 256, Math.round(330*pct52/100), 8, 4); ctx.fill();
-  ctx.fillStyle = '#f5ede4';
-  ctx.font = '10px -apple-system, sans-serif';
-  ctx.fillText(lo52.toFixed(2)+'%', LX, 278);
-  ctx.textAlign = 'right';
-  ctx.fillText(hi52.toFixed(2)+'%', LX+330, 278);
-  ctx.textAlign = 'left';
+  // Hero copy
+  ctx.fillStyle = '#1C1E27';
+  ctx.font = 'bold 62px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('今日房贷利率参考', pad, 160);
+  ctx.font = '30px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = '#675C55';
+  ctx.fillText('利率算得清，买房更安心', pad, 210);
 
-  // Contact box
-  ctx.fillStyle = '#ffffff';
-  roundRect(ctx, LX, 295, 330, 82, 8); ctx.fill();
-  ctx.fillStyle = '#2d2420';
-  ctx.font = 'bold 14px -apple-system, sans-serif';
-  ctx.fillText('Stefanie Si', LX+12, 320);
-  ctx.fillStyle = '#e8732a';
-  ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('Licensed MLO  ·  NMLS#2800972  ·  CFA  ·  FRM', LX+12, 338);
-  ctx.fillStyle = '#8c7b6e';
-  ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('📱 201-660-3602', LX+12, 356);
-  ctx.fillText('📕 小红书: 斯斯子在美东   NMLS# 2800972', LX+12, 372);
+  // Rate panel
+  ctx.fillStyle = 'rgba(255,255,255,0.78)';
+  roundRect(ctx, pad, 260, W - pad*2, 245, 24); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, pad, 260, W - pad*2, 245, 24); ctx.stroke();
 
-  // ── RIGHT COLUMN — sparkline (last 14 days) ──
-  const recent = data.slice(-14);
-  const r30v = recent.map(d=>d.r30);
-  const rlo = Math.min(...r30v)-0.05, rhi = Math.max(...r30v)+0.05;
-  const rng = rhi-rlo;
-  const CX=RX, CY=44, CW=W-RX-30, CH=290;
+  ctx.fillStyle = '#8C7B6E';
+  ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('30年固定', pad + 32, 310);
+  ctx.fillText('15年固定', pad + 386, 310);
 
-  // Chart bg
-  ctx.fillStyle = '#ffffff';
-  roundRect(ctx, CX, CY, CW, CH, 8); ctx.fill();
+  ctx.fillStyle = '#1C1E27';
+  ctx.font = 'bold 86px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText(LIVE30.toFixed(2) + '%', pad + 32, 405);
+  ctx.font = 'bold 72px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText(LIVE15.toFixed(2) + '%', pad + 386, 400);
 
-  // Chart title
-  ctx.fillStyle = '#8c7b6e';
-  ctx.font = '11px -apple-system, sans-serif';
-  ctx.fillText('30yr Fixed — Last 14 days', CX+14, CY+20);
+  ctx.font = '22px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = chgColor(chg30);
+  ctx.fillText(chgText(chg30), pad + 34, 455);
+  ctx.fillStyle = chgColor(chg15);
+  ctx.fillText(chgText(chg15), pad + 388, 455);
 
-  // Y-axis grid lines + labels
-  [0,0.25,0.5,0.75,1].forEach(f=>{
-    const y = CY+CH-30 - f*(CH-44);
-    const v = (rlo+f*rng).toFixed(2);
-    ctx.strokeStyle='#e8e0d5'; ctx.lineWidth=0.5;
-    ctx.beginPath(); ctx.moveTo(CX+8,y); ctx.lineTo(CX+CW-8,y); ctx.stroke();
-    ctx.fillStyle='#8c7b6e'; ctx.font='9px -apple-system, sans-serif';
-    ctx.textAlign='right';
-    ctx.fillText(v+'%', CX+CW-10, y-2);
-    ctx.textAlign='left';
+  // Payment example
+  ctx.fillStyle = '#FFFFFF';
+  roundRect(ctx, pad, 540, W - pad*2, 150, 20); ctx.fill();
+  ctx.fillStyle = '#1C1E27';
+  ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('$500K 房价示例', pad + 28, 582);
+  ctx.font = '21px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = '#675C55';
+  ctx.fillText('20%首付 · 贷款 $400K · 30年固定 · 仅本息估算', pad + 28, 620);
+  ctx.fillStyle = '#E8732A';
+  ctx.font = 'bold 54px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('$' + payment + '/月', pad + 28, 674);
+
+  // Decision checklist
+  ctx.fillStyle = '#1C1E27';
+  ctx.font = 'bold 38px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('买房前，别只看最低 rate', pad, 765);
+  const checklist = [
+    ['01', '月供是否舒服'],
+    ['02', '买点 / credit 是否划算'],
+    ['03', '现金到 closing 是否足够']
+  ];
+  checklist.forEach(([num, text], i) => {
+    const y = 815 + i * 76;
+    ctx.fillStyle = '#FFFFFF';
+    roundRect(ctx, pad, y, W - pad*2, 60, 16); ctx.fill();
+    ctx.fillStyle = '#E8732A';
+    ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillText(num, pad + 22, y + 38);
+    ctx.fillStyle = '#2D2420';
+    ctx.font = '30px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillText(text, pad + 82, y + 40);
   });
 
-  // Sparkline
-  const pw=(CW-24)/(r30v.length-1);
-  const py=v=>CY+CH-30-((v-rlo)/rng)*(CH-44);
-
-  // Fill
-  const sg=ctx.createLinearGradient(0,CY,0,CY+CH);
-  sg.addColorStop(0,'rgba(201,168,76,0.25)');
-  sg.addColorStop(1,'rgba(201,168,76,0.0)');
-  ctx.beginPath();
-  ctx.moveTo(CX+12,py(r30v[0]));
-  r30v.forEach((v,i)=>ctx.lineTo(CX+12+i*pw,py(v)));
-  ctx.lineTo(CX+12+(r30v.length-1)*pw,CY+CH-30);
-  ctx.lineTo(CX+12,CY+CH-30);
-  ctx.closePath();
-  ctx.fillStyle=sg; ctx.fill();
-
-  // Line
-  ctx.beginPath();
-  ctx.moveTo(CX+12,py(r30v[0]));
-  r30v.forEach((v,i)=>ctx.lineTo(CX+12+i*pw,py(v)));
-  ctx.strokeStyle='#C9A84C'; ctx.lineWidth=2; ctx.stroke();
-
-  // End dot
-  const lastX=CX+12+(r30v.length-1)*pw, lastY=py(r30v[r30v.length-1]);
-  ctx.beginPath(); ctx.arc(lastX,lastY,4,0,Math.PI*2);
-  ctx.fillStyle='#C9A84C'; ctx.fill();
-
-  // X-axis date labels (3 evenly spaced)
-  ctx.fillStyle='#8c7b6e'; ctx.font='9px -apple-system, sans-serif';
-  [0, Math.floor(r30v.length/2), r30v.length-1].forEach(i=>{
-    const d=new Date(recent[i].date+'T00:00:00');
-    const lbl=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    const x=CX+12+i*pw;
-    ctx.textAlign=i===0?'left':i===r30v.length-1?'right':'center';
-    ctx.fillText(lbl,x,CY+CH-12);
-  });
-  ctx.textAlign='left';
-
-  // ── Bottom disclaimer ──
-  ctx.fillStyle='#8c7b6e'; ctx.font='9px -apple-system, sans-serif';
-  ctx.fillText('For informational purposes only. Not a loan commitment. Source: Freddie Mac PMMS / MND.  silinkre.com/rate-tracker', 30, H-10);
-
-  // Bottom gradient bar
-  ctx.fillStyle=grad; ctx.fillRect(0,H-3,W,3);
+  // Footer
+  ctx.fillStyle = '#1C1E27';
+  ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('Stefanie Si · Licensed MLO · NMLS#2800972', pad, H - 62);
+  ctx.fillStyle = '#8C7B6E';
+  ctx.font = '18px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('仅供参考，不构成贷款承诺。数据来源：MND / Bankrate / Freddie Mac。', pad, H - 30);
 }
 
 function roundRect(ctx, x, y, w, h, r) {

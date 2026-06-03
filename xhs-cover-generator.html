@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小红书封面生成器 | SiLink</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{
+      --bg:#f3e8e6;
+      --panel:rgba(255,255,255,.74);
+      --panel-strong:#fffaf7;
+      --ink:#1c1e27;
+      --muted:#746860;
+      --line:rgba(28,30,39,.10);
+      --accent:#e8732a;
+      --accent-soft:#fff1e7;
+      --shadow:0 18px 50px rgba(37,28,31,.13);
+    }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);
+      background:linear-gradient(180deg,#ead7d7 0%,#d8c6ca 42%,#b8bbc6 100%);
+      padding:18px;
+    }
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;align-items:start}
+    .panel{
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.78);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
+    }
+    .control-panel{position:sticky;top:18px;padding:18px}
+    .brand{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .brand-mark{font-size:20px;font-weight:900;letter-spacing:.2px}
+    .badge{border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.5)}
+    .field{margin-bottom:13px}
+    .field label{display:block;font-size:11px;font-weight:850;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+    .input,.textarea,.select{
+      width:100%;
+      border:1px solid rgba(28,30,39,.12);
+      background:rgba(255,255,255,.76);
+      color:var(--ink);
+      border-radius:11px;
+      padding:10px 11px;
+      outline:none;
+    }
+    .textarea{resize:vertical;min-height:76px;line-height:1.45}
+    .input:focus,.textarea:focus,.select:focus{border-color:rgba(232,115,42,.55);box-shadow:0 0 0 3px rgba(232,115,42,.12)}
+    .segmented{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:rgba(255,255,255,.44);border-radius:12px;padding:5px}
+    .segmented button{border:none;background:transparent;border-radius:9px;padding:8px 6px;font-size:12px;font-weight:800;color:var(--muted)}
+    .segmented button.active{background:#fff;color:var(--ink);box-shadow:0 4px 14px rgba(28,30,39,.08)}
+    .swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .swatch{height:42px;border:1px solid rgba(255,255,255,.75);border-radius:12px;display:flex;align-items:end;padding:6px;box-shadow:0 5px 15px rgba(28,30,39,.08)}
+    .swatch.active{outline:3px solid rgba(28,30,39,.22)}
+    .swatch span{width:100%;height:7px;border-radius:999px;background:rgba(255,255,255,.76)}
+    .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+    .btn{border:none;border-radius:12px;padding:11px 12px;font-weight:900;color:#fff;background:var(--ink)}
+    .btn.secondary{background:rgba(255,255,255,.70);color:var(--ink);border:1px solid var(--line)}
+    .btn.accent{background:var(--accent)}
+    .note{font-size:11px;line-height:1.55;color:var(--muted);margin-top:12px}
+    .preview-panel{padding:16px}
+    .preview-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .preview-title{font-size:20px;font-weight:900}
+    .preview-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .preview-actions .btn{padding:9px 12px;font-size:12px}
+    .covers{display:grid;grid-template-columns:minmax(420px,1.22fr) minmax(270px,.78fr);gap:14px;align-items:start}
+    .cover-card{
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(255,255,255,.78);
+      border-radius:16px;
+      padding:10px;
+      transition:border-color .15s,box-shadow .15s,transform .15s;
+    }
+    .cover-card.active{border-color:rgba(232,115,42,.70);box-shadow:0 16px 34px rgba(232,115,42,.16)}
+    .cover-card:hover{transform:translateY(-1px)}
+    .cover-card[data-index="0"]{grid-row:span 2}
+    canvas{width:100%;display:block;border-radius:12px;background:#fff;aspect-ratio:3/4}
+    .cover-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;font-size:12px;color:var(--muted)}
+    .cover-meta button{border:none;background:#fff;border-radius:9px;padding:7px 9px;font-size:12px;font-weight:850;color:var(--ink)}
+    @media(max-width:980px){
+      .app{grid-template-columns:1fr}
+      .control-panel{position:static}
+      .covers{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .cover-card[data-index="0"]{grid-row:auto}
+    }
+    @media(max-width:620px){
+      body{padding:12px}
+      .covers{grid-template-columns:1fr}
+      .preview-top{align-items:flex-start;flex-direction:column}
+      .actions{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel control-panel">
+      <div class="brand">
+        <div class="brand-mark">小红书封面生成器</div>
+        <div class="badge">3:4 PNG</div>
+      </div>
+
+      <div class="field">
+        <label for="titleInput">标题</label>
+        <textarea class="textarea" id="titleInput">利率差0.5%，月供差多少？</textarea>
+      </div>
+
+      <div class="field">
+        <label for="subtitleInput">副标题</label>
+        <input class="input" id="subtitleInput" value="NY/NJ 买房前，先把数字算清楚">
+      </div>
+
+      <div class="mini-grid">
+        <div class="field">
+          <label for="metricInput">重点数字</label>
+          <input class="input" id="metricInput" value="$167/月">
+        </div>
+        <div class="field">
+          <label for="tagInput">角标</label>
+          <input class="input" id="tagInput" value="房贷算账">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="bulletsInput">检查点</label>
+        <textarea class="textarea" id="bulletsInput">月供是否舒服
+points / credit 是否划算
+cash to close 是否足够</textarea>
+      </div>
+
+      <div class="field">
+        <label>版式</label>
+        <div class="segmented" id="layoutControl">
+          <button class="active" data-layout="bold">大字</button>
+          <button data-layout="checklist">清单</button>
+          <button data-layout="data">数字</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>颜色</label>
+        <div class="swatches" id="paletteControl"></div>
+      </div>
+
+      <div class="mini-grid">
+        <div class="field">
+          <label for="brandInput">署名</label>
+          <input class="input" id="brandInput" value="Stefanie Si · NMLS#2800972">
+        </div>
+        <div class="field">
+          <label for="footerInput">尾注</label>
+          <input class="input" id="footerInput" value="利率仅供参考，不构成贷款承诺">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="randomBtn">换一组</button>
+        <button class="btn accent" id="downloadBtn">下载选中</button>
+      </div>
+      <div class="note">保存后可以直接发小红书、朋友圈，或作为客户沟通配图。封面比例为 1080 × 1440。</div>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="preview-top">
+        <div class="preview-title">封面预览</div>
+        <div class="preview-actions">
+          <button class="btn secondary" id="downloadAllBtn">下载全部</button>
+          <button class="btn secondary" id="resetBtn">恢复示例</button>
+        </div>
+      </div>
+      <div class="covers" id="covers">
+        <div class="cover-card active" data-index="0">
+          <canvas id="cover0" width="1080" height="1440"></canvas>
+          <div class="cover-meta"><span>封面 A</span><button data-download="0">下载</button></div>
+        </div>
+        <div class="cover-card" data-index="1">
+          <canvas id="cover1" width="1080" height="1440"></canvas>
+          <div class="cover-meta"><span>封面 B</span><button data-download="1">下载</button></div>
+        </div>
+        <div class="cover-card" data-index="2">
+          <canvas id="cover2" width="1080" height="1440"></canvas>
+          <div class="cover-meta"><span>封面 C</span><button data-download="2">下载</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const palettes = [
+      {name:'Coral', bg:'#f7e9e4', panel:'#fffaf7', ink:'#1c1e27', muted:'#75665e', accent:'#e8732a', soft:'#fff1e7'},
+      {name:'Sage', bg:'#eaf0ea', panel:'#fbfffb', ink:'#17211b', muted:'#607064', accent:'#2f7a4d', soft:'#e0f2e5'},
+      {name:'Ink', bg:'#ebeef2', panel:'#ffffff', ink:'#151923', muted:'#667085', accent:'#315fba', soft:'#eaf1ff'},
+      {name:'Rose', bg:'#f4e3ea', panel:'#fff9fb', ink:'#24151c', muted:'#7a6570', accent:'#c94872', soft:'#fde7ef'}
+    ];
+
+    const examples = [
+      {title:'利率差0.5%，月供差多少？', subtitle:'NY/NJ 买房前，先把数字算清楚', metric:'$167/月', tag:'房贷算账'},
+      {title:'银行给的 rate，先别急着签', subtitle:'先看 APR、points 和 lender credit', metric:'3 个重点', tag:'Quote 检查'},
+      {title:'Closing cost 里哪些费用能谈？', subtitle:'不是每一项都固定，也不是每一项都该省', metric:'清单版', tag:'买房避坑'},
+      {title:'自雇买房，银行到底看什么？', subtitle:'文件提前准备，贷款会顺很多', metric:'5 份材料', tag:'自雇贷款'},
+      {title:'买 points 真的划算吗？', subtitle:'先算回本期，再决定要不要买低利率', metric:'Break-even', tag:'利率策略'}
+    ];
+
+    const state = {layout:'bold', palette:0, selected:0};
+    const el = id => document.getElementById(id);
+    const fields = ['titleInput','subtitleInput','metricInput','tagInput','bulletsInput','brandInput','footerInput'];
+
+    function initPalettes(){
+      const root = el('paletteControl');
+      root.innerHTML = palettes.map((p,i) => (
+        `<button class="swatch ${i===0?'active':''}" data-palette="${i}" style="background:linear-gradient(135deg,${p.bg},${p.soft});"><span style="background:${p.accent}"></span></button>`
+      )).join('');
+    }
+
+    function getData(){
+      return {
+        title: el('titleInput').value.trim(),
+        subtitle: el('subtitleInput').value.trim(),
+        metric: el('metricInput').value.trim(),
+        tag: el('tagInput').value.trim(),
+        bullets: el('bulletsInput').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,3),
+        brand: el('brandInput').value.trim(),
+        footer: el('footerInput').value.trim()
+      };
+    }
+
+    function font(weight, size){ return `${weight} ${size}px -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif`; }
+
+    function roundRect(ctx,x,y,w,h,r){
+      ctx.beginPath();
+      ctx.moveTo(x+r,y);
+      ctx.lineTo(x+w-r,y);
+      ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+      ctx.lineTo(x+w,y+h-r);
+      ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+      ctx.lineTo(x+r,y+h);
+      ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+      ctx.lineTo(x,y+r);
+      ctx.quadraticCurveTo(x,y,x+r,y);
+      ctx.closePath();
+    }
+
+    function getLines(ctx, text, maxWidth, maxLines){
+      let raw = String(text || '').replace(/\s+/g,' ').trim();
+      if(!raw) return [];
+      const hasCjk = /[\u4e00-\u9fff]/.test(raw);
+      if(hasCjk) raw = raw.replace(/\s+/g,'');
+      const tokens = hasCjk ? [...raw].filter(t => t !== ' ') : raw.split(' ');
+      const joiner = hasCjk ? '' : ' ';
+      let line = '';
+      const lines = [];
+      tokens.forEach(token => {
+        const candidate = line ? line + joiner + token : token;
+        if(ctx.measureText(candidate).width > maxWidth && line){
+          lines.push(line);
+          line = token;
+        } else {
+          line = candidate;
+        }
+      });
+      if(line) lines.push(line);
+      return lines.slice(0, maxLines);
+    }
+
+    function drawCenteredText(ctx, text, cx, y, maxWidth, lineHeight, maxLines){
+      const lines = getLines(ctx, text, maxWidth, maxLines);
+      ctx.textAlign = 'center';
+      lines.forEach((line, i) => ctx.fillText(line, cx, y + i * lineHeight));
+      ctx.textAlign = 'left';
+      return y + lines.length * lineHeight;
+    }
+
+    function drawCenteredTitle(ctx, text, cx, y, maxWidth, lineHeight, maxLines){
+      let clean = String(text || '').replace(/\s+/g,' ').trim();
+      if(/[\u4e00-\u9fff]/.test(clean)) clean = clean.replace(/\s+/g,'');
+      let lines = null;
+      const comma = clean.indexOf('，');
+      if(comma > 0 && comma < clean.length - 1){
+        const first = clean.slice(0, comma + 1);
+        const second = clean.slice(comma + 1);
+        if(ctx.measureText(first).width <= maxWidth && ctx.measureText(second).width <= maxWidth){
+          lines = [first, second].slice(0, maxLines);
+        }
+      }
+      if(!lines) lines = getLines(ctx, clean, maxWidth, maxLines);
+      ctx.textAlign = 'center';
+      lines.forEach((line, i) => ctx.fillText(line, cx, y + i * lineHeight));
+      ctx.textAlign = 'left';
+      return y + lines.length * lineHeight;
+    }
+
+    function drawPill(ctx, text, cx, y, p, filled){
+      ctx.font = font('900', 26);
+      const w = Math.min(820, ctx.measureText(text).width + 58);
+      ctx.fillStyle = filled ? p.accent : p.soft;
+      roundRect(ctx, cx - w / 2, y, w, 54, 27); ctx.fill();
+      ctx.fillStyle = filled ? '#fff' : p.accent;
+      ctx.textAlign = 'center';
+      ctx.fillText(text, cx, y + 36);
+      ctx.textAlign = 'left';
+    }
+
+    function drawHeader(ctx, p, d){
+      ctx.textAlign = 'center';
+      ctx.fillStyle = p.accent;
+      roundRect(ctx, 462, 82, 116, 10, 5); ctx.fill();
+      ctx.fillStyle = p.ink;
+      ctx.font = font('900', 36);
+      ctx.fillText('SiLink', 540, 128);
+      ctx.textAlign = 'left';
+      drawPill(ctx, d.tag || '房贷算账', 540, 158, p, false);
+    }
+
+    function drawFooter(ctx, p, d){
+      ctx.strokeStyle = p.muted + '44';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(150, 1306); ctx.lineTo(930, 1306); ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillStyle = p.ink;
+      ctx.font = font('900', 26);
+      ctx.fillText(d.brand || 'Stefanie Si', 540, 1352);
+      ctx.fillStyle = p.muted;
+      ctx.font = font('600', 20);
+      ctx.fillText(d.footer || '利率仅供参考，不构成贷款承诺', 540, 1386);
+      ctx.textAlign = 'left';
+    }
+
+    function drawBold(ctx, p, d){
+      drawHeader(ctx, p, d);
+      ctx.fillStyle = p.ink;
+      ctx.font = font('900', 104);
+      const afterTitle = drawCenteredTitle(ctx, d.title, 540, 326, 860, 116, 3);
+      ctx.fillStyle = p.muted;
+      ctx.font = font('700', 34);
+      drawCenteredText(ctx, d.subtitle, 540, afterTitle + 24, 820, 44, 2);
+
+      ctx.fillStyle = p.accent;
+      roundRect(ctx, 150, 710, 780, 230, 38); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.82)';
+      ctx.font = font('800', 28);
+      ctx.textAlign = 'center';
+      ctx.fillText('重点数字', 540, 775);
+      ctx.fillStyle = '#fff';
+      ctx.font = font('900', 112);
+      ctx.fillText(d.metric || '先算清楚', 540, 874);
+      ctx.textAlign = 'left';
+
+      const chips = d.bullets.length ? d.bullets : ['月供是否舒服','买点是否划算','现金是否足够'];
+      chips.forEach((b,i)=>{
+        const y = 1008 + i * 76;
+        ctx.fillStyle = '#fff';
+        roundRect(ctx, 164, y, 752, 58, 18); ctx.fill();
+        ctx.fillStyle = p.soft;
+        roundRect(ctx, 188, y + 13, 52, 32, 16); ctx.fill();
+        ctx.fillStyle = p.accent;
+        ctx.font = font('900', 20);
+        ctx.textAlign = 'center';
+        ctx.fillText(String(i+1).padStart(2,'0'), 214, y + 35);
+        ctx.textAlign = 'left';
+        ctx.fillStyle = p.ink;
+        ctx.font = font('800', 30);
+        ctx.fillText(b, 280, y + 38);
+      });
+    }
+
+    function drawChecklist(ctx, p, d){
+      drawHeader(ctx, p, d);
+      ctx.fillStyle = p.ink;
+      ctx.font = font('900', 78);
+      const afterTitle = drawCenteredTitle(ctx, d.title, 540, 285, 840, 88, 3);
+      ctx.fillStyle = p.muted;
+      ctx.font = font('700', 30);
+      drawCenteredText(ctx, d.subtitle, 540, afterTitle + 20, 800, 40, 2);
+
+      const bullets = d.bullets.length ? d.bullets : ['月供是否舒服','买点是否划算','现金是否足够'];
+      bullets.forEach((b,i)=>{
+        const y = 650 + i*142;
+        ctx.fillStyle = p.panel;
+        roundRect(ctx, 120, y, 840, 104, 28); ctx.fill();
+        ctx.fillStyle = p.accent;
+        roundRect(ctx, 156, y+26, 56, 56, 18); ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = font('900', 25);
+        ctx.fillText(String(i+1), 176, y+63);
+        ctx.fillStyle = p.ink;
+        ctx.font = font('900', 42);
+        ctx.fillText(b, 248, y+64);
+      });
+
+      drawPill(ctx, d.metric || '3 个重点', 540, 1118, p, true);
+    }
+
+    function drawData(ctx, p, d){
+      drawHeader(ctx, p, d);
+      ctx.fillStyle = p.muted;
+      ctx.font = font('800', 30);
+      ctx.textAlign = 'center';
+      ctx.fillText('重点数字', 540, 305);
+      ctx.fillStyle = p.accent;
+      ctx.font = font('900', 128);
+      drawCenteredText(ctx, d.metric || '$167/月', 540, 460, 850, 138, 2);
+
+      ctx.fillStyle = p.ink;
+      ctx.font = font('900', 72);
+      const afterTitle = drawCenteredTitle(ctx, d.title, 540, 710, 850, 82, 3);
+      ctx.fillStyle = p.muted;
+      ctx.font = font('700', 30);
+      drawCenteredText(ctx, d.subtitle, 540, afterTitle + 18, 800, 42, 2);
+
+      const bullets = d.bullets.length ? d.bullets : ['月供是否舒服','买点是否划算','现金是否足够'];
+      bullets.forEach((b,i)=>{
+        const x = 210 + i * 235;
+        ctx.fillStyle = p.soft;
+        roundRect(ctx, x, 1070, 190, 92, 24); ctx.fill();
+        ctx.fillStyle = p.accent;
+        ctx.font = font('900', 20);
+        ctx.fillText(String(i+1).padStart(2,'0'), x + 24, 1107);
+        ctx.fillStyle = p.ink;
+        ctx.font = font('800', 24);
+        drawCenteredText(ctx, b, x + 95, 1140, 150, 28, 2);
+      });
+      ctx.textAlign = 'left';
+    }
+
+    function drawCover(index){
+      const canvas = el('cover'+index);
+      const ctx = canvas.getContext('2d');
+      const d = getData();
+      const p = palettes[(state.palette + index) % palettes.length];
+      const layout = index === 0 ? state.layout : index === 1 ? 'checklist' : 'data';
+
+      ctx.fillStyle = p.bg;
+      ctx.fillRect(0,0,1080,1440);
+      ctx.fillStyle = p.panel;
+      roundRect(ctx, 42, 42, 996, 1356, 42); ctx.fill();
+
+      if(layout === 'checklist') drawChecklist(ctx,p,d);
+      else if(layout === 'data') drawData(ctx,p,d);
+      else drawBold(ctx,p,d,index);
+
+      drawFooter(ctx,p,d);
+    }
+
+    function render(){
+      [0,1,2].forEach(drawCover);
+      document.querySelectorAll('.cover-card').forEach(card => card.classList.toggle('active', Number(card.dataset.index) === state.selected));
+      document.querySelectorAll('#layoutControl button').forEach(btn => btn.classList.toggle('active', btn.dataset.layout === state.layout));
+      document.querySelectorAll('.swatch').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.palette) === state.palette));
+    }
+
+    function download(index){
+      const canvas = el('cover'+index);
+      const link = document.createElement('a');
+      const safeTitle = (el('titleInput').value || 'cover').replace(/[^\u4e00-\u9fa5\w-]+/g,'-').slice(0,24);
+      link.download = `xhs-cover-${safeTitle}-${Number(index)+1}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function resetExample(){
+      el('titleInput').value = '利率差0.5%，月供差多少？';
+      el('subtitleInput').value = 'NY/NJ 买房前，先把数字算清楚';
+      el('metricInput').value = '$167/月';
+      el('tagInput').value = '房贷算账';
+      el('bulletsInput').value = '月供是否舒服\npoints / credit 是否划算\ncash to close 是否足够';
+      el('brandInput').value = 'Stefanie Si · NMLS#2800972';
+      el('footerInput').value = '利率仅供参考，不构成贷款承诺';
+      state.layout = 'bold';
+      state.palette = 0;
+      render();
+    }
+
+    function randomize(){
+      const sample = examples[Math.floor(Math.random()*examples.length)];
+      el('titleInput').value = sample.title;
+      el('subtitleInput').value = sample.subtitle;
+      el('metricInput').value = sample.metric;
+      el('tagInput').value = sample.tag;
+      state.layout = ['bold','checklist','data'][Math.floor(Math.random()*3)];
+      state.palette = Math.floor(Math.random()*palettes.length);
+      render();
+    }
+
+    initPalettes();
+    fields.forEach(id => el(id).addEventListener('input', render));
+    el('layoutControl').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-layout]');
+      if(!btn) return;
+      state.layout = btn.dataset.layout;
+      render();
+    });
+    el('paletteControl').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-palette]');
+      if(!btn) return;
+      state.palette = Number(btn.dataset.palette);
+      render();
+    });
+    el('covers').addEventListener('click', e => {
+      const downloadBtn = e.target.closest('button[data-download]');
+      if(downloadBtn){ download(downloadBtn.dataset.download); return; }
+      const card = e.target.closest('.cover-card');
+      if(card){ state.selected = Number(card.dataset.index); render(); }
+    });
+    el('downloadBtn').addEventListener('click', () => download(state.selected));
+    el('downloadAllBtn').addEventListener('click', () => [0,1,2].forEach((_,i)=>setTimeout(()=>download(i), i*120)));
+    el('randomBtn').addEventListener('click', randomize);
+    el('resetBtn').addEventListener('click', resetExample);
+    render();
+  </script>
+</body>
+</html>

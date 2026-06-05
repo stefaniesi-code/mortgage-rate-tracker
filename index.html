@@ -2613,6 +2613,8 @@ const RATE_UP_SIGNALS = [
   'hawkish','rate hike','yields rise','treasury higher','oil surge',
   'economy strong','gdp beat','tariff','war escalat','iran attack',
   'fed holds','no cut','delay cut','fewer cuts','one cut',
+  'tighter policy','higher for longer','inflation risks persist','prices jump',
+  'oil prices rise','stocks rally','stock market rally','bond yields climb',
 ];
 const RATE_DOWN_SIGNALS = [
   'inflation cools','inflation falls','cpi lower','jobless','layoffs',
@@ -2620,6 +2622,8 @@ const RATE_DOWN_SIGNALS = [
   'treasury lower','ceasefire','peace','de-escalat','weak jobs',
   'below expectations','gdp miss','unemployment rises','cooling',
   'mortgage rates fall','rates drop','rates ease','rates decline',
+  'stocks retreat','stocks fall','stocks slide','risk off','safe haven',
+  'bond rally','treasury demand','peace hopes in doubt',
 ];
 
 function scoreImpact(title) {
@@ -2639,43 +2643,96 @@ function impactLabel(impact) {
   return                        { text: zh?'中性':'Neutral',               bg:'#f5f5f5', border:'#e8e0d5', color:'#8c7b6e' };
 }
 
-function impactReason(title, impact) {
+function hasAny(text, words) {
+  return words.some(k => text.includes(k));
+}
+
+function pickReason(title, options) {
+  const seed = [...title].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return options[seed % options.length];
+}
+
+function impactReason(articleOrTitle, impact) {
+  const title = typeof articleOrTitle === 'string' ? articleOrTitle : (articleOrTitle.title || '');
+  const tag = typeof articleOrTitle === 'string' ? '' : (articleOrTitle.tag || '');
   const t = title.toLowerCase();
   const zh = currentLang === 'zh';
   if (impact === 'up') {
-    if (t.includes('inflation') || t.includes('cpi'))
-      return zh ? '通胀上升 → 美联储保持鹰派 → 债券收益率上升 → 房贷利率上行。'
-                : 'Higher inflation → Fed stays hawkish → bond yields rise → mortgage rates up.';
-    if (t.includes('job') || t.includes('employment'))
-      return zh ? '就业数据强劲 → 经济有韧性 → 美联储不急于降息 → 利率维持高位。'
-                : 'Strong jobs data → economy resilient → Fed less likely to cut → rates stay elevated.';
-    if (t.includes('fed') || t.includes('rate hike') || t.includes('hawkish'))
-      return zh ? '美联储鹰派立场 → 市场预期降息次数减少 → 长期利率上升。'
-                : 'Fed hawkish stance → market prices in fewer cuts → long-term rates rise.';
-    if (t.includes('tariff') || t.includes('war') || t.includes('iran'))
-      return zh ? '地缘政治风险 / 关税 → 通胀担忧 → 债券抛售 → 利率上行。'
-                : 'Geopolitical risk / tariffs → inflation fear → bond sell-off → rates up.';
-    return zh ? '看多经济信号 → 降息预期下降 → 房贷利率趋于上行。'
-              : 'Bullish economic signal → reduces rate cut expectations → mortgage rates trend higher.';
+    if (hasAny(t, ['tighter policy','hawkish','rate hike','higher for longer']))
+      return zh ? '政策语气偏紧 → 市场下修降息概率 → 10年期美债收益率更难回落 → 房贷报价承压。'
+                : 'Tighter Fed tone → markets price fewer cuts → 10-yr yields stay sticky → mortgage quotes face upward pressure.';
+    if (hasAny(t, ['fed holds','holds rates steady','no cut','delay cut','fewer cuts','one cut']))
+      return zh ? '美联储按兵不动或暗示少降息 → 市场降低宽松预期 → 贷款机构下调利率的空间变小。'
+                : 'Fed holds steady or signals fewer cuts → easing expectations fade → lenders have less room to lower rates.';
+    if (hasAny(t, ['fed']))
+      return zh ? '美联储相关消息偏谨慎 → 债券市场先看政策路径 → 房贷利率短线容易维持高位。'
+                : 'Fed-related news sounds cautious → bonds focus on the policy path → mortgage rates can stay elevated near term.';
+    if (hasAny(t, ['inflation','cpi','pce','prices jump','oil','tariff']))
+      return zh ? '价格压力未退 → 投资人要求更高通胀补偿 → 长债收益率走高 → 房贷利率不容易降。'
+                : 'Sticky price pressure → investors demand more inflation premium → long yields rise → mortgage rates struggle to fall.';
+    if (hasAny(t, ['job','employment','payroll','gdp','economy strong','beats expectations']))
+      return zh ? '经济数据偏强 → 降息紧迫性下降 → 债券市场重新定价 → 购房贷款利率维持高位。'
+                : 'Stronger macro data → less urgency for cuts → bonds reprice → purchase mortgage rates remain elevated.';
+    if (hasAny(t, ['stocks rally','stock market rally','stocks rise','risk appetite']))
+      return zh ? '风险偏好回升 → 资金从债券转向股票 → 债券价格走弱、收益率上行 → 利率偏上。'
+                : 'Risk appetite improves → money rotates out of bonds → yields lift → rates lean higher.';
+    if (hasAny(t, ['mortgage','rates rise','rates climb','rate jumps','lenders']))
+      return zh ? '房贷报价本身走高 → 贷款机构重新定价风险 → 买家月供压力增加。'
+                : 'Mortgage quotes are moving up directly → lenders reprice risk → buyer payment pressure increases.';
+    if (hasAny(t, ['war','iran','israel','lebanon','attack','sanction']))
+      return zh ? '地缘冲突带来能源和供应链通胀风险 → 市场加入风险溢价 → 利率可能被推高。'
+                : 'Geopolitical conflict adds energy and supply-chain inflation risk → markets add risk premium → rates can move higher.';
+    return zh ? pickReason(title, [
+      '这类头条偏向“经济/通胀更强”叙事 → 降息空间被压缩 → 房贷利率短线偏上。',
+      '市场读法偏鹰派 → 债券买盘不足 → 收益率维持高位，房贷端跟随承压。',
+      '如果后续数据继续强，贷款机构通常会更慢下调报价。'
+    ]) : pickReason(title, [
+      'This headline leans toward stronger growth or inflation → less room for cuts → mortgage rates skew higher.',
+      'Markets may read this as hawkish → weaker bond demand → yields stay elevated and mortgage rates follow.',
+      'If follow-up data stays firm, lenders usually have less reason to lower quotes quickly.'
+    ]);
   }
   if (impact === 'down') {
-    if (t.includes('inflation') || t.includes('cpi'))
-      return zh ? '通胀降温 → 美联储可能提早降息 → 债券上涨 → 房贷利率下降。'
-                : 'Cooling inflation → Fed can cut sooner → bond rally → mortgage rates fall.';
-    if (t.includes('job') || t.includes('unemployment'))
-      return zh ? '就业疲软 → 经济放缓 → 美联储更可能降息 → 利率走低。'
-                : 'Weak jobs → economic slowdown → Fed more likely to cut → rates ease.';
-    if (t.includes('ceasefire') || t.includes('peace') || t.includes('de-escalat'))
-      return zh ? '地缘局势缓和 → 避险解除 → 债券价格上涨 → 收益率（及利率）下降。'
-                : 'Geopolitical calm → risk-off unwind → bond prices rise → yields (and rates) fall.';
-    if (t.includes('fed cut') || t.includes('rate cut') || t.includes('dovish'))
-      return zh ? '美联储鸽派信号 → 市场预期更多降息 → 10年期国债收益率下降 → 利率跟随。'
-                : 'Fed dovish signal → market prices in more cuts → 10-yr Treasury yields drop → rates follow.';
-    return zh ? '看空经济信号 → 降息预期上升 → 房贷利率趋于下行。'
-              : 'Bearish economic signal → increases cut expectations → mortgage rates trend lower.';
+    if (hasAny(t, ['mortgage rates fall','rates drop','rates ease','rates decline','refinance','application']))
+      return zh ? '房贷报价已经回落 → 月供压力略减 → 对观望买家和再融资需求都是短期利好。'
+                : 'Mortgage quotes are already easing → payment pressure improves → near-term support for buyers and refi demand.';
+    if (hasAny(t, ['yields fall','treasury lower','bond rally','treasury demand','bond prices rise']))
+      return zh ? '资金买入美债 → 债券价格上升、收益率下降 → 房贷利率通常同步回落。'
+                : 'Money moves into Treasuries → bond prices rise and yields fall → mortgage rates usually follow lower.';
+    if (hasAny(t, ['inflation cools','inflation falls','cpi lower','cooling inflation','pce lower']))
+      return zh ? '通胀降温 → 美联储降息空间变大 → 长债收益率回落 → 房贷利率有下行动力。'
+                : 'Cooling inflation → more room for Fed cuts → long yields ease → mortgage rates get downside support.';
+    if (hasAny(t, ['jobless','layoffs','weak jobs','unemployment','slowdown','recession','gdp miss']))
+      return zh ? '经济放缓信号增强 → 市场押注政策转松 → 避险买债增加 → 利率偏下。'
+                : 'Growth worries rise → markets lean toward easier policy → safe-haven bond buying increases → rates lean lower.';
+    if (hasAny(t, ['stocks retreat','stocks fall','stocks slide','selloff']))
+      return zh ? '股市回落 → 风险偏好下降 → 资金转向债券避险 → 收益率和房贷利率受压下行。'
+                : 'Stocks pull back → risk appetite fades → money rotates into bonds → yields and mortgage rates face downward pressure.';
+    if (hasAny(t, ['peace hopes in doubt','war','iran','israel','lebanon','attack']))
+      return zh ? '地缘风险升温 → 避险资金可能买入美债压低收益率；但若推高油价，利率下行会被部分抵消。'
+                : 'Geopolitical risk can trigger Treasury safe-haven buying and lower yields, but higher oil prices could offset part of the rate benefit.';
+    if (hasAny(t, ['ceasefire','peace','de-escalat']))
+      return zh ? '冲突降级降低能源通胀风险 → 通胀预期回落 → 长端利率更容易下行。'
+                : 'De-escalation lowers energy-inflation risk → inflation expectations ease → long rates have more room to fall.';
+    if (hasAny(t, ['fed cut','rate cut','dovish']))
+      return zh ? '政策转鸽 → 市场预期更多降息 → 10年期美债收益率下降 → 房贷端跟随。'
+                : 'Dovish policy signal → markets price more cuts → 10-yr Treasury yields drop → mortgage rates follow.';
+    return zh ? pickReason(title, [
+      '这条新闻偏向风险降温或经济走弱 → 债券需求改善 → 房贷利率短线偏下。',
+      '市场可能把它解读为“未来政策更宽松” → 长端收益率回落 → 贷款报价有机会改善。',
+      '如果同类消息连续出现，利率下行的可信度会更高。'
+    ]) : pickReason(title, [
+      'This headline points to softer risk or weaker growth → bond demand improves → mortgage rates skew lower.',
+      'Markets may read it as a path toward easier policy → long yields ease → lender pricing can improve.',
+      'If similar headlines stack up, the lower-rate signal becomes more credible.'
+    ]);
   }
-  return zh ? '信号混杂 — 本条头条中未识别出主要利率驱动因素。'
-            : 'Mixed signals — no dominant rate driver identified in this headline.';
+  if (hasAny(t, ['fed','inflation','cpi','jobs','treasury','mortgage']) || tag === 'fed') {
+    return zh ? '这条新闻和利率有关，但方向不够明确：需要结合后续数据、10年期美债走势和美联储表态判断。'
+              : 'Rate-relevant, but direction is not clear yet: watch follow-up data, 10-yr Treasury moves, and Fed messaging.';
+  }
+  return zh ? '信号偏杂：标题没有给出明确的通胀、就业或债券收益率方向，暂不单独改变利率判断。'
+            : 'Mixed signal: the headline does not give a clear inflation, jobs, or Treasury-yield direction, so it should not move the rate view alone.';
 }
 
 const FALLBACK_NEWS = [
@@ -2790,7 +2847,7 @@ function renderNews(items) {
   });
   list.innerHTML = sorted.map(a => {
     const lbl = impactLabel(a.impact);
-    const reason = impactReason(a.title, a.impact);
+    const reason = impactReason(a, a.impact);
     const tagLabel = currentLang==='zh' ? (a.tag==='fed'?'美联储':'利率') : (a.tag==='fed'?'Fed':'Rates');
     const reasonBox = a.impact !== 'neutral' ? `
       <div style="margin-left:2px;padding:7px 10px;background:#faf8f5;border-radius:8px;border-left:2px solid ${lbl.border};font-size:12px;color:#2d2420;line-height:1.6">

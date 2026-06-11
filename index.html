@@ -1752,6 +1752,19 @@ let currentRange = 14;
 function fmtDate(s){
   return new Date(s+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',weekday:'short'});
 }
+const RATE_MARKET_HOLIDAYS=new Set([
+  '2026-01-01','2026-01-19','2026-02-16','2026-05-25',
+  '2026-06-19','2026-07-03','2026-09-07','2026-10-12',
+  '2026-11-11','2026-11-26','2026-12-25'
+]);
+function isRateMarketDate(date){
+  const day=new Date(date+'T00:00:00').getDay();
+  return day!==0&&day!==6&&!RATE_MARKET_HOLIDAYS.has(date);
+}
+function rateHtml(v,strong=false){
+  if(typeof v!=='number'||Number.isNaN(v)) return '<span class="chg-fl">—</span>';
+  return `<span style="${strong?'font-weight:600':''}">${v.toFixed(2)}%</span>`;
+}
 function fmt(n){return'$'+Math.round(n).toLocaleString('en-US')}
 function chgHtml(v){
   if(v===0)return'<span class="chg-fl">—</span>';
@@ -2514,15 +2527,16 @@ function calcAfford(){
 
 /* ── History table ── */
 function renderTable(){
-  const recent=[...data].reverse().slice(0,20);
+  const marketData=[...data].filter(d=>isRateMarketDate(d.date)).sort((a,b)=>a.date.localeCompare(b.date));
+  const recent=[...marketData].reverse().slice(0,20);
   document.getElementById('tbody').innerHTML=recent.map((d,i)=>{
-    const prev=data[data.length-1-i-1];
+    const prev=recent[i+1];
     const chg=prev?+(d.r30-prev.r30).toFixed(2):null;
     const s=i===0?'background:#FDE8D8;font-weight:600':'';
     const todayLbl = currentLang==='zh' ? '今日' : 'TODAY';
     return`<tr style="${s}">
       <td>${fmtDate(d.date)}${i===0?` <span style="color:#8899AA;font-size:11px">${todayLbl}</span>`:''}</td>
-      <td style="font-size:13px;font-weight:600">${d.r30.toFixed(2)}%</td><td style="font-size:13px">${d.r15.toFixed(2)}%</td><td style="font-size:13px">${d.arm.toFixed(2)}%</td>
+      <td style="font-size:13px">${rateHtml(d.r30,true)}</td><td style="font-size:13px">${rateHtml(d.r15)}</td><td style="font-size:13px">${rateHtml(d.arm)}</td>
       <td>${chg!==null?chgHtml(chg):'<span class="chg-fl">—</span>'}</td>
       <td style="font-size:11px;color:#8899AA">${d.note||''}</td>
     </tr>`;
@@ -3363,11 +3377,11 @@ renderAdvisor();
     // Always update with backend data — backend is source of truth
     const exists = data.find(d=>d.date===rate.date);
     if(!exists){
-      data.push({date:rate.date,r30:rate.r30,r15:rate.r15,arm:rate.arm||+(rate.r30-.52).toFixed(2),note:'Live · '+rate.source});
+      data.push({date:rate.date,r30:rate.r30,r15:rate.r15,arm:typeof rate.arm==='number'?rate.arm:null,note:'Live · '+rate.source});
       data.sort((a,b)=>a.date.localeCompare(b.date));
     } else {
       exists.r30=rate.r30; exists.r15=rate.r15;
-      if(rate.arm) exists.arm=rate.arm;
+      if(typeof rate.arm==='number') exists.arm=rate.arm;
     }
     LIVE30=rate.r30; LIVE15=rate.r15; TODAY=data[data.length-1];
     calcAfford();
@@ -3381,7 +3395,7 @@ renderAdvisor();
           if(!h.r30) return;
           const ex = data.find(d=>d.date===h.date);
           if(!ex){
-            data.push({date:h.date, r30:h.r30, r15:h.r15, arm:h.r15||+(h.r30-.52).toFixed(2), note:''});
+            data.push({date:h.date, r30:h.r30, r15:h.r15, arm:typeof h.arm==='number'?h.arm:null, note:''});
           }
         });
         data.sort((a,b)=>a.date.localeCompare(b.date));

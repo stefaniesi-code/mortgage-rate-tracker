@@ -991,6 +991,7 @@
       <span data-en="Loading reports..." data-zh="加载中...">加载中...</span>
     </div>
   </div>
+  <div id="reportsListToggle" style="display:none;margin-top:10px;text-align:center"></div>
 
   <!-- Admin: Write new report button (only shown when signed in as admin) -->
   <div id="adminReportBtn" style="display:none;margin-top:12px;text-align:right">
@@ -3729,15 +3730,20 @@ function updateAuthNav() {
 updateAuthNav();
 
 /* ── Weekly Reports ── */
+const REPORTS_PREVIEW_LIMIT = 3;
+let reportsExpanded = false;
+
 async function loadReports() {
   try {
-    const res = await fetch(`${BACKEND}/api/reports?limit=10`);
+    const res = await fetch(`${BACKEND}/api/reports?limit=50`);
     const reports = await res.json();
     window._cachedReports = reports;
     renderReports(reports);
   } catch(e) {
     document.getElementById('reportsList').innerHTML =
       '<div style="text-align:center;padding:20px;color:#8c7b6e;font-size:13px">暂无周报</div>';
+    const toggle = document.getElementById('reportsListToggle');
+    if (toggle) toggle.style.display = 'none';
   }
 }
 
@@ -3759,14 +3765,19 @@ function formatReportText(text) {
 
 function renderReports(reports) {
   const el = document.getElementById('reportsList');
+  const toggle = document.getElementById('reportsListToggle');
+  const zh = currentLang === 'zh';
   if (!reports.length) {
     el.innerHTML = '<div style="text-align:center;padding:24px;color:#8c7b6e;font-size:13px">暂无周报，敬请期待</div>';
+    if (toggle) toggle.style.display = 'none';
     return;
   }
 
-  el.innerHTML = reports.map((r, i) => {
+  const sortedReports = [...reports].sort((a, b) => new Date(b.week_of) - new Date(a.week_of));
+  const visibleReports = reportsExpanded ? sortedReports : sortedReports.slice(0, REPORTS_PREVIEW_LIMIT);
+
+  el.innerHTML = visibleReports.map((r, i) => {
     const dt = new Date(r.week_of+'T00:00:00');
-    const zh = currentLang === 'zh';
     const weekLabel = zh
       ? dt.toLocaleDateString('zh-CN', {year:'numeric', month:'long', day:'numeric'})
       : dt.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
@@ -3834,6 +3845,20 @@ function renderReports(reports) {
       </div>
     </div>`;
   }).join('');
+
+  if (toggle) {
+    const hiddenCount = Math.max(0, sortedReports.length - REPORTS_PREVIEW_LIMIT);
+    if (hiddenCount > 0) {
+      toggle.style.display = 'block';
+      toggle.innerHTML = `
+        <button onclick="toggleReportsList()"
+          style="background:rgba(255,255,255,0.78);border:1px solid rgba(255,255,255,0.95);border-radius:999px;padding:8px 16px;color:#2d2420;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(45,36,32,.08)">
+          ${reportsExpanded ? (zh ? '收起' : 'Show less') : (zh ? `显示全部 ${sortedReports.length} 篇` : `Show all ${sortedReports.length}`)}
+        </button>`;
+    } else {
+      toggle.style.display = 'none';
+    }
+  }
 }
 
 function toggleReport(id) {
@@ -3842,6 +3867,11 @@ function toggleReport(id) {
   const open = body.style.display === 'block';
   body.style.display = open ? 'none' : 'block';
   arrow.textContent = open ? '▼' : '▲';
+}
+
+function toggleReportsList() {
+  reportsExpanded = !reportsExpanded;
+  renderReports(window._cachedReports || []);
 }
 
 async function submitReport() {

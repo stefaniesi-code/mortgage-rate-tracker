@@ -981,7 +981,9 @@
 <!-- ══ WEEKLY REPORTS SECTION ══ -->
 <div id="weeklyReportsSection" style="margin-bottom:16px">
   <div class="section-hd" style="margin-bottom:12px">
-    <h2 data-en="📝 Weekly Rate Reports" data-zh="📝 每周利率周报">📝 每周利率周报</h2>
+    <h2 data-en="📰 Weekly Mortgage Market Brief" data-zh="📰 每周房贷市场深读">📰 每周房贷市场深读</h2>
+    <p data-en="Mortgage rates, market news, and buyer strategy in one weekly read." data-zh="把利率、市场新闻和买家策略放在一起看。"
+      style="font-size:12px;color:#8c7b6e;margin-top:4px;line-height:1.6">把利率、市场新闻和买家策略放在一起看。</p>
   </div>
 
   <!-- Reports list -->
@@ -3747,20 +3749,326 @@ async function loadReports() {
   }
 }
 
+function escapeHtml(text='') {
+  return String(text).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function formatRate(val) {
+  const n = Number(val);
+  if (!Number.isFinite(n)) return '—';
+  return `${n.toFixed(2)}%`;
+}
+
 function chgBadge(chg) {
-  if (chg === 0 || !chg) return '<span style="color:#8c7b6e">持平</span>';
-  const up = chg > 0;
-  return `<span style="color:${up?'#f87171':'#16a34a'};font-weight:600">${up?'↑':'↓'} ${Math.abs(chg).toFixed(2)}%</span>`;
+  const n = Number(chg);
+  const zh = currentLang === 'zh';
+  if (!Number.isFinite(n) || Math.abs(n) < 0.005) {
+    return `<span style="color:#8c7b6e">${zh?'持平':'Flat'}</span>`;
+  }
+  const up = n > 0;
+  return `<span style="color:${up?'#f87171':'#16a34a'};font-weight:600">${up?'↑':'↓'} ${Math.abs(n).toFixed(2)}%</span>`;
+}
+
+function plainReportText(text) {
+  return String(text || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function firstReportSentence(text, maxLen=130) {
+  const clean = plainReportText(text);
+  if (!clean) return '';
+  const match = clean.match(/^(.{12,}?[。！？.!?])\s*/);
+  const sentence = match ? match[1] : clean;
+  return sentence.length > maxLen ? sentence.slice(0, maxLen - 1) + '…' : sentence;
 }
 
 function formatReportText(text) {
   if (!text) return '';
-  return text
+  return escapeHtml(text)
     .replace(/([。！？])\s*/g, '$1\n')
     .split('\n')
     .map(s => s.trim())
     .filter(s => s.length > 0)
     .join('<br>');
+}
+
+function reportDirection(r) {
+  const chg = Number(r.r30_chg);
+  if (!Number.isFinite(chg) || Math.abs(chg) < 0.015) return 'flat';
+  return chg > 0 ? 'up' : 'down';
+}
+
+function reportWeekLabel(r, zh=currentLang==='zh') {
+  const dt = new Date(r.week_of+'T00:00:00');
+  return zh
+    ? dt.toLocaleDateString('zh-CN', {year:'numeric', month:'long', day:'numeric'})
+    : dt.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+}
+
+function marketTone(r, zh) {
+  const dir = reportDirection(r);
+  if (dir === 'down') return {
+    label: zh ? '利率压力缓和' : 'Rate Pressure Easing',
+    color: '#16a34a',
+    bg: '#ECFDF5',
+    fallback: zh
+      ? '本周利率回落，但更像市场重新定价后的修正，还不能直接视为长期下行趋势。'
+      : 'Rates eased this week, but this looks more like a repricing move than a confirmed long-term downtrend.'
+  };
+  if (dir === 'up') return {
+    label: zh ? '利率压力升温' : 'Rate Pressure Rising',
+    color: '#ef4444',
+    bg: '#FEF2F2',
+    fallback: zh
+      ? '本周利率上行，买家预算和锁利率窗口都需要重新检查，尤其是月供已经卡边缘的人。'
+      : 'Rates moved higher this week, so payment-sensitive buyers should revisit budgets and lock timing.'
+  };
+  return {
+    label: zh ? '利率区间震荡' : 'Range-Bound Market',
+    color: '#8c7b6e',
+    bg: '#F7F3EE',
+    fallback: zh
+      ? '本周利率整体横盘，市场在等下一轮通胀、就业和美联储信号。'
+      : 'Rates were mostly range-bound this week as markets wait for the next inflation, jobs, and Fed signals.'
+  };
+}
+
+function getReportTakeaway(r, zh) {
+  return firstReportSentence(r.analysis || r.advice) || marketTone(r, zh).fallback;
+}
+
+function addUniqueDriver(list, item) {
+  if (!list.some(d => d.title === item.title)) list.push(item);
+}
+
+function getMarketDrivers(r, zh) {
+  const text = `${r.analysis || ''} ${r.advice || ''} ${r.example || ''}`.toLowerCase();
+  const drivers = [];
+  const candidates = [
+    {
+      re:/fed|fomc|powell|美联储|降息|加息|点阵图|鲍威尔/i,
+      title: zh ? '美联储预期' : 'Fed Expectations',
+      kicker: zh ? '政策信号' : 'Policy signal',
+      body: zh ? '市场会提前交易降息或更久高利率的预期，进而影响债券收益率。' : 'Markets price rate-cut or higher-for-longer expectations before the Fed actually moves.'
+    },
+    {
+      re:/cpi|pce|inflation|通胀|物价|核心/i,
+      title: zh ? '通胀数据' : 'Inflation Data',
+      kicker: zh ? 'CPI / PCE' : 'CPI / PCE',
+      body: zh ? '通胀降温通常利好利率，通胀反弹会让房贷报价承压。' : 'Cooler inflation usually helps rates; sticky inflation keeps mortgage pricing under pressure.'
+    },
+    {
+      re:/treasury|yield|10-year|10 year|10年|国债|收益率|mbs|债券/i,
+      title: zh ? '国债与 MBS' : 'Treasury & MBS',
+      kicker: zh ? '定价核心' : 'Pricing channel',
+      body: zh ? '房贷利率更贴近 10 年期国债和 MBS 定价，而不是简单跟 Fed rate 同步。' : 'Mortgage rates track Treasury and MBS pricing more closely than the Fed funds rate itself.'
+    },
+    {
+      re:/jobs|payroll|employment|unemployment|就业|非农|失业/i,
+      title: zh ? '就业市场' : 'Labor Market',
+      kicker: zh ? '增长信号' : 'Growth signal',
+      body: zh ? '就业太强会支撑高利率预期，就业走弱则可能带来利率下行空间。' : 'A strong labor market can keep rate expectations high; softer jobs data can create room for lower rates.'
+    },
+    {
+      re:/oil|war|iran|tariff|risk|geopolitical|关税|战争|伊朗|避险|地缘/i,
+      title: zh ? '风险事件' : 'Risk Events',
+      kicker: zh ? '避险与波动' : 'Risk sentiment',
+      body: zh ? '地缘风险、油价或关税消息会改变避险情绪，短期内放大利率波动。' : 'Geopolitics, oil, and tariff headlines can shift risk sentiment and amplify short-term rate moves.'
+    }
+  ];
+  candidates.forEach(item => {
+    if (item.re.test(text)) addUniqueDriver(drivers, item);
+  });
+
+  const dir = reportDirection(r);
+  const defaults = dir === 'up'
+    ? [
+      {title: zh?'收益率压力':'Yield Pressure', kicker: zh?'债券市场':'Bond market', body: zh?'如果债券收益率上行，贷款机构报价通常会跟着变贵。':'When yields rise, lender rate sheets usually get more expensive.'},
+      {title: zh?'锁利率窗口':'Lock Window', kicker: zh?'买家策略':'Buyer strategy', body: zh?'利率上行周更适合主动比较 lock/float，而不是被动等报价变化。':'In rising-rate weeks, compare lock vs float intentionally instead of waiting passively.'},
+      {title: zh?'预算压力':'Payment Pressure', kicker: zh?'月供影响':'Payment impact', body: zh?'小幅上行也会影响 DTI 和 pre-approval 上限，尤其是预算卡边缘的买家。':'Even small increases can affect DTI and approval limits for payment-sensitive buyers.'}
+    ]
+    : dir === 'down'
+      ? [
+        {title: zh?'债券重新定价':'Bond Repricing', kicker: zh?'市场修正':'Market repricing', body: zh?'利率下行常来自债券市场重新定价，不一定等于趋势已经反转。':'Lower rates often come from bond repricing, not necessarily a confirmed trend reversal.'},
+        {title: zh?'购买力改善':'Buying Power', kicker: zh?'客户影响':'Client impact', body: zh?'利率回落时，适合重新测月供和 pre-approval，但仍要看房价和库存。':'When rates ease, rerun payment and pre-approval numbers, while still watching price and inventory.'},
+        {title: zh?'再融资观察':'Refi Watch', kicker: zh?'后续机会':'Future setup', body: zh?'如果利率持续下行，已买房客户可以开始设置再融资提醒。':'If rates keep easing, homeowners can start setting refinance watch levels.'}
+      ]
+      : [
+        {title: zh?'数据等待期':'Data Waiting Game', kicker: zh?'市场状态':'Market state', body: zh?'横盘周通常说明市场在等下一组通胀、就业或 Fed 信号。':'Flat weeks usually mean markets are waiting for the next inflation, jobs, or Fed signal.'},
+        {title: zh?'报价差异':'Lender Spread', kicker: zh?'客户机会':'Client opportunity', body: zh?'大盘横盘时，不同 lender 的点数和 credit 反而更值得比较。':'When headline rates are flat, lender credits and points become more important to compare.'},
+        {title: zh?'行动分层':'Action Depends', kicker: zh?'买家策略':'Buyer strategy', body: zh?'是否行动取决于你的房价、首付、信用分和合同时间线。':'The right move depends on price, down payment, credit profile, and contract timeline.'}
+      ];
+  defaults.forEach(item => addUniqueDriver(drivers, item));
+  return drivers.slice(0, 3);
+}
+
+function getImpactChain(r, zh) {
+  const dir = reportDirection(r);
+  if (dir === 'up') {
+    return zh
+      ? ['新闻偏鹰/通胀担忧', '债券收益率上行', 'MBS 价格承压', '贷款机构报价上调', '月供压力增加']
+      : ['Hawkish news / inflation concern', 'Yields rise', 'MBS prices weaken', 'Lender sheets move higher', 'Payment pressure increases'];
+  }
+  if (dir === 'down') {
+    return zh
+      ? ['新闻偏鸽/风险缓和', '债券收益率回落', 'MBS 价格改善', '贷款机构报价下调', '月供压力下降']
+      : ['Dovish news / risk easing', 'Yields ease', 'MBS prices improve', 'Lender sheets move lower', 'Payment pressure eases'];
+  }
+  return zh
+    ? ['新闻多空拉扯', '收益率区间震荡', 'MBS 定价有限变化', '报价小幅波动', '买家重点看方案']
+    : ['Mixed headlines', 'Yields stay range-bound', 'MBS pricing changes little', 'Rate sheets move modestly', 'Buyers compare scenarios'];
+}
+
+function getBuyerActions(r, zh) {
+  const dir = reportDirection(r);
+  if (zh) {
+    if (dir === 'up') return [
+      ['正在看房', '重新测月供和 DTI，不要只看挂牌价。'],
+      ['已签合同', '尽快和贷款顾问讨论 lock，不要等到最后一天。'],
+      ['想再融资', '先设置提醒，等连续下行再看 break-even。']
+    ];
+    if (dir === 'down') return [
+      ['正在看房', '重新跑 pre-approval，看看购买力是否改善。'],
+      ['已签合同', '对比 lock/float，确认降幅是否值得等待。'],
+      ['想再融资', '开始记录当前利率和目标利率，准备测 break-even。']
+    ];
+    return [
+      ['正在看房', '重点比较 lender credit、points 和现金需求。'],
+      ['已签合同', '不要因为横盘放松，继续盯 lock 截止时间。'],
+      ['想再融资', '先观察，不急着为小幅波动重做贷款。']
+    ];
+  }
+  if (dir === 'up') return [
+    ['Shopping', 'Rerun payment and DTI, not just list price.'],
+    ['Under contract', 'Discuss lock timing before the final stretch.'],
+    ['Refinancing', 'Set alerts first; wait for a clearer break-even case.']
+  ];
+  if (dir === 'down') return [
+    ['Shopping', 'Rerun pre-approval to see if buying power improved.'],
+    ['Under contract', 'Compare lock vs float with actual lender pricing.'],
+    ['Refinancing', 'Track current vs target rates and prepare a break-even check.']
+  ];
+  return [
+    ['Shopping', 'Compare lender credits, points, and cash-to-close.'],
+    ['Under contract', 'Stay close to lock deadlines despite flat rates.'],
+    ['Refinancing', 'Watch first; tiny weekly moves may not justify action.']
+  ];
+}
+
+function renderLatestMarketBrief(r, totalReports) {
+  const zh = currentLang === 'zh';
+  const tone = marketTone(r, zh);
+  const weekLabel = reportWeekLabel(r, zh);
+  const drivers = getMarketDrivers(r, zh);
+  const chain = getImpactChain(r, zh);
+  const actions = getBuyerActions(r, zh);
+  const takeaway = escapeHtml(getReportTakeaway(r, zh));
+  const customAdvice = r.advice ? formatReportText(r.advice) : '';
+  const example = r.example ? formatReportText(r.example) : '';
+
+  return `
+  <article style="background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(255,248,242,.86));backdrop-filter:blur(12px);border:1px solid rgba(232,115,42,.34);border-radius:14px;padding:16px 18px;margin-bottom:10px;box-shadow:0 14px 34px rgba(45,36,32,.08)">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <span style="background:#1C1E27;color:#fff;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;letter-spacing:.4px">${zh?'本周深读':'Latest Brief'}</span>
+          <span style="background:${tone.bg};color:${tone.color};border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800">${tone.label}</span>
+          <span style="font-size:11px;color:#8c7b6e">${weekLabel}</span>
+        </div>
+        <h3 style="font-size:20px;line-height:1.25;color:#1C1E27;margin-bottom:8px">${zh?'本周房贷市场怎么变？':'What Changed in the Mortgage Market?'}</h3>
+        <p style="font-size:13px;color:#2d2420;line-height:1.75;max-width:720px">${takeaway}</p>
+      </div>
+      <a href="#contactFooter" style="background:#e8732a;color:#fff;text-decoration:none;border-radius:9px;padding:10px 13px;font-size:12px;font-weight:800;white-space:nowrap">${zh?'问我该锁还是等':'Ask Lock or Float'}</a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;padding:12px 0;border-top:1px solid rgba(45,36,32,.08);border-bottom:1px solid rgba(45,36,32,.08);margin-bottom:14px">
+      ${[
+        [zh?'30年固定':'30yr Fixed', formatRate(r.r30), chgBadge(r.r30_chg), '#1D4ED8'],
+        [zh?'15年固定':'15yr Fixed', formatRate(r.r15), chgBadge(r.r15_chg), '#7C3AED'],
+        ['5/1 ARM', formatRate(r.arm), zh?'参考':'Reference', '#8c7b6e']
+      ].map(([lbl, val, chg, col]) => `
+        <div>
+          <div style="font-size:10px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${lbl}</div>
+          <div style="font-size:24px;font-weight:800;color:${col};line-height:1">${val}</div>
+          <div style="font-size:12px;margin-top:6px">${chg}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start">
+      <section>
+        <div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.7px;font-weight:800;margin-bottom:10px">${zh?'新闻驱动':'News Drivers'}</div>
+        <div style="display:grid;gap:10px">
+          ${drivers.map(d => `
+            <div style="border-left:3px solid #e8732a;padding-left:10px">
+              <div style="font-size:10px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">${d.kicker}</div>
+              <div style="font-size:13px;font-weight:800;color:#1C1E27;margin-bottom:3px">${d.title}</div>
+              <div style="font-size:12px;color:#6b5e52;line-height:1.65">${d.body}</div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+
+      <section>
+        <div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.7px;font-weight:800;margin-bottom:10px">${zh?'影响链':'Impact Chain'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:14px">
+          ${chain.map((item, i) => `
+            <span style="background:rgba(255,255,255,.68);border:1px solid rgba(255,255,255,.9);border-radius:999px;padding:6px 9px;font-size:11px;color:#2d2420;font-weight:700">${item}</span>
+            ${i < chain.length - 1 ? '<span style="color:#8c7b6e;font-size:12px">→</span>' : ''}
+          `).join('')}
+        </div>
+        <div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.7px;font-weight:800;margin-bottom:8px">${zh?'买家动作':'Buyer Moves'}</div>
+        <div style="display:grid;gap:8px">
+          ${actions.map(([title, body]) => `
+            <div style="display:grid;grid-template-columns:74px 1fr;gap:8px;align-items:start">
+              <div style="font-size:12px;font-weight:800;color:#1C1E27">${title}</div>
+              <div style="font-size:12px;color:#6b5e52;line-height:1.55">${body}</div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    </div>
+
+    ${(customAdvice || example) ? `
+      <div style="margin-top:16px;border-top:1px solid rgba(45,36,32,.08);padding-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+        ${customAdvice ? `<div><div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.7px;font-weight:800;margin-bottom:6px">${zh?'Stefanie 的判断':'Stefanie’s Take'}</div><div style="font-size:13px;color:#2d2420;line-height:1.8">${customAdvice}</div></div>` : ''}
+        ${example ? `<div><div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.7px;font-weight:800;margin-bottom:6px">${zh?'数字例子':'Number Lens'}</div><div style="font-size:13px;color:#2d2420;line-height:1.8">${example}</div></div>` : ''}
+      </div>` : ''}
+
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(45,36,32,.08);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <span style="font-size:12px;color:#8c7b6e">${zh ? `已整理 ${totalReports} 篇历史周报，最新一篇按新闻逻辑解读。` : `${totalReports} reports archived; the latest one is shown as a news-driven brief.`}</span>
+      <a href="#toolGrid" style="color:#e8732a;font-size:12px;font-weight:800;text-decoration:none">${zh ? '用工具重新测月供 →' : 'Recheck payment tools →'}</a>
+    </div>
+  </article>`;
+}
+
+function renderArchiveReport(r) {
+  const zh = currentLang === 'zh';
+  const reportId = String(r.id).replace(/[^a-zA-Z0-9_-]/g, '');
+  const weekLabel = reportWeekLabel(r, zh);
+  const reportTitle = zh ? `利率周报 · ${weekLabel}` : `Weekly Report · ${weekLabel}`;
+
+  return `
+  <div style="background:rgba(255,255,255,0.76);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.82);border-radius:10px">
+    <div style="padding:11px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;gap:12px"
+         onclick="toggleReport('${reportId}')">
+      <div>
+        <div style="font-size:13px;font-weight:800;color:#1C1E27">${reportTitle}</div>
+        <div style="font-size:12px;color:#8c7b6e;margin-top:3px">
+          ${zh?'30年':'30yr'} <strong>${formatRate(r.r30)}</strong> ${chgBadge(r.r30_chg)} &nbsp;·&nbsp;
+          ${zh?'15年':'15yr'} <strong>${formatRate(r.r15)}</strong> ${chgBadge(r.r15_chg)}
+        </div>
+      </div>
+      <span id="rpt_arrow_${reportId}" style="color:#8c7b6e;font-size:15px;transition:transform .2s">▼</span>
+    </div>
+
+    <div id="rpt_body_${reportId}" style="display:none;border-top:1px solid #f0ebe4;padding:14px 16px">
+      ${r.analysis ? `<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:#6b5e52;margin-bottom:5px">${zh ? '市场动态' : 'Market Update'}</div><div style="font-size:13px;color:#2d2420;line-height:1.85">${formatReportText(r.analysis)}</div></div>` : ''}
+      ${r.advice ? `<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:#6b5e52;margin-bottom:5px">${zh ? '买家建议' : 'Buying Advice'}</div><div style="font-size:13px;color:#2d2420;line-height:1.85">${formatReportText(r.advice)}</div></div>` : ''}
+      ${r.example ? `<div><div style="font-size:12px;font-weight:700;color:#6b5e52;margin-bottom:5px">${zh ? '数字例子' : 'Number Lens'}</div><div style="font-size:13px;color:#2d2420;line-height:1.85">${formatReportText(r.example)}</div></div>` : ''}
+    </div>
+  </div>`;
 }
 
 function renderReports(reports) {
@@ -3774,86 +4082,27 @@ function renderReports(reports) {
   }
 
   const sortedReports = [...reports].sort((a, b) => new Date(b.week_of) - new Date(a.week_of));
-  const visibleReports = reportsExpanded ? sortedReports : sortedReports.slice(0, REPORTS_PREVIEW_LIMIT);
+  const latestReport = sortedReports[0];
+  const archiveReports = sortedReports.slice(1);
+  const visibleArchive = reportsExpanded ? archiveReports : archiveReports.slice(0, REPORTS_PREVIEW_LIMIT);
+  const archiveTitle = archiveReports.length
+    ? `<div style="font-size:11px;color:#8c7b6e;text-transform:uppercase;letter-spacing:.7px;font-weight:800;margin:8px 2px 0">${zh?'历史周报归档':'Report Archive'}</div>`
+    : '';
 
-  el.innerHTML = visibleReports.map((r, i) => {
-    const dt = new Date(r.week_of+'T00:00:00');
-    const weekLabel = zh
-      ? dt.toLocaleDateString('zh-CN', {year:'numeric', month:'long', day:'numeric'})
-      : dt.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
-    const reportTitle = zh ? `📝 利率周报 · ${weekLabel}` : `📝 Weekly Report · ${weekLabel}`;
-    const isFirst = i === 0;
-
-    return `
-    <div style="background:rgba(255,255,255,0.85);backdrop-filter:blur(10px);border:1px solid ${isFirst?'rgba(232,115,42,.35)':'rgba(255,255,255,0.8)'};border-radius:12px">
-      <!-- Header -->
-      <div style="padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none"
-           onclick="toggleReport(${r.id})">
-        <div style="display:flex;align-items:center;gap:10px">
-          ${isFirst?`<span style="background:#fff7f0;border:1px solid #f2c8aa;color:#e8732a;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px">${zh?'最新':'Latest'}</span>`:''}
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#1C1E27">${reportTitle}</div>
-            <div style="font-size:12px;color:#8c7b6e;margin-top:2px">
-              ${zh?'30年':'30yr'} <strong>${r.r30}%</strong> ${chgBadge(r.r30_chg)} &nbsp;·&nbsp;
-              ${zh?'15年':'15yr'} <strong>${r.r15}%</strong> ${chgBadge(r.r15_chg)}
-            </div>
-          </div>
-        </div>
-        <span id="rpt_arrow_${r.id}" style="color:#8c7b6e;font-size:16px;transition:transform .2s">▼</span>
-      </div>
-
-      <!-- Body (collapsed by default) -->
-      <div id="rpt_body_${r.id}" style="display:none;border-top:1px solid #f0ebe4;padding:16px 18px">
-
-        <!-- Rate table -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
-          ${[
-            [zh?'30年固定':'30yr Fixed', r.r30, r.r30_chg, '#60a5fa'],
-            [zh?'15年固定':'15yr Fixed', r.r15, r.r15_chg, '#a78bfa'],
-            ['5/1 ARM',                  r.arm, null,       '#8c7b6e'],
-          ].map(([lbl, val, chg, col]) => `
-            <div style="background:#faf8f5;border-radius:10px;padding:10px 12px;text-align:center">
-              <div style="font-size:11px;color:#8c7b6e;margin-bottom:4px">${lbl}</div>
-              <div style="font-size:22px;font-weight:700;color:${col}">${val}%</div>
-              ${chg !== null ? `<div style="font-size:12px;margin-top:2px">${chgBadge(chg)}</div>` : ''}
-            </div>
-          `).join('')}
-        </div>
-
-        ${r.analysis ? `
-        <div style="margin-bottom:12px">
-          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '📰 本周市场动态' : '📰 Market Update'}</div>
-          <div style="font-size:13px;color:#2d2420;line-height:1.9;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #e8732a">${formatReportText(r.analysis)}</div>
-        </div>` : ''}
-
-        ${r.advice ? `
-        <div style="margin-bottom:12px">
-          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '💡 买房建议' : '💡 Buying Advice'}</div>
-          <div style="font-size:13px;color:#2d2420;line-height:1.9;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #a78bfa">${formatReportText(r.advice)}</div>
-        </div>` : ''}
-
-        ${r.example ? `
-        <div style="margin-bottom:14px">
-          <div style="font-size:12px;font-weight:600;color:#6b5e52;margin-bottom:5px">${zh ? '🔢 举个例子' : '🔢 Example'}</div>
-          <div style="font-size:13px;color:#2d2420;line-height:1.9;background:#faf8f5;border-radius:8px;padding:10px 12px;border-left:3px solid #60a5fa">${formatReportText(r.example)}</div>
-        </div>` : ''}
-
-        <div style="font-size:12px;color:#8c7b6e;padding-top:10px;border-top:1px solid #f0ebe4;display:flex;align-items:center;justify-content:space-between">
-          <span>${zh ? '📱 利率变了，你的月供变了多少？' : '📱 How does this rate change affect your payment?'}</span>
-          <a href="#toolGrid" style="color:#e8732a;font-weight:600;text-decoration:none" onclick="closeModal('writeReportModal')">${zh ? '免费计算 →' : 'Calculate →'}</a>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML = [
+    renderLatestMarketBrief(latestReport, sortedReports.length),
+    archiveTitle,
+    visibleArchive.map(renderArchiveReport).join('')
+  ].join('');
 
   if (toggle) {
-    const hiddenCount = Math.max(0, sortedReports.length - REPORTS_PREVIEW_LIMIT);
+    const hiddenCount = Math.max(0, archiveReports.length - REPORTS_PREVIEW_LIMIT);
     if (hiddenCount > 0) {
       toggle.style.display = 'block';
       toggle.innerHTML = `
         <button onclick="toggleReportsList()"
           style="background:rgba(255,255,255,0.78);border:1px solid rgba(255,255,255,0.95);border-radius:999px;padding:8px 16px;color:#2d2420;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(45,36,32,.08)">
-          ${reportsExpanded ? (zh ? '收起' : 'Show less') : (zh ? `显示全部 ${sortedReports.length} 篇` : `Show all ${sortedReports.length}`)}
+          ${reportsExpanded ? (zh ? '收起历史周报' : 'Show less archive') : (zh ? `显示全部历史周报 ${archiveReports.length} 篇` : `Show all archive reports (${archiveReports.length})`)}
         </button>`;
     } else {
       toggle.style.display = 'none';
